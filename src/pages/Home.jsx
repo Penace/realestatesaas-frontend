@@ -13,7 +13,7 @@ export default function Home() {
           `${import.meta.env.VITE_API_URL}/listings`
         );
         const data = await response.json();
-        setFeaturedListings(data.slice(0, 3)); // Take first 3
+        setFeaturedListings(data.slice(0, 3));
       } catch (error) {
         console.error("Failed to fetch listings", error);
       }
@@ -25,18 +25,22 @@ export default function Home() {
     const heroTitle = document.getElementById("heroTitle");
     const heroSection = document.getElementById("heroSection");
     const ctaSection = document.getElementById("ctaSection");
+    const isMobile = window.innerWidth < 768;
 
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const windowHeight = window.innerHeight;
-      const isMobile = window.innerWidth < 768;
-      const heroParallaxSpeed = isMobile ? 0.15 : 0.25;
 
-      heroSection.style.transform = `scale(${1 + scrollTop * 0.0002})`;
-      heroSection.style.backgroundPositionY = `${
-        scrollTop * heroParallaxSpeed
-      }px`;
+      if (!isMobile) {
+        // Only on desktop, apply heavy hero animations
+        const heroParallaxSpeed = 0.25;
+        heroSection.style.transform = `scale(${1 + scrollTop * 0.0002})`;
+        heroSection.style.backgroundPositionY = `${
+          scrollTop * heroParallaxSpeed
+        }px`;
+      }
 
+      // InfoSection Animation
       const rect = infoContent.getBoundingClientRect();
       if (rect.top < windowHeight && rect.bottom > 0) {
         const scrollProgress =
@@ -57,6 +61,7 @@ export default function Home() {
         infoContent.style.filter = "blur(8px)";
       }
 
+      // CTA Animation
       const ctaRect = ctaSection.getBoundingClientRect();
       if (ctaRect.top < windowHeight * 0.9) {
         ctaSection.style.opacity = 1;
@@ -140,15 +145,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Properties Section (Dynamic Featured Listings) */}
-      <div id="listings" className="space-y-12">
-        {featuredListings.map((listing) => (
+      {/* Featured Listings Section */}
+      <div id="listings" className="space-y-0">
+        {featuredListings.map((listing, idx) => (
           <PropertyShowcase
             key={listing.id}
             id={listing.id}
             image={`/src/assets/${listing.image}`}
             title={listing.title}
             description={listing.description}
+            noMarginBottom={idx === featuredListings.length - 1}
           />
         ))}
       </div>

@@ -78,7 +78,7 @@ export default function Listings() {
             <ListingCard key={listing.id} {...listing} />
           ))
         ) : (
-          <div className="col-span-full text-gray-500 text-center">
+          <div className="w-full max-w-7xl flex justify-center items-center py-20 text-gray-400 text-xl">
             No listings found.
           </div>
         )}

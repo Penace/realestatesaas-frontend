@@ -7,6 +7,7 @@ export default function PropertyShowcase({
   title,
   description,
   parallaxStrength = 60,
+  noMarginBottom = false,
 }) {
   const showcaseRef = useRef(null);
 
@@ -36,7 +37,9 @@ export default function PropertyShowcase({
 
   return (
     <section
-      className="min-h-screen w-full flex flex-col items-center justify-center transition-transform duration-700 ease-out overflow-hidden relative bg-cover bg-center"
+      className={`min-h-screen w-full flex flex-col items-center justify-center transition-all duration-700 ease-out overflow-hidden relative bg-cover bg-center ${
+        noMarginBottom ? "" : "mb-8"
+      }`}
       style={{
         backgroundImage: `url(${image})`,
         backgroundSize: "cover",
@@ -44,7 +47,7 @@ export default function PropertyShowcase({
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="bg-black/50 p-8 rounded-xl text-center shadow-lg backdrop-blur-sm transition-transform duration-300 hover:scale-105">
+      <div className="bg-black/50 p-8 rounded-xl text-center shadow-lg backdrop-blur-sm">
         <Link to={`/listings/${id}`} className="block">
           <h2 className="text-4xl font-bold text-white">{title}</h2>
           <p className="text-lg text-gray-200 mt-4">{description}</p>
