@@ -47,9 +47,9 @@ pnpm install
 
 Create a `.env` file inside the frontend folder with the following contents:
 
-/dotenv
+```dotenv
 VITE_API_URL=http://localhost:3000
-/dotenv
+```
 
 ✅ This allows the frontend to dynamically connect to your backend API without hardcoding localhost or VM IPs.
 
