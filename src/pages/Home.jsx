@@ -3,77 +3,22 @@ import { Link } from "react-router-dom";
 import PropertyShowcase from "../components/PropertyShowcase";
 import FeatureCard from "../components/FeatureCard";
 import { fetchListings } from "../services/api";
+import { FEATURED_LISTINGS_LIMIT } from "../constants";
+import { useScrollAnimation } from "../hooks/useScrollAnimation";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
 
-  useEffect(() => {
-    const loadListings = async () => {
-      const listings = await fetchListings();
-      setFeaturedListings(listings.slice(0, 3));
-    };
+  useScrollAnimation({
+    infoContentId: "infoContent",
+    heroSectionId: "heroSection",
+  });
 
-    loadListings();
-
-    const infoContent = document.getElementById("infoContent");
-    const heroTitle = document.getElementById("heroTitle");
-    const heroSection = document.getElementById("heroSection");
-    const ctaSection = document.getElementById("ctaSection");
-    const isMobile = window.innerWidth < 768;
-
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-
-      if (!isMobile) {
-        // Only on desktop, apply heavy hero animations
-        const heroParallaxSpeed = 0.25;
-        heroSection.style.transform = `scale(${1 + scrollTop * 0.0002})`;
-        heroSection.style.backgroundPositionY = `${
-          scrollTop * heroParallaxSpeed
-        }px`;
-      }
-
-      // InfoSection Animation
-      const rect = infoContent.getBoundingClientRect();
-      if (rect.top < windowHeight && rect.bottom > 0) {
-        const scrollProgress =
-          1 - Math.min(Math.max(rect.top / windowHeight, 0), 1);
-        infoContent.style.opacity = scrollProgress;
-        infoContent.style.transform = `translateY(${
-          (1 - scrollProgress) * 8
-        }px)`;
-
-        const blurThreshold = 0.5;
-        const maxBlur = 8;
-        const adjustedProgress = Math.min(scrollProgress / blurThreshold, 1);
-        const blurAmount = (1 - adjustedProgress) * maxBlur;
-        infoContent.style.filter = `blur(${blurAmount}px)`;
-      } else {
-        infoContent.style.opacity = 0.05;
-        infoContent.style.transform = "translateY(8px)";
-        infoContent.style.filter = "blur(8px)";
-      }
-
-      // CTA Animation
-      const ctaRect = ctaSection.getBoundingClientRect();
-      if (ctaRect.top < windowHeight * 0.9) {
-        ctaSection.style.opacity = 1;
-        ctaSection.style.transform = "translateY(0px)";
-      } else {
-        ctaSection.style.opacity = 0.05;
-        ctaSection.style.transform = "translateY(20px)";
-      }
-    };
-
-    setTimeout(() => {
-      heroTitle.classList.remove("opacity-0", "translate-y-10");
-      heroTitle.classList.add("opacity-100", "translate-y-0");
-    }, 100);
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const loadListings = async () => {
+    const listings = await fetchListings();
+    setFeaturedListings(listings.slice(0, FEATURED_LISTINGS_LIMIT));
+  };
+  loadListings();
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-white transition-colors duration-700">
@@ -152,19 +97,6 @@ export default function Home() {
           />
         ))}
       </div>
-
-      {/* CTA Section */}
-      <section
-        id="ctaSection"
-        className="h-64 bg-gray-900 flex items-center justify-center overflow-hidden opacity-0 transition-all duration-700"
-      >
-        <Link
-          to="/listings"
-          className="px-8 py-4 text-white bg-blue-600 hover:bg-blue-500 rounded-xl text-2xl shadow-lg transition-all duration-300 ease-out"
-        >
-          Start Your Journey
-        </Link>
-      </section>
     </div>
   );
 }
