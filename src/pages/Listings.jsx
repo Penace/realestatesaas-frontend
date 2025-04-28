@@ -5,6 +5,7 @@ export default function Listings() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchListings() {
@@ -27,10 +28,18 @@ export default function Listings() {
     fetchListings();
   }, []);
 
+  const filteredListings = listings.filter((listing) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      listing.title.toLowerCase().includes(term) ||
+      listing.location.toLowerCase().includes(term)
+    );
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold text-gray-600">
+        <h1 className="text-2xl font-bold text-gray-500">
           Loading Listings...
         </h1>
       </div>
@@ -51,10 +60,26 @@ export default function Listings() {
         Featured Listings
       </h1>
 
+      {/* Search Input */}
+      <input
+        type="text"
+        placeholder="Search by title or location..."
+        className="mb-10 px-4 py-2 border border-gray-300 rounder-lg w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+        value={searchTerm}
+        onChange={(e) => setSearchterm(e.target.value)}
+      />
+
+      {/* Listings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl transition-all duration-500">
-        {listings.map((listing) => (
-          <ListingCard key={listing.id} {...listing} />
-        ))}
+        {filteredListings.length > 0 ? (
+          filteredListings.map((listing) => (
+            <ListingCard key={listing.id} {...listing} />
+          ))
+        ) : (
+          <div className="col-span-full text-gray-500 text-center">
+            No listings found.
+          </div>
+        )}
       </div>
     </div>
   );
