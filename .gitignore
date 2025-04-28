@@ -1,0 +1,24 @@
+# Vite/Tailwind/React Frontend
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# IDE folders
+.vscode/
+.idea/
