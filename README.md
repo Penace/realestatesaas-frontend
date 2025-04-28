@@ -43,6 +43,7 @@ pnpm install
 ```bash
 pnpm dev
 ```
+>Note: Add `--host` flag if hosting on VM to access from other devices on network.
 
 ---
 
