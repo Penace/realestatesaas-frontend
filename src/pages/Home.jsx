@@ -27,7 +27,7 @@ export default function Home() {
         id="heroSection"
         className="h-[120vh] bg-cover bg-center flex flex-col items-center justify-center transition-transform duration-700 ease-out overflow-hidden relative"
         style={{
-          backgroundImage: "url('/src/assets/hero.jpeg')",
+          backgroundImage: "url('/assets/hero.jpeg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -90,7 +90,7 @@ export default function Home() {
           <PropertyShowcase
             key={listing.id}
             id={listing.id}
-            image={`/src/assets/${listing.image}`}
+            image={listing.images}
             title={listing.title}
             description={listing.description}
             noMarginBottom={idx === featuredListings.length - 1}

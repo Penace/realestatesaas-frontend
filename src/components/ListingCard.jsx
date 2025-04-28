@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function ListingCard({ id, image, title, location, price }) {
+export default function ListingCard({ id, images, title, location, price }) {
   return (
     <Link
       to={`/listings/${id}`}
@@ -9,7 +9,7 @@ export default function ListingCard({ id, image, title, location, price }) {
       <div
         className="h-48 bg-cover bg-center"
         style={{
-          backgroundImage: `url(/src/assets/${image})`,
+          backgroundImage: `url(/assets/${images[0]})`,
         }}
       ></div>
 

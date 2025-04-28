@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function PropertyShowcase({
   id,
-  image,
+  images,
   title,
   description,
   parallaxStrength = 60,
@@ -20,7 +20,6 @@ export default function PropertyShowcase({
       if (rect.top < windowHeight && rect.bottom > 0) {
         const scrollProgress =
           1 - Math.min(Math.max(rect.top / windowHeight, 0), 1);
-
         showcase.style.opacity = scrollProgress;
 
         const backgroundShift = scrollProgress * parallaxStrength;
@@ -36,21 +35,22 @@ export default function PropertyShowcase({
   }, [parallaxStrength]);
 
   return (
-    <section
-      className="min-h-screen w-full flex flex-col items-center justify-center transition-all duration-700 ease-out overflow-hidden relative bg-cover bg-center pb-12"
-      style={{
-        backgroundImage: `url(${image})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <div className="bg-black/50 p-8 rounded-xl text-center shadow-lg backdrop-blur-sm">
-        <Link to={`/listings/${id}`} className="block">
+    <Link to={`/listings/${id}`} className="block">
+      <section
+        className="min-h-screen w-full flex flex-col items-center justify-center transition-all duration-700 ease-out overflow-hidden relative bg-cover bg-center pb-12"
+        style={{
+          backgroundImage:
+            images && images.length > 0 ? `url(/assets/${images[0]})` : "none",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <div className="bg-black/50 p-8 rounded-xl text-center shadow-lg backdrop-blur-sm">
           <h2 className="text-4xl font-bold text-white">{title}</h2>
           <p className="text-lg text-gray-200 mt-4">{description}</p>
-        </Link>
-      </div>
-    </section>
+        </div>
+      </section>
+    </Link>
   );
 }

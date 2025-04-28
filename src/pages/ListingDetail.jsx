@@ -1,14 +1,42 @@
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import listings from "../data/listings";
 
 export default function ListingDetail() {
   const { id } = useParams();
-  const listing = listings.find((l) => l.id === parseInt(id));
+  const [listing, setListing] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchListing() {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/listings/${id}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch listing.");
+        }
+        const data = await response.json();
+        setListing(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+
+    fetchListing();
+  }, [id]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold text-red-500">{error}</h1>
+      </div>
+    );
+  }
 
   if (!listing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold text-red-500">Listing not found.</h1>
+        <h1 className="text-2xl font-bold text-gray-500">Loading...</h1>
       </div>
     );
   }
@@ -18,7 +46,7 @@ export default function ListingDetail() {
       {/* Hero Image */}
       <div
         className="h-[60vh] bg-cover bg-center"
-        style={{ backgroundImage: `url(${listing.image})` }}
+        style={{ backgroundImage: `url(/assets/${listing.images[0]})` }}
       ></div>
 
       {/* Property Details */}
