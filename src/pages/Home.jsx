@@ -143,13 +143,13 @@ export default function Home() {
       {/* Properties Section (Dynamic Featured Listings) */}
       <div id="listings" className="space-y-12">
         {featuredListings.map((listing) => (
-          <Link key={listing.id} to={`/listings/${listing.id}`}>
-            <PropertyShowcase
-              image={`/src/assets/${listing.image}`} // Adjust if needed based on API image paths
-              title={listing.title}
-              description={listing.description}
-            />
-          </Link>
+          <PropertyShowcase
+            key={listing.id}
+            id={listing.id}
+            image={`/src/assets/${listing.image}`}
+            title={listing.title}
+            description={listing.description}
+          />
         ))}
       </div>
 

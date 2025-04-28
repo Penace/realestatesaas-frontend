@@ -38,12 +38,12 @@ git clone git@github.com:Penace/realestatesaas-frontend.git
 cd realestatesaas-frontend
 pnpm install
 ```
-
-5. Run development server (optional):
+5. Create .env 
+6. Run development server (optional):
 ```bash
 pnpm dev
 ```
->Note: Add `--host` flag if hosting on VM to access from other devices on network.
+>Note: Add `--host` flag if hosting on VM to access from other devices on different sub-networks.
 
 ---
 

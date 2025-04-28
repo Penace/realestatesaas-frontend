@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 export default function PropertyShowcase({
+  id,
   image,
-  url,
   title,
   description,
   parallaxStrength = 60,
@@ -35,8 +36,7 @@ export default function PropertyShowcase({
 
   return (
     <section
-      ref={showcaseRef}
-      className="min-h-screen w-full flex flex-col items-center justify-center transition-transform duration-700 ease-out overflow-hidden relative"
+      className="min-h-screen w-full flex flex-col items-center justify-center transition-transform duration-700 ease-out overflow-hidden relative bg-cover bg-center"
       style={{
         backgroundImage: `url(${image})`,
         backgroundSize: "cover",
@@ -44,12 +44,12 @@ export default function PropertyShowcase({
         backgroundRepeat: "no-repeat",
       }}
     >
-      <a href={url}>
-        <div className="bg-black/50 p-8 rounded-xl text-center shadow-lg backdrop-blur-sm transition-transform duration-300 hover:scale-105">
+      <div className="bg-black/50 p-8 rounded-xl text-center shadow-lg backdrop-blur-sm transition-transform duration-300 hover:scale-105">
+        <Link to={`/listings/${id}`} className="block">
           <h2 className="text-4xl font-bold text-white">{title}</h2>
           <p className="text-lg text-gray-200 mt-4">{description}</p>
-        </div>
-      </a>
+        </Link>
+      </div>
     </section>
   );
 }

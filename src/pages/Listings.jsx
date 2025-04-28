@@ -9,7 +9,9 @@ export default function Listings() {
   useEffect(() => {
     async function fetchListings() {
       try {
-        const response = await fetch("http://192.168.32.11:3000/listings");
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/listings`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch listings.");
         }
