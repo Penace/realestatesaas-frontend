@@ -14,6 +14,7 @@ export default function PropertyShowcase({
   useEffect(() => {
     const handleScroll = () => {
       const showcase = showcaseRef.current;
+      if (!showcase) return;
       const rect = showcase.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
