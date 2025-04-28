@@ -7,7 +7,6 @@ export default function PropertyShowcase({
   title,
   description,
   parallaxStrength = 60,
-  noMarginBottom = false,
 }) {
   const showcaseRef = useRef(null);
 
@@ -38,9 +37,7 @@ export default function PropertyShowcase({
 
   return (
     <section
-      className={`min-h-screen w-full flex flex-col items-center justify-center transition-all duration-700 ease-out overflow-hidden relative bg-cover bg-center ${
-        noMarginBottom ? "" : "mb-8"
-      }`}
+      className="min-h-screen w-full flex flex-col items-center justify-center transition-all duration-700 ease-out overflow-hidden relative bg-cover bg-center pb-12"
       style={{
         backgroundImage: `url(${image})`,
         backgroundSize: "cover",

@@ -85,7 +85,7 @@ export default function Home() {
       </section>
 
       {/* Featured Listings Section */}
-      <div id="listings" className="space-y-0">
+      <div id="listings">
         {featuredListings.map((listing, idx) => (
           <PropertyShowcase
             key={listing.id}
