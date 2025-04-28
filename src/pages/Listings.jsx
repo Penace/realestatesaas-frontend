@@ -66,7 +66,9 @@ export default function Listings() {
         placeholder="Search by title or location..."
         className="mb-10 px-4 py-2 border border-gray-300 rounder-lg w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
         value={searchTerm}
-        onChange={(e) => setSearchterm(e.target.value)}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onClick={(e) => e.stopPropagation()}
+        onFocus={(e) => e.stopPropagation()}
       />
 
       {/* Listings Grid */}
