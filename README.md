@@ -8,39 +8,57 @@ Built with:
 - Vite.js
 - TailwindCSS
 - Modular GitOps deployment standards
+- PNPM package manager for faster builds
 
 ---
 
 ## Development Setup
 
-1. Clone the repository:
+1. Install Node.js on your machine or VM:
 ```bash
-git clone git@github.com:yourusername/realestatesaas-frontend.git
-/bash
+sudo apt update
+sudo apt install nodejs npm -y
+```
 
-2. Install dependencies:
+2. Install pnpm globally:
 ```bash
-npm install
-/bash
+sudo npm install -g pnpm
+```
 
-3. Run development server:
+3. Clone the repository:
 ```bash
-npm run dev
-/bash
+git clone git@github.com:Penace/realestatesaas-frontend.git
+```
+> ⚡ Note:
+> Running `git clone` automatically creates a new folder named after the repository.
+> No need to manually `mkdir` unless you want a different folder name.
+
+4. Install project dependencies:
+```bash
+cd realestatesaas-frontend
+pnpm install
+```
+
+5. Run development server (optional):
+```bash
+pnpm dev
+```
 
 ---
 
 ## Production Build
 
-1. Create production build:
+1. Create a production build:
 ```bash
-npm run build
-/bash
+pnpm build
+```
 
 2. Preview build locally:
 ```bash
-npm run preview
-/bash
+pnpm preview
+```
+
+✅ Serve the `dist/` directory using Nginx or any static server.
 
 ---
 
@@ -60,4 +78,8 @@ See [ROADMAP.md](./ROADMAP.md)
 
 ---
 
-✅ This frontend is designed for modular VM deployment under GitOps control.
+## Additional Resources
+
+- [RealEstateSaaS Backend Repo](https://github.com/Penace/realestatesaas-backend)
+
+---
