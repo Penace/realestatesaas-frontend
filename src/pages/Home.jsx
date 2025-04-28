@@ -2,24 +2,18 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PropertyShowcase from "../components/PropertyShowcase";
 import FeatureCard from "../components/FeatureCard";
+import { fetchListings } from "../services/api";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
 
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/listings`
-        );
-        const data = await response.json();
-        setFeaturedListings(data.slice(0, 3));
-      } catch (error) {
-        console.error("Failed to fetch listings", error);
-      }
+    const loadListings = async () => {
+      const listings = await fetchListings();
+      setFeaturedListings(listings.slice(0, 3));
     };
 
-    fetchListings();
+    loadListings();
 
     const infoContent = document.getElementById("infoContent");
     const heroTitle = document.getElementById("heroTitle");
