@@ -1,21 +1,42 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import Navbar from "./components/Navbar";
+import Layout from "./Layout";
 import Home from "./pages/Home";
 import Listings from "./pages/Listings";
 import ListingDetail from "./pages/ListingDetail";
 
-function App() {
+export default function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/listings" element={<Listings />} />
-        <Route path="/listings/:id" element={<ListingDetail />} />
+        {/* Wrapped Pages */}
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <Home />
+            </Layout>
+          }
+        />
+        <Route
+          path="/listings"
+          element={
+            <Layout>
+              <Listings />
+            </Layout>
+          }
+        />
+        <Route
+          path="/listings/:id"
+          element={
+            <Layout>
+              <ListingDetail />
+            </Layout>
+          }
+        />
+
+        {/* Future: Other Routes like login could be outside Layout */}
+        {/* Example: <Route path="/login" element={<Login />} /> */}
       </Routes>
     </Router>
   );
 }
-
-export default App;

@@ -1,14 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PropertyShowcase from "../components/PropertyShowcase";
 import FeatureCard from "../components/FeatureCard";
-import house1 from "/src/assets/house1.jpg";
-import house2 from "/src/assets/house2.jpg";
-import house3 from "/src/assets/house3.jpg";
+import Navbar from "../components/Navbar";
 
 export default function Home() {
+  const [featuredListings, setFeaturedListings] = useState([]);
+
   useEffect(() => {
-    const infoContent = document.getElementById("infoContent"); // ⬅ Target only content
+    const fetchListings = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/listings");
+        const data = await response.json();
+        setFeaturedListings(data.slice(0, 3)); // Take first 3
+      } catch (error) {
+        console.error("Failed to fetch listings", error);
+      }
+    };
+
+    fetchListings();
+
+    const infoContent = document.getElementById("infoContent");
     const heroTitle = document.getElementById("heroTitle");
     const heroSection = document.getElementById("heroSection");
     const ctaSection = document.getElementById("ctaSection");
@@ -17,8 +29,8 @@ export default function Home() {
       const scrollTop = window.scrollY;
       const windowHeight = window.innerHeight;
       const isMobile = window.innerWidth < 768;
-
       const heroParallaxSpeed = isMobile ? 0.15 : 0.25;
+
       heroSection.style.transform = `scale(${1 + scrollTop * 0.0002})`;
       heroSection.style.backgroundPositionY = `${
         scrollTop * heroParallaxSpeed
@@ -28,7 +40,6 @@ export default function Home() {
       if (rect.top < windowHeight && rect.bottom > 0) {
         const scrollProgress =
           1 - Math.min(Math.max(rect.top / windowHeight, 0), 1);
-
         infoContent.style.opacity = scrollProgress;
         infoContent.style.transform = `translateY(${
           (1 - scrollProgress) * 8
@@ -128,31 +139,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Properties Section */}
+      {/* Properties Section (Dynamic Featured Listings) */}
       <div id="listings" className="space-y-12">
-        <Link to="/listings/1">
-          <PropertyShowcase
-            image={house1}
-            title="Modern Luxury Villa"
-            description="5 bedrooms · Private Pool · Panoramic Views"
-          />
-        </Link>
-
-        <Link to="/listings/2">
-          <PropertyShowcase
-            image={house2}
-            title="Tuscan Mansion"
-            description="7 bedrooms · Historic Charm · Exclusive Location"
-          />
-        </Link>
-
-        <Link to="/listings/3">
-          <PropertyShowcase
-            image={house3}
-            title="Penthouse Apartment"
-            description="3 bedrooms · Rooftop Terrace · City Skyline"
-          />
-        </Link>
+        {featuredListings.map((listing) => (
+          <Link key={listing.id} to={`/listings/${listing.id}`}>
+            <PropertyShowcase
+              image={`/src/assets/${listing.image}`} // Adjust if needed based on API image paths
+              title={listing.title}
+              description={listing.description}
+            />
+          </Link>
+        ))}
       </div>
 
       {/* CTA Section */}
@@ -167,11 +164,6 @@ export default function Home() {
           Start Your Journey
         </Link>
       </section>
-
-      {/* Footer Placeholder */}
-      <footer className="h-40 bg-gray-800 flex items-center justify-center text-gray-400 text-sm">
-        © 2025 RealEstateSaaS · All rights reserved.
-      </footer>
     </div>
   );
 }
