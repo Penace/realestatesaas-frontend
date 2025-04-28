@@ -2,17 +2,21 @@ import { Link } from "react-router-dom";
 
 export default function ListingCard({ id, image, title, location, price }) {
   return (
-    <Link to={`/listings/${id}`} className="group">
-      <div className="group bg-white shadow-xl rounded-xl overflow-hidden transform transition-transform duration-500 hover:scale-105 hover:shadow-2xl">
-        <div
-          className="h-64 bg-cover bg-center"
-          style={{ backgroundImage: `url(/src/assets/${image})` }}
-        ></div>
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-          <p className="text-gray-500 mt-2">{location}</p>
-          <p className="text-blue-600 text-lg font-semibold mt-4">{price}</p>
-        </div>
+    <Link
+      to={`/listings/${id}`}
+      className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all hover:shadow-2xl flex flex-col"
+    >
+      <div
+        className="h-48 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(/src/assets/${image})`,
+        }}
+      ></div>
+
+      <div className="p-6 flex flex-col space-y-2">
+        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
+        <p className="text-gray-500">{location}</p>
+        <p className="text-lg font-semibold text-blue-600">{price}</p>
       </div>
     </Link>
   );
