@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PropertyShowcase from "../components/PropertyShowcase";
 import FeatureCard from "../components/FeatureCard";
-import Navbar from "../components/Navbar";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
@@ -10,7 +9,9 @@ export default function Home() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const response = await fetch("http://localhost:3000/listings");
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/listings`
+        );
         const data = await response.json();
         setFeaturedListings(data.slice(0, 3)); // Take first 3
       } catch (error) {
