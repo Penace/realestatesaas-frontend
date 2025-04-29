@@ -46,7 +46,7 @@ export default function Home() {
       >
         <h1
           id="heroTitle"
-          className="text-4xl md:text-5xl font-bold text-white bg-black/50 px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg backdrop-blur-sm w-[90%] max-w-2xl text-center mb-5"
+          className="text-4xl md:text-5xl font-bold text-white bg-black/15 backdrop-blur-md px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg w-[90%] max-w-2xl text-center mb-5 ring-1 ring-blue-100/10"
         >
           Find Your Dream Property
         </h1>
@@ -54,9 +54,11 @@ export default function Home() {
           to="/listings"
           size="md"
           variant="hero"
-          className="opacity-0 translate-y-10 transition-all duration-700 ease-out"
           id="heroButton"
-        />
+          className="opacity-0 translate-y-10 transition-all duration-600 ease-out"
+        >
+          Browse Listings
+        </Button>
       </section>
 
       {/* Info Section */}
@@ -130,7 +132,7 @@ export default function Home() {
         <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
       {featuredListings.slice(0, 2).map((listing, idx) => (
-        <>
+        <div key={`featured-${listing.id}`}>
           <PropertyShowcase
             key={listing.id}
             id={listing.id}
@@ -139,7 +141,7 @@ export default function Home() {
             description={listing.description}
           />
           {idx === 0 && <SectionDivider />}
-        </>
+        </div>
       ))}
 
       {/* Soft CTA Section */}
@@ -154,7 +156,7 @@ export default function Home() {
       </div>
 
       {sponsoredListings.slice(0, 2).map((listing, idx) => (
-        <>
+        <div key={`sponsored-${listing.id}`}>
           <PropertyShowcase
             key={listing.id}
             id={listing.id}
@@ -163,7 +165,7 @@ export default function Home() {
             description={listing.description}
           />
           {idx === 0 && <SectionDivider />}
-        </>
+        </div>
       ))}
     </div>
   );

@@ -4,7 +4,6 @@ export function useScrollAnimation({ infoContentId, heroSectionId }) {
   useEffect(() => {
     const infoContent = document.getElementById(infoContentId);
     const heroSection = document.getElementById(heroSectionId);
-    const heroButton = document.getElementById("heroButton");
 
     const isMobile = window.innerWidth < 768;
 
@@ -45,6 +44,8 @@ export function useScrollAnimation({ infoContentId, heroSectionId }) {
 
     setTimeout(() => {
       const heroTitle = document.getElementById("heroTitle");
+      const heroButton = document.getElementById("heroButton");
+
       if (heroTitle) {
         heroTitle.classList.remove("opacity-0", "translate-y-10");
         heroTitle.classList.add("opacity-100", "translate-y-0");
