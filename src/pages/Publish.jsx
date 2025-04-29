@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../components/common/Button";
 import { useToast } from "../context/ToastProvider";
+import ReviewModal from "../components/ReviewModal";
 
 export default function Publish() {
   const { showToast } = useToast();
@@ -12,6 +13,8 @@ export default function Publish() {
     images: "",
   });
 
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewData, setReviewData] = useState(null);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -39,23 +42,23 @@ export default function Publish() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Special handling for price field
+    let newValue = value;
     if (name === "price") {
-      let formatted = value.replace(/[^\d]/g, ""); // remove all non-digits
-      if (formatted.length > 0) {
-        formatted = `$${formatted}`; // always prefix with a dollar sign
+      newValue = value.replace(/[^\d]/g, ""); // Only numbers
+      if (newValue.length > 0) {
+        newValue = `$${newValue}`;
       }
-      setFormData((prev) => ({
-        ...prev,
-        [name]: formatted,
-      }));
-    } else {
-      // Normal fields (title, location, description, images)
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: !validate(name, newValue),
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -125,6 +128,7 @@ export default function Publish() {
 
       showToast("Listing submitted for review.", "success");
       setSubmitted(true);
+      setShowReviewModal(false);
       setFormData({
         title: "",
         location: "",
@@ -140,6 +144,47 @@ export default function Publish() {
     }
   };
 
+  const handleOpenReview = (e) => {
+    e.preventDefault();
+
+    const { title, location, price, description, images } = formData;
+
+    const numericPrice = Number(price.replace(/[^0-9]/g, ""));
+    const imageListRaw = images.split(",").map((img) => img.trim());
+    const invalidImages = imageListRaw.filter(
+      (img) => !img.endsWith(".jpg") && !img.endsWith(".jpeg")
+    );
+
+    const listing = {
+      title: title.trim(),
+      location: location.trim(),
+      price: numericPrice.toString(),
+      description: description.trim(),
+      images: imageListRaw,
+      isFeatured: false,
+      isAuction: false,
+      isSponsored: false,
+    };
+
+    // Validate again (simple)
+    if (
+      title.trim().length < 3 ||
+      location.trim().length < 3 ||
+      description.trim().length < 10 ||
+      isNaN(numericPrice) ||
+      numericPrice < 100 ||
+      numericPrice > 999999999 ||
+      imageListRaw.length === 0 ||
+      invalidImages.length > 0
+    ) {
+      showToast("Please fix the errors before reviewing.", "error");
+      return;
+    }
+
+    setReviewData(listing);
+    setShowReviewModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col items-center py-20 px-6">
       <div className="w-full max-w-2xl space-y-8">
@@ -152,8 +197,13 @@ export default function Publish() {
             ✅ Your listing has been submitted!
           </div>
         )}
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <ReviewModal
+          isOpen={showReviewModal}
+          listing={reviewData}
+          onClose={() => setShowReviewModal(false)}
+          onConfirm={handleSubmit}
+        />
+        <form className="space-y-6" onSubmit={handleOpenReview}>
           {[
             { name: "title", label: "Title", placeholder: "Luxury Penthouse" },
             {
