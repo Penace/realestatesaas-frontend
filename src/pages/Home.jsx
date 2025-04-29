@@ -46,17 +46,13 @@ export default function Home() {
       >
         <h1
           id="heroTitle"
-          className="text-4xl md:text-5xl font-bold text-white bg-black/50 px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg backdrop-blur-sm w-[90%] max-w-2xl text-center"
+          className="text-4xl md:text-5xl font-bold text-white bg-black/50 px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg backdrop-blur-sm w-[90%] max-w-2xl text-center mb-5"
         >
           Find Your Dream Property
         </h1>
-        <Button
-          id="heroButton"
-          to="/listings"
-          size="md"
-          variant="secondary"
-          className="mt-6 opacity-0 translate-y-10 transition-all duration-700 ease-out"
-        />
+        <Button to="/listings" size="md" variant="hero">
+          Browse Listings
+        </Button>
       </section>
 
       {/* Info Section */}
