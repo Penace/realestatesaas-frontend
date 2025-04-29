@@ -55,12 +55,11 @@ export default function Home() {
           size="md"
           variant="hero"
           id="heroButton"
-          className="opacity-0 translate-y-10 transition-all duration-600 ease-out"
+          className="opacity-0 translate-y-10 transition-all duration-700 ease-out"
         >
           Browse Listings
         </Button>
       </section>
-
       {/* Info Section */}
       <section
         id="infoSection"
@@ -112,7 +111,7 @@ export default function Home() {
       {/* Auction Spotlight */}
       {auctionListing && (
         <>
-          <div className="text-center py-12">
+          <div className="text-center py-8">
             <h2 className="text-3xl font-semibold text-gray-800">
               Auction Spotlight
             </h2>
@@ -121,7 +120,7 @@ export default function Home() {
             </p>
           </div>
           {/* Smooth Background Transition */}
-          <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/35 to-gray-100/25" />
+          <div className="w-full h-6 bg-gradient-to-b from-white via-slate-100/30 to-white" />
           <PropertyShowcase
             key={auctionListing.id}
             id={auctionListing.id}
@@ -132,7 +131,7 @@ export default function Home() {
         </>
       )}
       {/* Smooth Background Transition */}
-      <div className="w-full h-6 bg-gradient-to-b from-gray-100/25 via-gray-200/25 to-white" />
+      <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/25 to-gray-100/25" />
       {/* Featured Properties */}
       <div className="text-center py-12">
         <h2 className="text-3xl font-semibold text-gray-800">
@@ -141,11 +140,10 @@ export default function Home() {
         <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
       {/* Smooth Background Transition */}
-      <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/25 to-gray-100/25" />
+      <div className="w-full h-6 bg-gradient-to-b from-white via-sky-100/30 to-white" />
       {featuredListings.slice(0, 2).map((listing, idx) => (
         <div key={`featured-${listing.id}`}>
           <PropertyShowcase
-            key={listing.id}
             id={listing.id}
             images={listing.images}
             title={listing.title}
@@ -154,11 +152,10 @@ export default function Home() {
           {idx === 0 && <SectionDivider />}
         </div>
       ))}
-
       {/* Soft CTA Section */}
       <CTASection />
       {/* Smooth Background Transition */}
-      <div className="w-full h-6 bg-gradient-to-b from-gray-100/25 via-gray-200/35 to-white" />
+      <div className="w-full h-6 bg-gradient-to-b from-white via-sky-100/30 to-white" />{" "}
       {/* Sponsored Highlights */}
       <div className="text-center py-12">
         <h2 className="text-3xl font-semibold text-gray-800">

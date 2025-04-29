@@ -13,6 +13,7 @@ export default function Publish() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -24,29 +25,64 @@ export default function Publish() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const { title, location, price, description, images } = formData;
+
+    // --- Strict Validation
+    if (
+      title.trim().length < 3 ||
+      location.trim().length < 3 ||
+      description.trim().length < 10
+    ) {
+      showToast("Please fill out all fields properly.", "error");
+      return;
+    }
+
+    const numericPrice = Number(price.replace(/[^0-9.]/g, ""));
+    if (isNaN(numericPrice) || numericPrice < 100) {
+      showToast("Please enter a valid price (at least 3 digits).", "error");
+      return;
+    }
+
+    const imageList = images
+      .split(",")
+      .map((img) => img.trim())
+      .filter((img) => img.endsWith(".jpg") || img.endsWith(".jpeg"));
+
+    if (imageList.length === 0) {
+      showToast(
+        "Please provide at least one valid image filename (.jpg).",
+        "error"
+      );
+      return;
+    }
+
+    // --- Construct listing object
     const listing = {
-      ...formData,
-      price: formData.price.trim(),
-      images: formData.images.split(",").map((img) => img.trim()),
+      title: title.trim(),
+      location: location.trim(),
+      price: numericPrice.toString(),
+      description: description.trim(),
+      images: imageList,
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
     };
 
     try {
+      setSubmitting(true);
+
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/pendingListings`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(listing),
         }
       );
 
       if (!res.ok) throw new Error("Failed to submit listing");
 
+      showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setFormData({
         title: "",
@@ -57,6 +93,9 @@ export default function Publish() {
       });
     } catch (err) {
       console.error("Submission failed:", err);
+      showToast("Something went wrong. Please try again.", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -96,7 +135,7 @@ export default function Publish() {
                 value={formData[name]}
                 onChange={handleChange}
                 placeholder={placeholder}
-                className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-800"
               />
             </div>
           ))}
@@ -114,7 +153,7 @@ export default function Publish() {
               onChange={handleChange}
               rows={4}
               placeholder="Describe your property in detail..."
-              className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+              className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-800"
             />
           </div>
 
@@ -131,13 +170,18 @@ export default function Publish() {
               value={formData.images}
               onChange={handleChange}
               placeholder="villa1.jpg, villa2.jpg"
-              className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+              className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-800"
             />
           </div>
 
           <div className="pt-6">
-            <Button size="lg" variant="primaryLight" type="submit">
-              Submit Listing
+            <Button
+              size="lg"
+              variant="primaryLight"
+              type="submit"
+              disabled={submitting}
+            >
+              {submitting ? "Submitting..." : "Submit Listing"}
             </Button>
           </div>
         </form>
