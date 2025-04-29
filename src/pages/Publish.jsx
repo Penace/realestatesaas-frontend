@@ -128,6 +128,8 @@ export default function Publish() {
 
       if (!res.ok) throw new Error("Failed to submit listing");
 
+      const createdListing = await res.json();
+
       showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setShowReviewModal(false);
