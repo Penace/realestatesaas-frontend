@@ -40,6 +40,13 @@ export default function Button({
   transition-all duration-200 ease-out
   transition-colors duration-200
 `,
+    cta: `
+  bg-gradient-to-br from-white/10 to-white/5
+  text-blue-600
+  ring-1 ring-blue-200/30
+  hover:bg-blue-100/20 hover:text-blue-700
+  shadow-md backdrop-blur-sm
+`,
   };
 
   const baseStyles = `

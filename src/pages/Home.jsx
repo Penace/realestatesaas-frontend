@@ -66,7 +66,10 @@ export default function Home() {
         id="infoSection"
         className="min-h-[45vh] flex flex-col items-center justify-center bg-white space-y-6 p-8 overflow-hidden relative"
       >
-        <div id="infoContent" className="flex flex-col items-center space-y-12">
+        <div
+          id="infoContent"
+          className="flex flex-col items-center space-y-8 mb-16"
+        >
           {/* Text Content */}
           <div className="text-center space-y-6 max-w-3xl">
             <h2 className="text-4xl font-bold text-gray-900">
@@ -97,11 +100,15 @@ export default function Home() {
             />
           </div>
         </div>
+        <div className="flex flex-col md:flex-row gap-6 justify-center items-center mt-10">
+          <Button to="/listings" size="lg" variant="cta">
+            Browse Listings
+          </Button>
+          <Button to="/calculator" size="lg" variant="cta">
+            Try Our Calculator
+          </Button>
+        </div>
       </section>
-      <CTASection />
-      {/* Smooth Background Transition */}
-      <div className="w-full h-14 bg-gradient-to-b from-white via-gray-100/35 to-gray-100/5" />
-
       {/* Auction Spotlight */}
       {auctionListing && (
         <>
