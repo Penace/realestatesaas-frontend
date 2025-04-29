@@ -10,6 +10,12 @@ export default function ManageListings() {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const [editingListingId, setEditingListingId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    location: "",
+    price: "",
+  });
 
   useEffect(() => {
     loadListings();
@@ -69,32 +75,106 @@ export default function ManageListings() {
 
               {/* Info */}
               <div className="space-y-2 text-center">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {listing.title}
-                </h2>
-                <p className="text-gray-500">{listing.location}</p>
-                <p className="text-blue-600 font-semibold">{listing.price}</p>
+                {editingListingId === listing.id ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editForm.title}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, title: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border rounded-lg text-center"
+                    />
+                    <input
+                      type="text"
+                      value={editForm.location}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, location: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border rounded-lg text-center"
+                    />
+                    <input
+                      type="text"
+                      value={editForm.price}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, price: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border rounded-lg text-center"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      {listing.title}
+                    </h2>
+                    <p className="text-gray-500">{listing.location}</p>
+                    <p className="text-blue-600 font-semibold">
+                      {listing.price}
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Actions */}
               <div className="flex space-x-4 pt-4 justify-center">
-                <Button
-                  size="sm"
-                  variant="primaryLight"
-                  onClick={() => console.log("Edit not implemented yet")}
-                >
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="reject"
-                  onClick={() => {
-                    setSelectedListing(listing);
-                    setModalOpen(true);
-                  }}
-                >
-                  Delete
-                </Button>
+                {editingListingId === listing.id ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="approve"
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          await updateListing(editingListingId, editForm);
+                          showToast("Listing updated.", "success");
+                          await loadListings();
+                          setEditingListingId(null); // Exit edit mode
+                        } catch (err) {
+                          console.error(err);
+                          showToast("Failed to update listing.", "error");
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="reject"
+                      onClick={() => setEditingListingId(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="primaryLight"
+                      onClick={() => {
+                        setEditingListingId(listing.id);
+                        setEditForm({
+                          title: listing.title,
+                          location: listing.location,
+                          price: listing.price,
+                        });
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="reject"
+                      onClick={() => {
+                        setSelectedListing(listing);
+                        setModalOpen(true);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           ))}

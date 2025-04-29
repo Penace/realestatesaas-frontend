@@ -5,6 +5,9 @@ async function fetchWithHandling(url, options = {}, fallback = null) {
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
+      console.error(
+        `API Fetch Error: ${response.status} - ${response.statusText}`
+      );
       throw new Error(`Fetch failed: ${response.status}`);
     }
     return await response.json();
@@ -78,5 +81,13 @@ export async function rejectListing(id) {
 export async function deleteListing(id) {
   return fetchWithHandling(`${API_URL}/listings/${id}`, {
     method: "DELETE",
+  });
+}
+
+export async function updateListing(id, updateData) {
+  return fetchWithHandling(`${API_URL}/listings/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updateData),
   });
 }

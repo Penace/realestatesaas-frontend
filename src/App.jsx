@@ -53,7 +53,7 @@ export default function App() {
           }
         />
         <Route
-          path="/manage"
+          path="/admin/manage"
           element={
             <Layout>
               <ManageListings />
