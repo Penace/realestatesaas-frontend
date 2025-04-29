@@ -23,9 +23,11 @@ export default function Button({
       "bg-gradient-to-br from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white ring-1 ring-cyan-400/10 shadow-md",
     hero: "bg-gradient-to-br from-cyan-100/5 via-white/5 to-blue-200/10 backdrop-blur-md hover:bg-white/10 text-white ring-1 ring-teal-200/10 shadow-sm",
     approve:
-      "bg-green-50 text-green-800 ring-1 ring-green-300 hover:bg-green-100 hover:text-green-900",
+      "bg-green-100/50 text-green-800 ring-1 ring-green-300/55 hover:bg-green-300 hover:text-green-900",
     reject:
-      "bg-red-50 text-red-800 ring-1 ring-red-300 hover:bg-red-100 hover:text-red-900",
+      "bg-red-100/50 text-red-800 ring-1 ring-red-300/55 hover:bg-red-300 hover:text-red-900",
+    primaryLight:
+      "bg-white text-blue-600 ring-2 ring-blue-100 shadow hover:bg-blue-50 hover:text-blue-700",
   };
 
   const baseStyles =

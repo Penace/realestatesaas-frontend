@@ -136,7 +136,7 @@ export default function Publish() {
           </div>
 
           <div className="pt-6">
-            <Button size="lg" variant="secondry">
+            <Button size="lg" variant="primaryLight" type="submit">
               Submit Listing
             </Button>
           </div>

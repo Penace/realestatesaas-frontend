@@ -77,7 +77,7 @@ export default function AdminModeration() {
               <p className="text-gray-500">{listing.location}</p>
               <p className="text-blue-600 font-semibold">{listing.price}</p>
 
-              <div className="flex space-x-4 pt-4">
+              <div className="flex space-x-4 pt-4 justify-center">
                 <Button variant="approve" size="sm">
                   Approve
                 </Button>
