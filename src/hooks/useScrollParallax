@@ -32,9 +32,10 @@ export function useScrollParallax(ref, options = {}) {
       const middle = rect.top + rect.height / 2;
       const distanceFromCenter = Math.abs(viewportHeight / 2 - middle);
       const scrollRatio = Math.max(1 - distanceFromCenter / viewportHeight, 0);
+      const boostedOpacity = Math.min(scrollRatio * 1.37, 1);
 
       if (opacity) {
-        el.style.opacity = scrollRatio.toFixed(2);
+        el.style.opacity = boostedOpacity.toFixed(2);
       }
 
       if (scale) {

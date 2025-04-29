@@ -5,6 +5,7 @@ import FeatureCard from "../components/FeatureCard";
 import { fetchListings } from "../services/api";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useHeroParallax } from "../hooks/useHeroParallax";
+import CTASection from "../components/CTASection";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
@@ -43,13 +44,13 @@ export default function Home() {
       >
         <h1
           id="heroTitle"
-          className="text-5xl font-bold text-white bg-black/50 px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg backdrop-blur-sm"
+          className="text-4xl md:text-5xl font-bold text-white bg-black/50 px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg backdrop-blur-sm w-[90%] max-w-2xl text-center"
         >
           Find Your Dream Property
         </h1>
         <Link
           to="/listings"
-          className="mt-6 text-white bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg text-lg font-semibold transition-all duration-300"
+          className="mt-6 text-white bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg text-lg font-semibold transition-all duration-300 ease-out"
         >
           Browse Listings
         </Link>
@@ -137,17 +138,7 @@ export default function Home() {
       ))}
 
       {/* Soft CTA Section */}
-      <section className="flex flex-col items-center justify-center p-10 bg-gray-100 rounded-2xl mx-10 my-16">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Thinking of Selling?
-        </h2>
-        <Link
-          to="/publish"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg shadow transition-all"
-        >
-          Publish Your Property
-        </Link>
-      </section>
+      <CTASection />
 
       {/* Sponsored Highlights */}
       <div className="text-center py-12">

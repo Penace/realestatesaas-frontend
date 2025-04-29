@@ -9,8 +9,8 @@ export default function PropertyShowcase({ id, images, title, description }) {
     parallax: true,
     scale: true,
     opacity: true,
-    parallaxStrength: 17,
-    scaleStrength: 0.1,
+    parallaxStrength: 30,
+    scaleStrength: 0.07,
     mobileParallax: true,
     resetOffscreen: true,
   });
@@ -20,7 +20,7 @@ export default function PropertyShowcase({ id, images, title, description }) {
 
   return (
     <Link to={`/listings/${id}`} className="block">
-      <div className="relative z-10 overflow-hidden mb-[1.4vh]">
+      <div className="relative z-10 overflow-hidden mt-[1.4vh]">
         <section
           ref={showcaseRef}
           className="min-h-screen w-full flex flex-col items-center justify-center bg-cover bg-center transform-gpu will-change-transform transition-all duration-700 ease-out"
