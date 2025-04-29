@@ -1,9 +1,9 @@
 import { useState } from "react";
 import Button from "../components/Button";
-import { useToast } from "../hooks/useToast";
+import { useToast } from "../context/ToastProvider";
 
 export default function Publish() {
-  const { openToast } = useToast();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
     location: "",
