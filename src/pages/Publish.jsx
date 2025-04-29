@@ -7,70 +7,70 @@ export default function Publish() {
   const [formData, setFormData] = useState({
     title: "",
     location: "",
-    price: "",
+    price: "$",
     description: "",
     images: "",
   });
-
+  const [formErrors, setFormErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+
+  const validateField = (name, value) => {
+    if (!value.trim() || (name === "price" && value.trim() === "$")) {
+      return "This field is required.";
+    }
+    return null;
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Special handling for price field
+    let newValue = value;
+    if (name === "price") {
+      newValue = value.startsWith("$")
+        ? value
+        : `$${value.replace(/[^0-9]/g, "")}`;
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: newValue,
+    }));
+
+    // Real-time validation
+    const error = validateField(name, newValue);
+    setFormErrors((prev) => ({
+      ...prev,
+      [name]: error,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { title, location, price, description, images } = formData;
+    // Validate all fields
+    const newErrors = {};
+    Object.keys(formData).forEach((field) => {
+      const error = validateField(field, formData[field]);
+      if (error) newErrors[field] = error;
+    });
 
-    // --- Strict Validation
-    if (
-      title.trim().length < 3 ||
-      location.trim().length < 3 ||
-      description.trim().length < 10
-    ) {
-      showToast("Please fill out all fields properly.", "error");
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      showToast("Please fix the form errors.", "error");
       return;
     }
 
-    const numericPrice = Number(price.replace(/[^0-9.]/g, ""));
-    if (isNaN(numericPrice) || numericPrice < 100) {
-      showToast("Please enter a valid price (at least 3 digits).", "error");
-      return;
-    }
-
-    const imageList = images
-      .split(",")
-      .map((img) => img.trim())
-      .filter((img) => img.endsWith(".jpg") || img.endsWith(".jpeg"));
-
-    if (imageList.length === 0) {
-      showToast(
-        "Please provide at least one valid image filename (.jpg).",
-        "error"
-      );
-      return;
-    }
-
-    // --- Construct listing object
     const listing = {
-      title: title.trim(),
-      location: location.trim(),
-      price: numericPrice.toString(),
-      description: description.trim(),
-      images: imageList,
+      ...formData,
+      price: formData.price.trim(),
+      images: formData.images.split(",").map((img) => img.trim()),
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
     };
 
     try {
-      setSubmitting(true);
-
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/pendingListings`,
         {
@@ -82,20 +82,18 @@ export default function Publish() {
 
       if (!res.ok) throw new Error("Failed to submit listing");
 
-      showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setFormData({
         title: "",
         location: "",
-        price: "",
+        price: "$",
         description: "",
         images: "",
       });
+      setFormErrors({});
     } catch (err) {
       console.error("Submission failed:", err);
-      showToast("Something went wrong. Please try again.", "error");
-    } finally {
-      setSubmitting(false);
+      showToast("Submission failed. Please try again.", "error");
     }
   };
 
@@ -135,7 +133,11 @@ export default function Publish() {
                 value={formData[name]}
                 onChange={handleChange}
                 placeholder={placeholder}
-                className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-800"
+                className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
+                  formErrors[name]
+                    ? "border-red-400 focus:ring-red-400"
+                    : "border-gray-300 focus:ring-blue-400"
+                } transition-all`}
               />
             </div>
           ))}
@@ -153,7 +155,11 @@ export default function Publish() {
               onChange={handleChange}
               rows={4}
               placeholder="Describe your property in detail..."
-              className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-800"
+              className={`px-4 py-3 border rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 ${
+                formErrors.description
+                  ? "border-red-400 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-blue-400"
+              } transition-all`}
             />
           </div>
 
@@ -170,18 +176,17 @@ export default function Publish() {
               value={formData.images}
               onChange={handleChange}
               placeholder="villa1.jpg, villa2.jpg"
-              className="px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-gray-800"
+              className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
+                formErrors.images
+                  ? "border-red-400 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-blue-400"
+              } transition-all`}
             />
           </div>
 
           <div className="pt-6">
-            <Button
-              size="lg"
-              variant="primaryLight"
-              type="submit"
-              disabled={submitting}
-            >
-              {submitting ? "Submitting..." : "Submit Listing"}
+            <Button size="lg" variant="primaryLight" type="submit">
+              Submit Listing
             </Button>
           </div>
         </form>
