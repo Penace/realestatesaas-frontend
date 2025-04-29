@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import Button from "./Button";
-import { useScrollParallax } from "../hooks/useScrollParallax";
+import { useScrollParallax } from "../hooks/useScrollParallax.js";
 
 export default function CTASection({
   title = "Start Your Journey",
