@@ -129,13 +129,16 @@ export default function Home() {
         <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
       {featuredListings.slice(0, 2).map((listing) => (
-        <PropertyShowcase
-          key={listing.id}
-          id={listing.id}
-          images={listing.images}
-          title={listing.title}
-          description={listing.description}
-        />
+        <>
+          <PropertyShowcase
+            key={listing.id}
+            id={listing.id}
+            images={listing.images}
+            title={listing.title}
+            description={listing.description}
+          />
+          <SectionDivider />
+        </>
       ))}
 
       {/* Soft CTA Section */}

@@ -23,7 +23,7 @@ export default function PropertyShowcase({ id, images, title, description }) {
 
   return (
     <Link to={`/listings/${id}`} className="block">
-      <div className="relative z-10 overflow-hidden mt-[1.4vh]">
+      <div className="relative z-10 overflow-hidden">
         <section
           ref={showcaseRef}
           className="min-h-screen w-full flex flex-col items-center justify-center bg-cover bg-center transition-all duration-700 ease-out transform-gpu will-change-transform rounded-none md:rounded-3xl overflow-hidden"
