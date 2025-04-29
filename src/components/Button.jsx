@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 export default function Button({
   children,
   to = "#",
-  size = "lg", // "sm", "md", "lg"
-  variant = "primary", // "primary", "secondary", "ghost"
+  size = "lg", // sm | md | lg
+  variant = "primary", // primary | secondary | ghost
   fullWidth = false,
 }) {
   const baseStyles =

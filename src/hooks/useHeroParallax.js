@@ -35,6 +35,10 @@ export function useHeroParallax() {
         heroTitle.classList.remove("opacity-0", "translate-y-10");
         heroTitle.classList.add("opacity-100", "translate-y-0");
       }
+      if (heroButton) {
+        heroButton.classList.remove("opacity-0", "translate-y-10");
+        heroButton.classList.add("opacity-100", "translate-y-0");
+      }
     }, 150);
 
     window.addEventListener("scroll", handleScroll);

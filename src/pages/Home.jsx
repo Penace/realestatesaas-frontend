@@ -50,9 +50,13 @@ export default function Home() {
         >
           Find Your Dream Property
         </h1>
-        <Button to="/listings" size="md" variant="secondary" className="">
-          Browse Listings
-        </Button>
+        <Button
+          id="heroButton"
+          to="/listings"
+          size="md"
+          variant="secondary"
+          className="mt-6 opacity-0 translate-y-10 transition-all duration-700 ease-out"
+        />
       </section>
 
       {/* Info Section */}
