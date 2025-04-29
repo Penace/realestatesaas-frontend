@@ -39,23 +39,23 @@ export default function Publish() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    let newValue = value;
+    // Special handling for price field
     if (name === "price") {
-      newValue = value.replace(/[^\d]/g, ""); // Only numbers
-      if (newValue.length > 0) {
-        newValue = `$${newValue}`;
+      let formatted = value.replace(/[^\d]/g, ""); // remove all non-digits
+      if (formatted.length > 0) {
+        formatted = `$${formatted}`; // always prefix with a dollar sign
       }
+      setFormData((prev) => ({
+        ...prev,
+        [name]: formatted,
+      }));
+    } else {
+      // Normal fields (title, location, description, images)
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: !validate(name, newValue),
-    }));
   };
 
   const handleSubmit = async (e) => {
