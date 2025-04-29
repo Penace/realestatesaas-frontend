@@ -78,18 +78,10 @@ export default function AdminModeration() {
               <p className="text-blue-600 font-semibold">{listing.price}</p>
 
               <div className="flex space-x-4 pt-4">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => openModal(listing, "approve")}
-                >
+                <Button variant="approve" size="sm">
                   Approve
                 </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => openModal(listing, "reject")}
-                >
+                <Button variant="reject" size="sm">
                   Reject
                 </Button>
               </div>

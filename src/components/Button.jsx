@@ -17,37 +17,28 @@ export default function Button({
   };
 
   const variantStyles = {
-    primary: `
-    bg-gradient-to-br from-blue-600 to-blue-700
-    hover:from-blue-500 hover:to-blue-600
-    text-white shadow-md ring-2 ring-white/5
-  `,
-    secondary: `
-    bg-gradient-to-br from-gray-900 to-gray-800
-    hover:from-gray-800 hover:to-gray-700
-    text-white shadow-md ring-1 ring-cyan-400/10
-  `,
-    hero: `
-    bg-gradient-to-br from-cyan-100/5 via-white/5 to-blue-200/10
-    backdrop-blur-md
-    hover:bg-white/10
-    ring-1 ring-teal-200/10
-    text-white shadow-sm
-  `,
+    primary:
+      "bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white ring-2 ring-white/5 shadow-md",
+    secondary:
+      "bg-gradient-to-br from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white ring-1 ring-cyan-400/10 shadow-md",
+    hero: "bg-gradient-to-br from-cyan-100/5 via-white/5 to-blue-200/10 backdrop-blur-md hover:bg-white/10 text-white ring-1 ring-teal-200/10 shadow-sm",
+    approve:
+      "bg-green-50 text-green-800 ring-1 ring-green-300 hover:bg-green-100 hover:text-green-900",
+    reject:
+      "bg-red-50 text-red-800 ring-1 ring-red-300 hover:bg-red-100 hover:text-red-900",
   };
 
-  const baseStyles = `
-    inline-block rounded-2xl font-semibold transition-all duration-300
-    hover:scale-105 hover:shadow-xl transform-gpu
-    drop-shadow-md text-shadow
-  `;
+  const baseStyles =
+    "inline-block rounded-2xl font-semibold transition-all duration-300 transform-gpu hover:scale-105 drop-shadow-md text-shadow";
 
-  const styles = `
-    ${baseStyles}
-    ${sizeStyles[size] || sizeStyles.md}
-    ${variantStyles[variant] || variantStyles.primary}
-    ${className}
-  `;
+  const resolvedClasses = [
+    baseStyles,
+    sizeStyles[size] || sizeStyles.md,
+    variantStyles[variant] || variantStyles.primary,
+    className,
+  ]
+    .join(" ")
+    .trim();
 
   const inlineStyle = {
     backgroundImage:
@@ -56,14 +47,14 @@ export default function Button({
   };
 
   return to ? (
-    <Link to={to} className={styles} style={inlineStyle} {...rest}>
+    <Link to={to} className={resolvedClasses} style={inlineStyle} {...rest}>
       <span className="drop-shadow-sm">{children}</span>
     </Link>
   ) : (
     <button
       onClick={onClick}
       type={type}
-      className={styles}
+      className={resolvedClasses}
       style={inlineStyle}
       {...rest}
     >

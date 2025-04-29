@@ -38,11 +38,33 @@ export async function fetchPendingListings() {
 }
 
 export async function approveListing(id) {
-  return fetchWithHandling(
-    `${API_URL}/pendingListings/${id}`,
-    { method: "DELETE" },
-    true
-  );
+  try {
+    // Fetch the pending listing by ID
+    const pending = await fetchWithHandling(
+      `${API_URL}/pendingListings/${id}`,
+      {},
+      null
+    );
+    if (!pending) throw new Error("Listing not found");
+
+    // Add to main listings
+    await fetchWithHandling(`${API_URL}/listings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pending),
+    });
+
+    // Remove from pending
+    await fetchWithHandling(
+      `${API_URL}/pendingListings/${id}`,
+      { method: "DELETE" },
+      true
+    );
+    return true;
+  } catch (err) {
+    console.error("Approval Error:", err.message);
+    return false;
+  }
 }
 
 export async function rejectListing(id) {
