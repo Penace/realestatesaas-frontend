@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { fetchListings, deleteListing, updateListing } from "../services/api";
 import ModalConfirm from "../components/ModalConfirm";
 import Button from "../components/Button";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { useToast } from "../context/ToastProvider";
 
 export default function ManageListings() {
@@ -9,7 +10,6 @@ export default function ManageListings() {
   const [selectedListing, setSelectedListing] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { showToast } = useToast();
   const [editingListingId, setEditingListingId] = useState(null);
   const [editForm, setEditForm] = useState({
     title: "",
@@ -17,9 +17,11 @@ export default function ManageListings() {
     price: "",
   });
   const titleInputRef = useRef();
+  const { showToast } = useToast();
 
   useEffect(() => {
-    loadListings();
+    setLoading(true);
+    loadListings().finally(() => setLoading(false));
   }, []);
 
   const loadListings = async () => {
@@ -30,7 +32,6 @@ export default function ManageListings() {
   const handleDelete = async () => {
     if (!selectedListing) return;
     setLoading(true);
-
     try {
       await deleteListing(selectedListing.id);
       showToast("Listing deleted.", "success");
@@ -43,6 +44,14 @@ export default function ManageListings() {
       setModalOpen(false);
     }
   };
+
+  if (loading && !listings.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner size={36} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center p-10 bg-gray-50">
@@ -61,7 +70,7 @@ export default function ManageListings() {
             >
               {/* Thumbnail */}
               <div className="w-full h-40 rounded-xl overflow-hidden bg-gray-100">
-                {listing.images && listing.images.length > 0 ? (
+                {listing.images?.length ? (
                   <img
                     src={`/assets/${listing.images[0]}`}
                     alt={listing.title}
@@ -88,7 +97,6 @@ export default function ManageListings() {
                       className="w-full px-4 py-2 border rounded-lg text-center text-gray-800"
                     />
                     <input
-                      ref={titleInputRef}
                       type="text"
                       value={editForm.location}
                       onChange={(e) =>
@@ -97,7 +105,6 @@ export default function ManageListings() {
                       className="w-full px-4 py-2 border rounded-lg text-center text-gray-800"
                     />
                     <input
-                      ref={titleInputRef}
                       type="text"
                       value={editForm.price}
                       onChange={(e) =>
@@ -132,7 +139,7 @@ export default function ManageListings() {
                           await updateListing(editingListingId, editForm);
                           showToast("Listing updated.", "success");
                           await loadListings();
-                          setEditingListingId(null); // Exit edit mode
+                          setEditingListingId(null);
                         } catch (err) {
                           console.error(err);
                           showToast("Failed to update listing.", "error");
@@ -141,7 +148,14 @@ export default function ManageListings() {
                         }
                       }}
                     >
-                      {loading ? "Saving..." : "Save"}
+                      {loading ? (
+                        <div className="flex items-center justify-center space-x-2">
+                          <LoadingSpinner size={18} />
+                          <span>Saving...</span>
+                        </div>
+                      ) : (
+                        "Save"
+                      )}
                     </Button>
                     <Button
                       size="sm"
