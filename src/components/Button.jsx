@@ -14,9 +14,11 @@ export default function Button({
   };
 
   const variantStyles = {
-    primary: "bg-blue-600 hover:bg-blue-500",
-    secondary: "bg-gray-800 hover:bg-gray-700",
-    hero: "bg-white/10 backdrop-blur-md hover:bg-white/20 ring-1 ring-white/20 text-white",
+    primary:
+      "bg-blue-600 hover:bg-blue-500 text-white shadow-md ring-2 ring-white/5",
+    secondary:
+      "bg-gray-900 hover:bg-gray-800 text-white shadow-md ring-1 ring-cyan-400/5",
+    hero: "bg-cyan-300/5 backdrop-blur-sm hover:bg-white/15 ring-1 ring-teal-100/10 text-white shadow-md",
   };
 
   return (

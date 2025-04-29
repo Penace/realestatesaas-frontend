@@ -51,7 +51,7 @@ export default function CTASection({
       }}
     >
       <div ref={buttonRef}>
-        <Button to={buttonLink} size="lg" variant="primary">
+        <Button to={buttonLink} size="lg" variant="secondary">
           {title}
         </Button>
       </div>
