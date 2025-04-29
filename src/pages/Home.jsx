@@ -7,6 +7,7 @@ import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useHeroParallax } from "../hooks/useHeroParallax";
 import CTASection from "../components/CTASection";
 import SectionDivider from "../components/SectionDivider";
+import Button from "../components/Button";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
@@ -49,13 +50,9 @@ export default function Home() {
         >
           Find Your Dream Property
         </h1>
-        <Link
-          id="heroButton"
-          to="/listings"
-          className="mt-6 text-white bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg text-lg font-semibold opacity-0 translate-y-10 transition-all duration-700 ease-out"
-        >
+        <Button to="/listings" size="md" variant="secondary" className="">
           Browse Listings
-        </Link>
+        </Button>
       </section>
 
       {/* Info Section */}
