@@ -60,31 +60,50 @@ export default function Publish() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const currentErrors = {};
-    let hasError = false;
 
-    Object.keys(formData).forEach((key) => {
-      if (!validate(key, formData[key])) {
-        currentErrors[key] = true;
-        hasError = true;
-      }
-    });
+    const { title, location, price, description, images } = formData;
 
-    if (hasError) {
-      setErrors(currentErrors);
+    // --- Title / Location / Description validation
+    if (
+      title.trim().length < 3 ||
+      location.trim().length < 3 ||
+      description.trim().length < 10
+    ) {
       showToast("Please fill out all fields properly.", "error");
       return;
     }
 
+    // --- Price Validation
+    const numericPrice = Number(price.replace(/[^0-9]/g, "")); // Only digits allowed
+    if (isNaN(numericPrice) || numericPrice < 100 || numericPrice > 999999999) {
+      showToast(
+        "Please enter a valid price (between $100 and $999,999,999).",
+        "error"
+      );
+      return;
+    }
+
+    // --- Images Validation
+    const imageListRaw = images.split(",").map((img) => img.trim());
+    const invalidImages = imageListRaw.filter(
+      (img) => !img.endsWith(".jpg") && !img.endsWith(".jpeg")
+    );
+
+    if (imageListRaw.length === 0 || invalidImages.length > 0) {
+      showToast(
+        "Please provide only valid .jpg or .jpeg image filenames, separated by commas.",
+        "error"
+      );
+      return;
+    }
+
+    // --- Build the clean listing
     const listing = {
-      title: formData.title.trim(),
-      location: formData.location.trim(),
-      price: Number(formData.price.replace(/[^0-9.]/g, "")).toString(),
-      description: formData.description.trim(),
-      images: formData.images
-        .split(",")
-        .map((img) => img.trim())
-        .filter((img) => img.endsWith(".jpg")),
+      title: title.trim(),
+      location: location.trim(),
+      price: numericPrice.toString(),
+      description: description.trim(),
+      images: imageListRaw,
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
@@ -92,6 +111,7 @@ export default function Publish() {
 
     try {
       setSubmitting(true);
+
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/pendingListings`,
         {
