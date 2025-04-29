@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
 import { useToast } from "../context/ToastProvider";
 import ReviewModal from "../components/ReviewModal";
 
 export default function Publish() {
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -129,6 +131,7 @@ export default function Publish() {
       showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setShowReviewModal(false);
+
       setFormData({
         title: "",
         location: "",
@@ -136,6 +139,8 @@ export default function Publish() {
         description: "",
         images: "",
       });
+
+      navigate(`/listings/${createdListing.id}`);
     } catch (err) {
       console.error("Submission failed:", err);
       showToast("Something went wrong. Please try again.", "error");
