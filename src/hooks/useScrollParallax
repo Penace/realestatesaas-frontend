@@ -36,6 +36,8 @@ export function useScrollParallax(ref, options = {}) {
 
       if (opacity) {
         el.style.opacity = boostedOpacity.toFixed(2);
+      } else {
+        el.style.opacity = "1";
       }
 
       if (scale) {
