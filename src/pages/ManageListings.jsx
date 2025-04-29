@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { fetchListings, deleteListing } from "../services/api";
+import { useEffect, useState, useRef } from "react";
+import { fetchListings, deleteListing, updateListing } from "../services/api";
 import ModalConfirm from "../components/ModalConfirm";
 import Button from "../components/Button";
 import { useToast } from "../context/ToastProvider";
@@ -16,6 +16,7 @@ export default function ManageListings() {
     location: "",
     price: "",
   });
+  const titleInputRef = useRef();
 
   useEffect(() => {
     loadListings();
@@ -78,28 +79,31 @@ export default function ManageListings() {
                 {editingListingId === listing.id ? (
                   <>
                     <input
+                      ref={titleInputRef}
                       type="text"
                       value={editForm.title}
                       onChange={(e) =>
                         setEditForm({ ...editForm, title: e.target.value })
                       }
-                      className="w-full px-4 py-2 border rounded-lg text-center"
+                      className="w-full px-4 py-2 border rounded-lg text-center text-gray-800"
                     />
                     <input
+                      ref={titleInputRef}
                       type="text"
                       value={editForm.location}
                       onChange={(e) =>
                         setEditForm({ ...editForm, location: e.target.value })
                       }
-                      className="w-full px-4 py-2 border rounded-lg text-center"
+                      className="w-full px-4 py-2 border rounded-lg text-center text-gray-800"
                     />
                     <input
+                      ref={titleInputRef}
                       type="text"
                       value={editForm.price}
                       onChange={(e) =>
                         setEditForm({ ...editForm, price: e.target.value })
                       }
-                      className="w-full px-4 py-2 border rounded-lg text-center"
+                      className="w-full px-4 py-2 border rounded-lg text-center text-gray-800"
                     />
                   </>
                 ) : (
@@ -137,7 +141,7 @@ export default function ManageListings() {
                         }
                       }}
                     >
-                      Save
+                      {loading ? "Saving..." : "Save"}
                     </Button>
                     <Button
                       size="sm"
@@ -159,6 +163,7 @@ export default function ManageListings() {
                           location: listing.location,
                           price: listing.price,
                         });
+                        setTimeout(() => titleInputRef.current?.focus(), 10);
                       }}
                     >
                       Edit
