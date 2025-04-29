@@ -50,7 +50,7 @@ export default function ManageListings() {
           {listings.map((listing) => (
             <div
               key={listing.id}
-              className="bg-white p-6 rounded-xl shadow-md space-y-4"
+              className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-out backdrop-blur-sm"
             >
               <h2 className="text-2xl font-semibold text-gray-800">
                 {listing.title}
@@ -58,7 +58,7 @@ export default function ManageListings() {
               <p className="text-gray-500">{listing.location}</p>
               <p className="text-blue-600 font-semibold">{listing.price}</p>
 
-              <div className="flex space-x-4 pt-4 justify-center">
+              <div className="flex space-x-4 pt-6 justify-center">
                 <Button
                   size="sm"
                   variant="primaryLight"
