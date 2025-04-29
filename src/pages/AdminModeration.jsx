@@ -1,107 +1,107 @@
 import { useEffect, useState } from "react";
-import Button from "../components/Button";
+import {
+  fetchPendingListings,
+  approveListing,
+  rejectListing,
+} from "../services/api";
+import ModalConfirm from "../components/ModalConfirm";
 
 export default function AdminModeration() {
-  const [pending, setPending] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pendingListings, setPendingListings] = useState([]);
+  const [selectedListing, setSelectedListing] = useState(null);
+  const [modalMode, setModalMode] = useState(null); // "approve" or "reject"
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/pendingListings`)
-      .then((res) => res.json())
-      .then(setPending)
-      .catch((err) => console.error("Failed to fetch pending listings:", err))
-      .finally(() => setLoading(false));
+    loadPending();
   }, []);
 
-  const handleApprove = async (listing) => {
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}/listings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...listing,
-          id: listing.id || crypto.randomUUID(),
-        }),
-      });
-
-      await fetch(
-        `${import.meta.env.VITE_API_URL}/pendingListings/${listing.id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      setPending(pending.filter((l) => l.id !== listing.id));
-    } catch (err) {
-      console.error("Approval failed:", err);
-    }
+  const loadPending = async () => {
+    const listings = await fetchPendingListings();
+    setPendingListings(listings);
   };
 
-  const handleReject = async (id) => {
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}/pendingListings/${id}`, {
-        method: "DELETE",
-      });
+  const openModal = (listing, mode) => {
+    setSelectedListing(listing);
+    setModalMode(mode);
+  };
 
-      setPending(pending.filter((l) => l.id !== id));
+  const closeModal = () => {
+    setSelectedListing(null);
+    setModalMode(null);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedListing) return;
+    setLoading(true);
+
+    try {
+      if (modalMode === "approve") {
+        await approveListing(selectedListing.id);
+      } else if (modalMode === "reject") {
+        await rejectListing(selectedListing.id);
+      }
+      await loadPending(); // Refresh the listings
     } catch (err) {
-      console.error("Rejection failed:", err);
+      console.error(err);
+    } finally {
+      setLoading(false);
+      closeModal();
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-8 font-mono">
-      <h1 className="text-3xl font-bold mb-6 border-b border-white/10 pb-2 mt-10">
-        Admin Moderation Dashboard
+    <div className="min-h-screen flex flex-col items-center p-10 bg-gray-50">
+      <h1 className="text-4xl font-bold mb-8 text-gray-900 mt-12">
+        Moderate Listings
       </h1>
 
-      {loading ? (
-        <p className="text-gray-400">Loading pending listings...</p>
-      ) : pending.length === 0 ? (
-        <p className="text-green-400">No pending listings. All clear.</p>
+      {pendingListings.length === 0 ? (
+        <p className="text-gray-500">No pending listings.</p>
       ) : (
-        <div className="grid gap-6">
-          {pending.map((listing) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
+          {pendingListings.map((listing) => (
             <div
               key={listing.id}
-              className="border border-white/10 bg-gray-900 p-6 rounded-lg shadow-inner flex flex-col space-y-4"
+              className="bg-white p-6 rounded-xl shadow-md space-y-4"
             >
-              <div className="text-lg font-semibold text-cyan-300">
+              <h2 className="text-2xl font-semibold text-gray-800">
                 {listing.title}
-              </div>
-              <div className="text-sm text-gray-400">{listing.location}</div>
-              <div className="text-sm text-gray-500">{listing.description}</div>
+              </h2>
+              <p className="text-gray-500">{listing.location}</p>
+              <p className="text-blue-600 font-semibold">{listing.price}</p>
 
-              {listing.images?.length > 0 && (
-                <div className="mt-2 overflow-hidden rounded-md border border-white/5 w-full max-w-xs">
-                  <img
-                    src={`/assets/${listing.images[0]}`}
-                    alt="Preview"
-                    className="w-full h-48 object-cover"
-                  />
-                </div>
-              )}
-
-              <div className="flex space-x-4 mt-4">
-                <Button
-                  onClick={() => handleApprove(listing)}
-                  variant="primary"
-                  size="sm"
+              <div className="flex space-x-4 pt-4">
+                <button
+                  onClick={() => openModal(listing, "approve")}
+                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500 transition"
                 >
                   Approve
-                </Button>
-                <Button
-                  onClick={() => handleReject(listing.id)}
-                  variant="secondary"
-                  size="sm"
+                </button>
+                <button
+                  onClick={() => openModal(listing, "reject")}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition"
                 >
                   Reject
-                </Button>
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Modal Confirm */}
+      <ModalConfirm
+        isOpen={!!selectedListing}
+        onClose={closeModal}
+        onConfirm={handleConfirm}
+        title={
+          modalMode === "approve"
+            ? "Approve this listing?"
+            : "Reject this listing?"
+        }
+        description="This action will update the listing's status immediately."
+      />
     </div>
   );
 }
