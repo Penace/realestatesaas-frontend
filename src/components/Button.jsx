@@ -22,20 +22,31 @@ export default function Button({
     secondary:
       "bg-gradient-to-br from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white ring-1 ring-cyan-400/10 shadow-md",
     hero: "bg-gradient-to-br from-cyan-100/5 via-white/5 to-blue-200/10 backdrop-blur-md hover:bg-white/10 text-white ring-1 ring-teal-200/10 shadow-sm",
-    approve:
-      "bg-green-100/50 text-green-800 ring-1 ring-green-300/55 hover:bg-green-300 hover:text-white",
-    reject:
-      "bg-red-100/50 text-red-800 ring-1 ring-red-300/55 hover:bg-red-300 hover:text-white",
     primaryLight:
       "bg-white text-blue-600 ring-2 ring-blue-100 shadow hover:bg-blue-50 hover:text-blue-700",
+    approve: `
+  bg-green-100 text-green-800
+  ring-1 ring-green-300
+  hover:bg-green-500 hover:text-white
+  hover:ring-green-400
+  transition-all duration-200 ease-out
+  transition-colors duration-200
+`,
+    reject: `
+  bg-red-100 text-red-800
+  ring-1 ring-red-300
+  hover:bg-red-500 hover:text-white
+  hover:ring-red-400
+  transition-all duration-200 ease-out
+  transition-colors duration-200
+`,
   };
 
   const baseStyles = `
   inline-block rounded-2xl font-semibold
   transform-gpu transition-transform transition-shadow
   duration-200 ease-out
-  drop-shadow-sm
-  hover:drop-shadow-md hover:scale-[1.07]
+  hover:shadow hover:scale-[1.07]
 `;
 
   const resolvedClasses = [
