@@ -5,12 +5,14 @@ import {
   rejectListing,
 } from "../services/api";
 import ModalConfirm from "../components/ModalConfirm";
+import { useToast } from "../context/ToastProvider";
 
 export default function AdminModeration() {
   const [pendingListings, setPendingListings] = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
   const [modalMode, setModalMode] = useState(null); // "approve" or "reject"
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     loadPending();
@@ -55,6 +57,12 @@ export default function AdminModeration() {
       <h1 className="text-4xl font-bold mb-8 text-gray-900 mt-12">
         Moderate Listings
       </h1>
+      <button
+        className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-500"
+        onClick={() => showToast("Test Toast fired!")}
+      >
+        Fire Test Toast
+      </button>
 
       {pendingListings.length === 0 ? (
         <p className="text-gray-500">No pending listings.</p>

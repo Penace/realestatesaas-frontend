@@ -1,7 +1,9 @@
 import { useState } from "react";
 import Button from "../components/Button";
+import { useToast } from "../hooks/useToast";
 
 export default function Publish() {
+  const { openToast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -64,6 +66,12 @@ export default function Publish() {
         <h1 className="text-4xl font-bold text-gray-900 text-center">
           Publish Your Listing
         </h1>
+        <button
+          className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-500"
+          onClick={() => showToast("Test Toast fired!")}
+        >
+          Fire Test Toast
+        </button>
 
         {submitted && (
           <div className="p-4 rounded-xl bg-green-100 text-green-700 font-medium text-center shadow">
