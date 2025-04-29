@@ -100,20 +100,21 @@ export default function Home() {
       </section>
 
       {/* Smooth Background Transition */}
-      <div className="w-full h-32 bg-gradient-to-b from-white via-gray-100 to-white" />
+      <div className="w-full h-14 bg-gradient-to-b from-white via-gray-100/35 to-gray-100/5" />
 
       {/* Auction Spotlight */}
       {auctionListing && (
         <>
           <div className="text-center py-12">
-            <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+            <h2 className="text-3xl font-semibold text-gray-800">
               Auction Spotlight
             </h2>
             <p className="text-gray-500">
               Exclusive opportunities, limited time.
             </p>
           </div>
-
+          {/* Smooth Background Transition */}
+          <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/35 to-gray-100/25" />
           <PropertyShowcase
             key={auctionListing.id}
             id={auctionListing.id}
@@ -123,14 +124,17 @@ export default function Home() {
           />
         </>
       )}
-
+      {/* Smooth Background Transition */}
+      <div className="w-full h-6 bg-gradient-to-b from-gray-100/25 via-gray-200/25 to-white" />
       {/* Featured Properties */}
       <div className="text-center py-12">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+        <h2 className="text-3xl font-semibold text-gray-800">
           Featured Collection
         </h2>
         <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
+      {/* Smooth Background Transition */}
+      <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/25 to-gray-100/25" />
       {featuredListings.slice(0, 2).map((listing, idx) => (
         <div key={`featured-${listing.id}`}>
           <PropertyShowcase
@@ -146,15 +150,17 @@ export default function Home() {
 
       {/* Soft CTA Section */}
       <CTASection />
-
+      {/* Smooth Background Transition */}
+      <div className="w-full h-6 bg-gradient-to-b from-gray-100/25 via-gray-200/35 to-white" />
       {/* Sponsored Highlights */}
       <div className="text-center py-12">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+        <h2 className="text-3xl font-semibold text-gray-800">
           Curated Exclusives
         </h2>
         <p className="text-gray-500">Properties by invitation only.</p>
       </div>
-
+      {/* Smooth Background Transition */}
+      <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/25 to-gray-100/25" />
       {sponsoredListings.slice(0, 2).map((listing, idx) => (
         <div key={`sponsored-${listing.id}`}>
           <PropertyShowcase

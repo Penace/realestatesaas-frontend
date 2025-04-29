@@ -19,6 +19,12 @@ export default function Navbar() {
         >
           Listings
         </Link>
+        <Link
+          to="/publish"
+          className="text-gray-600 hover:text-blue-600 transition-all"
+        >
+          Publish
+        </Link>
       </div>
     </nav>
   );

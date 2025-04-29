@@ -3,6 +3,7 @@ import Layout from "./Layout";
 import Home from "./pages/Home";
 import Listings from "./pages/Listings";
 import ListingDetail from "./pages/ListingDetail";
+import Publish from "./pages/Publish";
 
 export default function App() {
   return (
@@ -30,6 +31,14 @@ export default function App() {
           element={
             <Layout>
               <ListingDetail />
+            </Layout>
+          }
+        />
+        <Route
+          path="/publish"
+          element={
+            <Layout>
+              <Publish />
             </Layout>
           }
         />

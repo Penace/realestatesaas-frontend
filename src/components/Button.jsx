@@ -17,11 +17,23 @@ export default function Button({
   };
 
   const variantStyles = {
-    primary:
-      "bg-blue-600 hover:bg-blue-500 text-white shadow-md ring-2 ring-white/5",
-    secondary:
-      "bg-gray-900 hover:bg-gray-800 text-white shadow-md ring-1 ring-cyan-400/5",
-    hero: "bg-cyan-300/5 backdrop-blur-sm hover:bg-black/10 ring-0.5 ring-teal-100/10 text-white shadow-sm",
+    primary: `
+    bg-gradient-to-br from-blue-600 to-blue-700
+    hover:from-blue-500 hover:to-blue-600
+    text-white shadow-md ring-2 ring-white/5
+  `,
+    secondary: `
+    bg-gradient-to-br from-gray-900 to-gray-800
+    hover:from-gray-800 hover:to-gray-700
+    text-white shadow-md ring-1 ring-cyan-400/10
+  `,
+    hero: `
+    bg-gradient-to-br from-cyan-100/5 via-white/5 to-blue-200/10
+    backdrop-blur-md
+    hover:bg-white/10
+    ring-1 ring-teal-200/10
+    text-white shadow-sm
+  `,
   };
 
   const baseStyles = `
