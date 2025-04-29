@@ -128,7 +128,7 @@ export default function Home() {
         </h2>
         <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
-      {featuredListings.slice(0, 2).map((listing) => (
+      {featuredListings.slice(0, 2).map((listing, idx) => (
         <>
           <PropertyShowcase
             key={listing.id}
@@ -137,7 +137,7 @@ export default function Home() {
             title={listing.title}
             description={listing.description}
           />
-          <SectionDivider />
+          {idx === 0 && <SectionDivider />}
         </>
       ))}
 
@@ -152,14 +152,17 @@ export default function Home() {
         <p className="text-gray-500">Properties by invitation only.</p>
       </div>
 
-      {sponsoredListings.slice(0, 2).map((listing) => (
-        <PropertyShowcase
-          key={listing.id}
-          id={listing.id}
-          images={listing.images}
-          title={listing.title}
-          description={listing.description}
-        />
+      {sponsoredListings.slice(0, 2).map((listing, idx) => (
+        <>
+          <PropertyShowcase
+            key={listing.id}
+            id={listing.id}
+            images={listing.images}
+            title={listing.title}
+            description={listing.description}
+          />
+          {idx === 0 && <SectionDivider />}
+        </>
       ))}
     </div>
   );
