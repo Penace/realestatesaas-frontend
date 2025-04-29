@@ -77,6 +77,10 @@ export default function AdminModeration() {
                   <img
                     src={`/assets/${listing.images[0]}`}
                     alt={listing.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/assets/fallback.jpg"; // ← Add a soft default fallback image here
+                    }}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -92,7 +96,9 @@ export default function AdminModeration() {
                   {listing.title}
                 </h2>
                 <p className="text-gray-500">{listing.location}</p>
-                <p className="text-blue-600 font-semibold">{listing.price}</p>
+                <p className="text-blue-600 font-semibold">
+                  ${Number(listing.price).toLocaleString()}
+                </p>{" "}
               </div>
 
               {/* Actions */}
