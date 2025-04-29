@@ -56,9 +56,12 @@ export default function CTASection({
   return (
     <section
       ref={ctaRef}
-      className={`h-64 bg-gradient-to-b from-gray-700 via-gray-900 to-gray-800 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out ${
+      className={`h-64 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
+      style={{
+        background: "radial-gradient(circle at center, #1f3037, #111827)", // gray-800 to gray-900 approx
+      }}
     >
       <Link
         ref={buttonRef}
