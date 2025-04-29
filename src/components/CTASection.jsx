@@ -7,6 +7,7 @@ export default function CTASection({
   buttonLink = "/listings",
 }) {
   const ctaRef = useRef(null);
+  const buttonRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
   useScrollParallax(ctaRef, {
@@ -36,16 +37,33 @@ export default function CTASection({
     };
   }, []);
 
+  // Bonus: Soft Button Parallax
+  useEffect(() => {
+    const handleScroll = () => {
+      const button = buttonRef.current;
+      if (!button) return;
+
+      const scrollY = window.scrollY;
+      button.style.transform = `translateY(${
+        Math.sin(scrollY * 0.003) * 5
+      }px) scale(1.02)`;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <section
       ref={ctaRef}
-      className={`h-64 bg-gray-900 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out ${
+      className={`h-64 bg-gradient-to-b from-gray-700 via-gray-900 to-gray-800 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
       <Link
+        ref={buttonRef}
         to={buttonLink}
-        className="px-8 py-4 text-white bg-blue-600 hover:bg-blue-500 rounded-xl text-2xl shadow-lg transition-all duration-500 ease-out transform hover:scale-105"
+        className="px-10 py-5 text-white bg-blue-600 hover:bg-blue-500 rounded-2xl text-2xl shadow-2xl transition-all duration-500 ease-out transform-gpu hover:scale-105"
       >
         {title}
       </Link>
