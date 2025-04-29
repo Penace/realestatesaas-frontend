@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { useScrollParallax } from "../hooks/useScrollParallax";
+import SectionDivider from "./SectionDivider";
 
 export default function PropertyShowcase({ id, images, title, description }) {
   const showcaseRef = useRef(null);

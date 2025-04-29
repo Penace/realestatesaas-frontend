@@ -6,6 +6,7 @@ import { fetchListings } from "../services/api";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useHeroParallax } from "../hooks/useHeroParallax";
 import CTASection from "../components/CTASection";
+import SectionDivider from "../components/SectionDivider";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
@@ -127,7 +128,6 @@ export default function Home() {
         </h2>
         <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
-      <div className="h-12 w-full bg-gradient-to-b from-transparent via-gray-100 to-transparent" />
       {featuredListings.slice(0, 2).map((listing) => (
         <PropertyShowcase
           key={listing.id}
