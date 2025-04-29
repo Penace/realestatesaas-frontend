@@ -7,6 +7,7 @@ export default function ListingDetail() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log("Fetching:", `${import.meta.env.VITE_API_URL}/listings/${id}`);
     async function fetchListing() {
       try {
         const response = await fetch(

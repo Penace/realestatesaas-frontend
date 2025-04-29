@@ -3,29 +3,38 @@ import { Link } from "react-router-dom";
 import PropertyShowcase from "../components/PropertyShowcase";
 import FeatureCard from "../components/FeatureCard";
 import { fetchListings } from "../services/api";
-import { FEATURED_LISTINGS_LIMIT } from "../constants";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
+import { useHeroParallax } from "../hooks/useHeroParallax";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
+  const [auctionListing, setAuctionListing] = useState(null);
+  const [sponsoredListings, setSponsoredListings] = useState([]);
+
+  useHeroParallax();
 
   useScrollAnimation({
     infoContentId: "infoContent",
     heroSectionId: "heroSection",
   });
 
-  const loadListings = async () => {
-    const listings = await fetchListings();
-    setFeaturedListings(listings.slice(0, FEATURED_LISTINGS_LIMIT));
-  };
-  loadListings();
+  useEffect(() => {
+    const loadListings = async () => {
+      const listings = await fetchListings();
+      setFeaturedListings(listings.filter((l) => l.isFeatured));
+      setAuctionListing(listings.find((l) => l.isAuction));
+      setSponsoredListings(listings.filter((l) => l.isSponsored));
+    };
+
+    loadListings();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-white transition-colors duration-700">
       {/* Hero Section */}
       <section
         id="heroSection"
-        className="h-[120vh] bg-cover bg-center flex flex-col items-center justify-center transition-transform duration-700 ease-out overflow-hidden relative"
+        className="h-[120vh] bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center transition-transform duration-700 ease-out overflow-hidden relative"
         style={{
           backgroundImage: "url('/assets/hero.jpeg')",
           backgroundSize: "cover",
@@ -84,19 +93,79 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Listings Section */}
-      <div id="listings">
-        {featuredListings.map((listing, idx) => (
+      {/* Smooth Background Transition */}
+      <div className="w-full h-32 bg-gradient-to-b from-white via-gray-100 to-white" />
+
+      {/* Auction Spotlight */}
+      {auctionListing && (
+        <>
+          <div className="text-center py-12">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+              Auction Spotlight
+            </h2>
+            <p className="text-gray-500">
+              Exclusive opportunities, limited time.
+            </p>
+          </div>
+
           <PropertyShowcase
-            key={listing.id}
-            id={listing.id}
-            image={listing.images}
-            title={listing.title}
-            description={listing.description}
-            noMarginBottom={idx === featuredListings.length - 1}
+            key={auctionListing.id}
+            id={auctionListing.id}
+            images={auctionListing.images}
+            title={auctionListing.title}
+            description={auctionListing.description}
           />
-        ))}
+        </>
+      )}
+
+      {/* Featured Properties */}
+      <div className="text-center py-12">
+        <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+          Featured Collection
+        </h2>
+        <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
+
+      {featuredListings.slice(0, 2).map((listing) => (
+        <PropertyShowcase
+          key={listing.id}
+          id={listing.id}
+          images={listing.images}
+          title={listing.title}
+          description={listing.description}
+        />
+      ))}
+
+      {/* Soft CTA Section */}
+      <section className="flex flex-col items-center justify-center p-10 bg-gray-100 rounded-2xl mx-10 my-16">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          Thinking of Selling?
+        </h2>
+        <Link
+          to="/publish"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg shadow transition-all"
+        >
+          Publish Your Property
+        </Link>
+      </section>
+
+      {/* Sponsored Highlights */}
+      <div className="text-center py-12">
+        <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+          Curated Exclusives
+        </h2>
+        <p className="text-gray-500">Properties by invitation only.</p>
+      </div>
+
+      {sponsoredListings.slice(0, 2).map((listing) => (
+        <PropertyShowcase
+          key={listing.id}
+          id={listing.id}
+          images={listing.images}
+          title={listing.title}
+          description={listing.description}
+        />
+      ))}
     </div>
   );
 }

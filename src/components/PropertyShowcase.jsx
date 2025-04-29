@@ -1,56 +1,42 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { useScrollParallax } from "../hooks/useScrollParallax";
 
-export default function PropertyShowcase({
-  id,
-  images,
-  title,
-  description,
-  parallaxStrength = 60,
-}) {
+export default function PropertyShowcase({ id, images, title, description }) {
   const showcaseRef = useRef(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const showcase = showcaseRef.current;
-      if (!showcase) return;
-      const rect = showcase.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+  useScrollParallax(showcaseRef, {
+    parallax: true,
+    scale: true,
+    opacity: true,
+    parallaxStrength: 17,
+    scaleStrength: 0.1,
+    mobileParallax: true,
+    resetOffscreen: true,
+  });
 
-      if (rect.top < windowHeight && rect.bottom > 0) {
-        const scrollProgress =
-          1 - Math.min(Math.max(rect.top / windowHeight, 0), 1);
-        showcase.style.opacity = scrollProgress;
-
-        const backgroundShift = scrollProgress * parallaxStrength;
-        showcase.style.backgroundPositionY = `${50 - backgroundShift}%`;
-      } else {
-        showcase.style.opacity = 0.05;
-        showcase.style.backgroundPositionY = "50%";
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [parallaxStrength]);
+  const backgroundImage =
+    images && images[0] ? `/assets/${images[0]}` : "/assets/fallback.jpg";
 
   return (
     <Link to={`/listings/${id}`} className="block">
-      <section
-        className="min-h-screen w-full flex flex-col items-center justify-center transition-all duration-700 ease-out overflow-hidden relative bg-cover bg-center pb-12"
-        style={{
-          backgroundImage:
-            images && images.length > 0 ? `url(/assets/${images[0]})` : "none",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        <div className="bg-black/50 p-8 rounded-xl text-center shadow-lg backdrop-blur-sm">
-          <h2 className="text-4xl font-bold text-white">{title}</h2>
-          <p className="text-lg text-gray-200 mt-4">{description}</p>
-        </div>
-      </section>
+      <div className="relative z-10 overflow-hidden mb-[1.4vh]">
+        <section
+          ref={showcaseRef}
+          className="min-h-screen w-full flex flex-col items-center justify-center bg-cover bg-center transform-gpu will-change-transform transition-all duration-700 ease-out"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+          }}
+        >
+          <div className="bg-black/50 px-6 py-8 rounded-xl text-center shadow-lg backdrop-blur-sm transition-transform duration-300 hover:scale-[1.02] w-[90%] max-w-2xl">
+            <h2 className="text-4xl font-bold text-white">{title}</h2>
+            <p className="text-lg text-gray-200 mt-4">{description}</p>
+          </div>
+        </section>
+      </div>
     </Link>
   );
 }
