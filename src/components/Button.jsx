@@ -16,7 +16,7 @@ export default function Button({
   const variantStyles = {
     primary: "bg-blue-600 hover:bg-blue-500",
     secondary: "bg-gray-800 hover:bg-gray-700",
-    hero: "bg-white/10 hover:bg-white/20",
+    hero: "bg-white/10 backdrop-blur-md hover:bg-white/20 ring-1 ring-white/20 text-white",
   };
 
   return (
