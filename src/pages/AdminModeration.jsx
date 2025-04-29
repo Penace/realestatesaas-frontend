@@ -5,6 +5,7 @@ import {
   rejectListing,
 } from "../services/api";
 import ModalConfirm from "../components/ModalConfirm";
+import Button from "../components/Button";
 import { useToast } from "../context/ToastProvider";
 
 export default function AdminModeration() {
@@ -40,12 +41,15 @@ export default function AdminModeration() {
     try {
       if (modalMode === "approve") {
         await approveListing(selectedListing.id);
+        showToast("Listing approved!", "success");
       } else if (modalMode === "reject") {
         await rejectListing(selectedListing.id);
+        showToast("Listing rejected!", "success");
       }
-      await loadPending(); // Refresh the listings
+      await loadPending();
     } catch (err) {
       console.error(err);
+      showToast("Action failed. Please try again.", "error");
     } finally {
       setLoading(false);
       closeModal();
@@ -57,12 +61,6 @@ export default function AdminModeration() {
       <h1 className="text-4xl font-bold mb-8 text-gray-900 mt-12">
         Moderate Listings
       </h1>
-      <button
-        className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-500"
-        onClick={() => showToast("Test Toast fired!")}
-      >
-        Fire Test Toast
-      </button>
 
       {pendingListings.length === 0 ? (
         <p className="text-gray-500">No pending listings.</p>
@@ -80,18 +78,20 @@ export default function AdminModeration() {
               <p className="text-blue-600 font-semibold">{listing.price}</p>
 
               <div className="flex space-x-4 pt-4">
-                <button
+                <Button
+                  size="sm"
+                  variant="primary"
                   onClick={() => openModal(listing, "approve")}
-                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500 transition"
                 >
                   Approve
-                </button>
-                <button
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
                   onClick={() => openModal(listing, "reject")}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition"
                 >
                   Reject
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -109,6 +109,7 @@ export default function AdminModeration() {
             : "Reject this listing?"
         }
         description="This action will update the listing's status immediately."
+        loading={loading}
       />
     </div>
   );

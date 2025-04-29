@@ -1,6 +1,6 @@
 export default function ToastContainer({ toasts = [] }) {
   return (
-    <div className="fixed top-5 right-5 z-50 space-y-2">
+    <div className="fixed bottom-6 left-6 flex flex-col space-y-4 z-[9999]">
       {toasts.map((toast) => (
         <div
           key={toast.id}
