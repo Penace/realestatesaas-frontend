@@ -1,5 +1,5 @@
 // src/components/PageLoader.jsx
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 export default function PageLoader({ isLoading, children }) {
   if (isLoading) {

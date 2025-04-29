@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PropertyShowcase from "../components/PropertyShowcase";
-import FeatureCard from "../components/FeatureCard";
+import FeatureCard from "../components/home/FeatureCard";
 import { fetchListings } from "../services/api";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useHeroParallax } from "../hooks/useHeroParallax";
-import CTASection from "../components/CTASection";
-import SectionDivider from "../components/SectionDivider";
-import Button from "../components/Button";
+import CTASection from "../components/home/CTASection";
+import SectionDivider from "../components/common/SectionDivider";
+import Button from "../components/common/Button";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);

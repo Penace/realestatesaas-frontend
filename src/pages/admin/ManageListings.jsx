@@ -1,9 +1,13 @@
 import { useEffect, useState, useRef } from "react";
-import { fetchListings, deleteListing, updateListing } from "../services/api";
-import ModalConfirm from "../components/ModalConfirm";
-import Button from "../components/Button";
-import LoadingSpinner from "../components/LoadingSpinner";
-import { useToast } from "../context/ToastProvider";
+import {
+  fetchListings,
+  deleteListing,
+  updateListing,
+} from "../../services/api";
+import ModalConfirm from "../../components/common/ModalConfirm";
+import Button from "../../components/common/Button";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { useToast } from "../../context/ToastProvider";
 
 export default function ManageListings() {
   const [listings, setListings] = useState([]);

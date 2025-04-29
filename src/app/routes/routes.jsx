@@ -1,13 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./Layout";
-import Home from "./pages/Home";
-import Listings from "./pages/Listings";
-import ListingDetail from "./pages/ListingDetail";
-import Publish from "./pages/Publish";
-import AdminModeration from "./pages/AdminModeration";
-import ManageListings from "./pages/ManageListings";
+import { lazy, Suspense } from "react";
+import Layout from "../Layout";
+import Home from "../../pages/Home";
+import Listings from "../../pages/Listings";
+import ListingDetail from "../../pages/ListingDetail";
+import Publish from "../../pages/Publish";
+import AdminModeration from "../../pages/admin/AdminModeration";
+import ManageListings from "../../pages/admin/ManageListings";
+import withPageLoader from "../withPageLoader";
 
 export default function App() {
+  const Home = withPageLoader(lazy(() => import("../../pages/Home")));
   return (
     <Router>
       <Routes>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Button from "../components/Button";
+import Button from "../components/common/Button";
 import { useToast } from "../context/ToastProvider";
 
 export default function Publish() {

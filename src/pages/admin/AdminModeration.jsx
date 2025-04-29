@@ -3,10 +3,10 @@ import {
   fetchPendingListings,
   approveListing,
   rejectListing,
-} from "../services/api";
-import ModalConfirm from "../components/ModalConfirm";
-import Button from "../components/Button";
-import { useToast } from "../context/ToastProvider";
+} from "../../services/api";
+import ModalConfirm from "../../components/common/ModalConfirm";
+import Button from "../../components/common/Button";
+import { useToast } from "../../context/ToastProvider";
 
 export default function AdminModeration() {
   const [pendingListings, setPendingListings] = useState([]);
