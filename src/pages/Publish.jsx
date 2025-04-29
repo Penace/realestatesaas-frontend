@@ -7,29 +7,44 @@ export default function Publish() {
   const [formData, setFormData] = useState({
     title: "",
     location: "",
-    price: "$",
+    price: "",
     description: "",
     images: "",
   });
-  const [formErrors, setFormErrors] = useState({});
-  const [submitted, setSubmitted] = useState(false);
 
-  const validateField = (name, value) => {
-    if (!value.trim() || (name === "price" && value.trim() === "$")) {
-      return "This field is required.";
+  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const validate = (field, value) => {
+    switch (field) {
+      case "title":
+      case "location":
+        return value.trim().length >= 3;
+      case "price":
+        const numeric = Number(value.replace(/[^0-9.]/g, ""));
+        return !isNaN(numeric) && numeric >= 100;
+      case "description":
+        return value.trim().length >= 10;
+      case "images":
+        return (
+          value.split(",").filter((img) => img.trim().endsWith(".jpg")).length >
+          0
+        );
+      default:
+        return true;
     }
-    return null;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Special handling for price field
     let newValue = value;
     if (name === "price") {
-      newValue = value.startsWith("$")
-        ? value
-        : `$${value.replace(/[^0-9]/g, "")}`;
+      newValue = value.replace(/[^\d]/g, ""); // Only numbers
+      if (newValue.length > 0) {
+        newValue = `$${newValue}`;
+      }
     }
 
     setFormData((prev) => ({
@@ -37,40 +52,46 @@ export default function Publish() {
       [name]: newValue,
     }));
 
-    // Real-time validation
-    const error = validateField(name, newValue);
-    setFormErrors((prev) => ({
+    setErrors((prev) => ({
       ...prev,
-      [name]: error,
+      [name]: !validate(name, newValue),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const currentErrors = {};
+    let hasError = false;
 
-    // Validate all fields
-    const newErrors = {};
-    Object.keys(formData).forEach((field) => {
-      const error = validateField(field, formData[field]);
-      if (error) newErrors[field] = error;
+    Object.keys(formData).forEach((key) => {
+      if (!validate(key, formData[key])) {
+        currentErrors[key] = true;
+        hasError = true;
+      }
     });
 
-    if (Object.keys(newErrors).length > 0) {
-      setFormErrors(newErrors);
-      showToast("Please fix the form errors.", "error");
+    if (hasError) {
+      setErrors(currentErrors);
+      showToast("Please fill out all fields properly.", "error");
       return;
     }
 
     const listing = {
-      ...formData,
-      price: formData.price.trim(),
-      images: formData.images.split(",").map((img) => img.trim()),
+      title: formData.title.trim(),
+      location: formData.location.trim(),
+      price: Number(formData.price.replace(/[^0-9.]/g, "")).toString(),
+      description: formData.description.trim(),
+      images: formData.images
+        .split(",")
+        .map((img) => img.trim())
+        .filter((img) => img.endsWith(".jpg")),
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
     };
 
     try {
+      setSubmitting(true);
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/pendingListings`,
         {
@@ -82,18 +103,20 @@ export default function Publish() {
 
       if (!res.ok) throw new Error("Failed to submit listing");
 
+      showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setFormData({
         title: "",
         location: "",
-        price: "$",
+        price: "",
         description: "",
         images: "",
       });
-      setFormErrors({});
     } catch (err) {
       console.error("Submission failed:", err);
-      showToast("Submission failed. Please try again.", "error");
+      showToast("Something went wrong. Please try again.", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -133,11 +156,11 @@ export default function Publish() {
                 value={formData[name]}
                 onChange={handleChange}
                 placeholder={placeholder}
-                className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                  formErrors[name]
+                className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all text-gray-800 ${
+                  errors[name]
                     ? "border-red-400 focus:ring-red-400"
                     : "border-gray-300 focus:ring-blue-400"
-                } transition-all`}
+                }`}
               />
             </div>
           ))}
@@ -155,11 +178,11 @@ export default function Publish() {
               onChange={handleChange}
               rows={4}
               placeholder="Describe your property in detail..."
-              className={`px-4 py-3 border rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 ${
-                formErrors.description
+              className={`px-4 py-3 border rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 transition-all text-gray-800 ${
+                errors.description
                   ? "border-red-400 focus:ring-red-400"
                   : "border-gray-300 focus:ring-blue-400"
-              } transition-all`}
+              }`}
             />
           </div>
 
@@ -176,17 +199,22 @@ export default function Publish() {
               value={formData.images}
               onChange={handleChange}
               placeholder="villa1.jpg, villa2.jpg"
-              className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                formErrors.images
+              className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all text-gray-800 ${
+                errors.images
                   ? "border-red-400 focus:ring-red-400"
                   : "border-gray-300 focus:ring-blue-400"
-              } transition-all`}
+              }`}
             />
           </div>
 
           <div className="pt-6">
-            <Button size="lg" variant="primaryLight" type="submit">
-              Submit Listing
+            <Button
+              size="lg"
+              variant="primaryLight"
+              type="submit"
+              disabled={submitting}
+            >
+              {submitting ? "Submitting..." : "Submit Listing"}
             </Button>
           </div>
         </form>
