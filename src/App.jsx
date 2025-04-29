@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Listings from "./pages/Listings";
 import ListingDetail from "./pages/ListingDetail";
 import Publish from "./pages/Publish";
+import AdminModeration from "./pages/AdminModeration";
 
 export default function App() {
   return (
@@ -39,6 +40,14 @@ export default function App() {
           element={
             <Layout>
               <Publish />
+            </Layout>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <Layout>
+              <AdminModeration />
             </Layout>
           }
         />
