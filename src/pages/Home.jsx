@@ -49,8 +49,9 @@ export default function Home() {
           Find Your Dream Property
         </h1>
         <Link
+          id="heroButton"
           to="/listings"
-          className="mt-6 text-white bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg text-lg font-semibold transition-all duration-300 ease-out"
+          className="mt-6 text-white bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg text-lg font-semibold opacity-0 translate-y-10 transition-all duration-700 ease-out"
         >
           Browse Listings
         </Link>
@@ -126,7 +127,7 @@ export default function Home() {
         </h2>
         <p className="text-gray-500">Hand-picked premium listings.</p>
       </div>
-
+      <div className="h-12 w-full bg-gradient-to-b from-transparent via-gray-100 to-transparent" />
       {featuredListings.slice(0, 2).map((listing) => (
         <PropertyShowcase
           key={listing.id}
