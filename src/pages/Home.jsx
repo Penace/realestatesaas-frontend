@@ -64,7 +64,7 @@ export default function Home() {
       {/* Info Section */}
       <section
         id="infoSection"
-        className="min-h-[80vh] flex flex-col items-center justify-center bg-white space-y-12 p-10 overflow-hidden relative"
+        className="min-h-[45vh] flex flex-col items-center justify-center bg-white space-y-6 p-8 overflow-hidden relative"
       >
         <div id="infoContent" className="flex flex-col items-center space-y-12">
           {/* Text Content */}
@@ -98,7 +98,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      <CTASection />
       {/* Smooth Background Transition */}
       <div className="w-full h-14 bg-gradient-to-b from-white via-gray-100/35 to-gray-100/5" />
 
