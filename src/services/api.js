@@ -74,3 +74,9 @@ export async function rejectListing(id) {
     true
   );
 }
+
+export async function deleteListing(id) {
+  return fetchWithHandling(`${API_URL}/listings/${id}`, {
+    method: "DELETE",
+  });
+}

@@ -55,10 +55,8 @@ export default function Listings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-10 pt-32">
-      <h1 className="text-4xl font-bold mb-12 text-gray-900">
-        Featured Listings
-      </h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center space-y-8 py-20 px-6">
+      <h1 className="text-4xl font-bold text-gray-900">Featured Listings</h1>
 
       {/* Search Input */}
       <input

@@ -57,8 +57,8 @@ export default function AdminModeration() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-10 bg-gray-50">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900 mt-12">
+    <div className="min-h-screen flex flex-col items-center p-10 bg-gray-50 space-y-6 py-20 px-6">
+      <h1 className="text-4xl font-bold mb-8 text-gray-900">
         Moderate Listings
       </h1>
 

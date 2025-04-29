@@ -5,6 +5,7 @@ import Listings from "./pages/Listings";
 import ListingDetail from "./pages/ListingDetail";
 import Publish from "./pages/Publish";
 import AdminModeration from "./pages/AdminModeration";
+import ManageListings from "./pages/ManageListings";
 
 export default function App() {
   return (
@@ -48,6 +49,14 @@ export default function App() {
           element={
             <Layout>
               <AdminModeration />
+            </Layout>
+          }
+        />
+        <Route
+          path="/manage"
+          element={
+            <Layout>
+              <ManageListings />
             </Layout>
           }
         />
