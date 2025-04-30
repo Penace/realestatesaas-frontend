@@ -98,6 +98,10 @@ export default function UserDashboard() {
         </button>
       </aside>
 
+      {/* Mobile Heading (fix overlap with navbar) */}
+      <div className="fixed top-0 left-0 w-full h-16 bg-white z-40 shadow-sm flex items-center justify-between px-6 md:hidden">
+        <h1 className="text-lg font-semibold text-blue-600">Dashboard</h1>
+      </div>
       {/* Main Content */}
       <main className="flex-1 p-10 mt-16">
         {activeTab === "profile" && (
@@ -145,7 +149,7 @@ export default function UserDashboard() {
           <div className="space-y-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Favorites</h1>
             {favoriteListings.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {favoriteListings.map((listing) => (
                   <ListingCard
                     key={listing.id}

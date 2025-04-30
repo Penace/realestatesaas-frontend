@@ -91,3 +91,38 @@ export async function updateListing(id, updateData) {
     body: JSON.stringify(updateData),
   });
 }
+
+// --- Favorites
+export async function getFavorites(userId) {
+  return fetchWithHandling(
+    `${API_URL}/users/${userId}?_embed=favorites`,
+    {},
+    null
+  );
+}
+
+export async function toggleFavorite(userId, listingId, isFavorite) {
+  const method = isFavorite ? "DELETE" : "POST";
+  const url = `${API_URL}/favorites${isFavorite ? `/${listingId}` : ""}`;
+  const body = isFavorite ? null : JSON.stringify({ userId, listingId });
+
+  return fetchWithHandling(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    ...(body && { body }),
+  });
+}
+
+// --- Auth
+export async function fetchUserByEmail(email) {
+  return fetchWithHandling(`${API_URL}/users?email=${email}`, {}, []);
+}
+
+export async function getUserById(id) {
+  return fetchWithHandling(`${API_URL}/users/${id}`, {}, null);
+}
+
+// --- Utilities
+export function isAgentOrAdmin(user) {
+  return user?.role === "agent" || user?.role === "admin";
+}

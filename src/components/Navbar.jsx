@@ -25,6 +25,9 @@ export default function Navbar({ user }) {
           <Link to="/listings" className="text-gray-600 hover:text-blue-600">
             Listings
           </Link>
+          <Link to="/calculator" className="text-gray-600 hover:text-blue-600">
+            Calculator
+          </Link>
           {(user?.role === "agent" || user?.role === "admin") && (
             <Link to="/publish" className="text-gray-600 hover:text-blue-600">
               Publish
