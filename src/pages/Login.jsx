@@ -55,6 +55,9 @@ export default function Login() {
       } else {
         navigate("/");
       }
+
+      // Force reload to update UI (e.g., Navbar)
+      window.location.reload();
     } catch (err) {
       console.error("Login error:", err);
       showToast("Login failed. Try again.", "error");

@@ -18,8 +18,20 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  useEffect(() => {
+    const syncUser = () => {
+      const stored = localStorage.getItem("currentUser");
+      setUser(stored ? JSON.parse(stored) : null);
+    };
+    window.addEventListener("storage", syncUser);
+    return () => window.removeEventListener("storage", syncUser);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      key={user?.id || "guest"}
+      value={{ user, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

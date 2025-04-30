@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider.jsx";
 
-export default function Navbar() {
+export default function Navbar({ user }) {
   const navigate = useNavigate();
-  const { user: currentUser, logout } = useAuth();
+  const { logout } = useAuth();
+  console.log("Navbar user:", user);
 
   const handleLogout = () => {
     logout();
@@ -24,7 +25,7 @@ export default function Navbar() {
           <Link to="/listings" className="text-gray-600 hover:text-blue-600">
             Listings
           </Link>
-          {(currentUser?.role === "agent" || currentUser?.role === "admin") && (
+          {(user?.role === "agent" || user?.role === "admin") && (
             <Link to="/publish" className="text-gray-600 hover:text-blue-600">
               Publish
             </Link>
@@ -34,9 +35,9 @@ export default function Navbar() {
 
       {/* Right: Auth */}
       <div className="flex items-center space-x-4">
-        {currentUser ? (
+        {user ? (
           <>
-            {currentUser.role === "admin" && (
+            {user.role === "admin" && (
               <Link
                 to="/admin"
                 className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md"
@@ -45,11 +46,11 @@ export default function Navbar() {
               </Link>
             )}
             <Link
-              to="/profile"
+              to="/dashboard"
               className="text-sm text-blue-600 hover:underline"
               title="View Profile"
             >
-              {currentUser.name || currentUser.email}
+              {user.name || user.email}
             </Link>
             <button
               onClick={handleLogout}
