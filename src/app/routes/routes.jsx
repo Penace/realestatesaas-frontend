@@ -1,30 +1,27 @@
+// src/app/routes/routes.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import Layout from "../Layout";
+import Layout from "../../layouts/Layout";
 import withPageLoader from "../withPageLoader";
 
-// Lazy load all pages with fallback spinner
-const Home = withPageLoader(lazy(() => import("../../pages/Home")));
-const Listings = withPageLoader(lazy(() => import("../../pages/Listings")));
-const ListingDetail = withPageLoader(
-  lazy(() => import("../../pages/ListingDetail"))
+// Lazy-wrapped pages
+const Home = withPageLoader(() => import("../../pages/Home"));
+const Listings = withPageLoader(() => import("../../pages/Listings"));
+const ListingDetail = withPageLoader(() => import("../../pages/ListingDetail"));
+const Publish = withPageLoader(() => import("../../pages/Publish"));
+const AdminModeration = withPageLoader(() =>
+  import("../../pages/admin/AdminModeration")
 );
-const Publish = withPageLoader(lazy(() => import("../../pages/Publish")));
-const AdminModeration = withPageLoader(
-  lazy(() => import("../../pages/admin/AdminModeration"))
+const ManageListings = withPageLoader(() =>
+  import("../../pages/admin/ManageListings")
 );
-const ManageListings = withPageLoader(
-  lazy(() => import("../../pages/admin/ManageListings"))
+const PendingListingDetail = withPageLoader(() =>
+  import("../../pages/PendingListingDetail")
 );
-const PendingListingDetail = withPageLoader(
-  lazy(() => import("../../pages/PendingListingDetail"))
-);
-const AdminLayout = withPageLoader(
-  lazy(() => import("../../layouts/AdminLayout"))
-);
-const NotFound = withPageLoader(lazy(() => import("../../pages/NotFound")));
+const NotFound = withPageLoader(() => import("../../pages/NotFound"));
+const AdminLayout = withPageLoader(() => import("../../layouts/AdminLayout"));
 
-export default function App() {
+export default function AppRoutes() {
   return (
     <Router>
       <Suspense fallback={null}>
@@ -64,7 +61,6 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminModeration />} />
             <Route path="manage" element={<ManageListings />} />
-            {/* Add more subroutes as needed */}
           </Route>
           <Route
             path="/pending/:id"
@@ -74,8 +70,6 @@ export default function App() {
               </Layout>
             }
           />
-
-          {/* 404 Not Found - LAST */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

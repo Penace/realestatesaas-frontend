@@ -71,7 +71,11 @@ export default function ListingDetail() {
       <div className="flex flex-col items-center p-10 space-y-6">
         <h1 className="text-4xl font-bold text-gray-900">{listing.title}</h1>
         <p className="text-gray-500 text-lg">{listing.location}</p>
-        <p className="text-blue-600 text-2xl font-semibold">{listing.price}</p>
+        <p className="text-blue-600 text-2xl font-semibold">
+          {listing.price && !isNaN(Number(listing.price))
+            ? `$${Number(listing.price).toLocaleString()}`
+            : "Price not available"}
+        </p>
         <p className="max-w-3xl text-gray-700 text-center mt-6">
           {listing.description}
         </p>

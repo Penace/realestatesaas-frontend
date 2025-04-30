@@ -7,6 +7,7 @@ import {
 import ModalConfirm from "../../components/common/ModalConfirm";
 import Button from "../../components/common/Button";
 import { useToast } from "../../context/ToastProvider";
+import ListingCard from "../../components/admin/AdminListingCard";
 
 export default function AdminModeration() {
   const [pendingListings, setPendingListings] = useState([]);
@@ -37,7 +38,6 @@ export default function AdminModeration() {
   const handleConfirm = async () => {
     if (!selectedListing) return;
     setLoading(true);
-
     try {
       if (modalMode === "approve") {
         await approveListing(selectedListing.id);
@@ -62,68 +62,51 @@ export default function AdminModeration() {
         Moderate Listings
       </h1>
 
-      {pendingListings.length === 0 ? (
-        <p className="text-gray-500">No pending listings.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
-          {pendingListings.map((listing) => (
-            <div
-              key={listing.id}
-              className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-out space-y-4"
-            >
-              {/* Thumbnail */}
-              <div className="w-full h-40 rounded-xl overflow-hidden bg-gray-100">
-                {listing.images?.length > 0 ? (
-                  <img
-                    src={`/assets/${listing.images[0]}`}
-                    alt={listing.title}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/assets/fallback.jpg"; // ← Add a soft default fallback image here
-                    }}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Image
-                  </div>
-                )}
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
+        {pendingListings.map((listing) => (
+          <ListingCard
+            key={listing.id}
+            id={listing.id}
+            title={listing.title}
+            location={listing.location}
+            price={listing.price}
+            image={
+              listing.images?.length
+                ? `/assets/${listing.images[0]}`
+                : "/assets/fallback.jpg"
+            }
+            fallbackImage="/assets/fallback.jpg"
+            to={`/pending/${listing.id}`}
+            actions={[
+              <Button
+                key="approve"
+                variant="approve"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  openModal(listing, "approve");
+                }}
+              >
+                Approve
+              </Button>,
+              <Button
+                key="reject"
+                variant="reject"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  openModal(listing, "reject");
+                }}
+              >
+                Reject
+              </Button>,
+            ]}
+          />
+        ))}
+      </div>
 
-              {/* Info */}
-              <div className="space-y-2 text-center">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {listing.title}
-                </h2>
-                <p className="text-gray-500">{listing.location}</p>
-                <p className="text-blue-600 font-semibold">
-                  ${Number(listing.price).toLocaleString()}
-                </p>{" "}
-              </div>
-
-              {/* Actions */}
-              <div className="flex space-x-4 pt-4 justify-center">
-                <Button
-                  variant="approve"
-                  size="sm"
-                  onClick={() => openModal(listing, "approve")}
-                >
-                  Approve
-                </Button>
-                <Button
-                  variant="reject"
-                  size="sm"
-                  onClick={() => openModal(listing, "reject")}
-                >
-                  Reject
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Confirm Modal */}
       <ModalConfirm
         isOpen={!!selectedListing}
         onClose={closeModal}

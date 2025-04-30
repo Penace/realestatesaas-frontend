@@ -16,7 +16,14 @@ export default function ListingCard({ id, images, title, location, price }) {
       <div className="p-6 flex flex-col space-y-2">
         <h3 className="text-xl font-bold text-gray-800">{title}</h3>
         <p className="text-gray-500">{location}</p>
-        <p className="text-lg font-semibold text-blue-600">{price}</p>
+        <p className="text-lg font-semibold text-blue-600">
+          {price && !isNaN(Number(price))
+            ? new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+              }).format(Number(price))
+            : "Price not available"}
+        </p>
       </div>
     </Link>
   );

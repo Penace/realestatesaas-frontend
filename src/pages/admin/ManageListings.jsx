@@ -8,6 +8,7 @@ import ModalConfirm from "../../components/common/ModalConfirm";
 import Button from "../../components/common/Button";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useToast } from "../../context/ToastProvider";
+import { Link } from "react-router-dom";
 
 export default function ManageListings() {
   const [listings, setListings] = useState([]);
@@ -70,7 +71,7 @@ export default function ManageListings() {
           {listings.map((listing) => (
             <div
               key={listing.id}
-              className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-out backdrop-blur-sm space-y-4"
+              className="relative z-0 bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-out backdrop-blur-sm space-y-4"
             >
               {/* Thumbnail */}
               <div className="w-full h-40 rounded-xl overflow-hidden bg-gray-100">
@@ -124,14 +125,23 @@ export default function ManageListings() {
                     </h2>
                     <p className="text-gray-500">{listing.location}</p>
                     <p className="text-blue-600 font-semibold">
-                      {listing.price}
+                      {listing.price && !isNaN(Number(listing.price))
+                        ? `$${Number(listing.price).toLocaleString()}`
+                        : "Price not available"}
                     </p>
                   </>
                 )}
               </div>
 
+              <Link
+                to={`/listings/${listing.id}`}
+                className="absolute inset-0 z-0"
+                style={{ zIndex: 0 }}
+                aria-label="View listing details"
+              />
+
               {/* Actions */}
-              <div className="flex space-x-4 pt-4 justify-center">
+              <div className="flex space-x-4 pt-4 justify-center z-10 relative">
                 {editingListingId === listing.id ? (
                   <>
                     <Button

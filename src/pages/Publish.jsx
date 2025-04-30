@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
 import { useToast } from "../context/ToastProvider";
 import ReviewModal from "../components/ReviewModal";
+import TextInput from "../components/form/TextInput";
+import TextareaInput from "../components/form/TextareaInput";
+import PriceInput from "../components/form/PriceInput";
+import ImageInput from "../components/form/ImageInput";
 
 export default function Publish() {
   const { showToast } = useToast();
@@ -46,7 +50,7 @@ export default function Publish() {
 
     let newValue = value;
     if (name === "price") {
-      newValue = value.replace(/[^\d]/g, ""); // Only numbers
+      newValue = value.replace(/[^\d]/g, "");
       if (newValue.length > 0) {
         newValue = `$${newValue}`;
       }
@@ -68,41 +72,12 @@ export default function Publish() {
 
     const { title, location, price, description, images } = formData;
 
-    // --- Title / Location / Description validation
-    if (
-      title.trim().length < 3 ||
-      location.trim().length < 3 ||
-      description.trim().length < 10
-    ) {
-      showToast("Please fill out all fields properly.", "error");
-      return;
-    }
-
-    // --- Price Validation
-    const numericPrice = Number(price.replace(/[^0-9]/g, "")); // Only digits allowed
-    if (isNaN(numericPrice) || numericPrice < 100 || numericPrice > 999999999) {
-      showToast(
-        "Please enter a valid price (between $100 and $999,999,999).",
-        "error"
-      );
-      return;
-    }
-
-    // --- Images Validation
+    const numericPrice = Number(price.replace(/[^0-9]/g, ""));
     const imageListRaw = images.split(",").map((img) => img.trim());
     const invalidImages = imageListRaw.filter(
       (img) => !img.endsWith(".jpg") && !img.endsWith(".jpeg")
     );
 
-    if (imageListRaw.length === 0 || invalidImages.length > 0) {
-      showToast(
-        "Please provide only valid .jpg or .jpeg image filenames, separated by commas.",
-        "error"
-      );
-      return;
-    }
-
-    // --- Build the clean listing
     const listing = {
       title: title.trim(),
       location: location.trim(),
@@ -173,7 +148,6 @@ export default function Publish() {
       isSponsored: false,
     };
 
-    // Validate again (simple)
     if (
       title.trim().length < 3 ||
       location.trim().length < 3 ||
@@ -204,85 +178,51 @@ export default function Publish() {
             ✅ Your listing has been submitted!
           </div>
         )}
+
         <ReviewModal
           isOpen={showReviewModal}
           listing={reviewData}
           onClose={() => setShowReviewModal(false)}
           onConfirm={handleSubmit}
         />
+
         <form className="space-y-6" onSubmit={handleOpenReview}>
-          {[
-            { name: "title", label: "Title", placeholder: "Luxury Penthouse" },
-            {
-              name: "location",
-              label: "Location",
-              placeholder: "New York City, NY",
-            },
-            { name: "price", label: "Price", placeholder: "$4,500,000" },
-          ].map(({ name, label, placeholder }) => (
-            <div key={name} className="flex flex-col">
-              <label
-                htmlFor={name}
-                className="text-sm font-medium text-gray-700 mb-1"
-              >
-                {label}
-              </label>
-              <input
-                type="text"
-                name={name}
-                value={formData[name]}
-                onChange={handleChange}
-                placeholder={placeholder}
-                className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all text-gray-800 ${
-                  errors[name]
-                    ? "border-red-400 focus:ring-red-400"
-                    : "border-gray-300 focus:ring-blue-400"
-                }`}
-              />
-            </div>
-          ))}
-
-          <div className="flex flex-col">
-            <label
-              htmlFor="description"
-              className="text-sm font-medium text-gray-700 mb-1"
-            >
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={4}
-              placeholder="Describe your property in detail..."
-              className={`px-4 py-3 border rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 transition-all text-gray-800 ${
-                errors.description
-                  ? "border-red-400 focus:ring-red-400"
-                  : "border-gray-300 focus:ring-blue-400"
-              }`}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label
-              htmlFor="images"
-              className="text-sm font-medium text-gray-700 mb-1"
-            >
-              Image Filenames (comma-separated)
-            </label>
-            <input
-              type="text"
-              name="images"
-              value={formData.images}
-              onChange={handleChange}
-              placeholder="villa1.jpg, villa2.jpg"
-              className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all text-gray-800 ${
-                errors.images
-                  ? "border-red-400 focus:ring-red-400"
-                  : "border-gray-300 focus:ring-blue-400"
-              }`}
-            />
-          </div>
+          <TextInput
+            name="title"
+            label="Title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Luxury Penthouse"
+            error={errors.title}
+          />
+          <TextInput
+            name="location"
+            label="Location"
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="New York City, NY"
+            error={errors.location}
+          />
+          <PriceInput
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            error={errors.price}
+          />
+          <TextareaInput
+            name="description"
+            label="Description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Describe your property in detail..."
+            error={errors.description}
+          />
+          <ImageInput
+            name="images"
+            value={formData.images}
+            onChange={handleChange}
+            error={errors.images}
+          />
 
           <div className="pt-6">
             <Button

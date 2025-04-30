@@ -1,11 +1,13 @@
-import { Suspense } from "react";
+import { lazy, Suspense } from "react";
 import PageLoader from "./PageLoader";
 
-export default function withPageLoader(Component) {
-  return function WrappedComponent() {
+export default function withPageLoader(importFn) {
+  const LazyComponent = lazy(importFn);
+
+  return function WrappedComponent(props) {
     return (
       <Suspense fallback={<PageLoader />}>
-        <Component />
+        <LazyComponent {...props} />
       </Suspense>
     );
   };
