@@ -1,3 +1,4 @@
+import { fetchListings } from "../services/api";
 import { useEffect, useState } from "react";
 import ListingCard from "../components/ListingCard";
 
@@ -8,15 +9,9 @@ export default function Listings() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    async function fetchListings() {
+    async function loadListings() {
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/listings`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch listings.");
-        }
-        const data = await response.json();
+        const data = await fetchListings();
         setListings(data);
       } catch (err) {
         setError(err.message);
@@ -24,8 +19,7 @@ export default function Listings() {
         setLoading(false);
       }
     }
-
-    fetchListings();
+    loadListings();
   }, []);
 
   const filteredListings = listings.filter((listing) => {
@@ -73,7 +67,7 @@ export default function Listings() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl transition-all duration-500">
         {filteredListings.length > 0 ? (
           filteredListings.map((listing) => (
-            <ListingCard key={listing.id} {...listing} />
+            <ListingCard key={listing._id} {...listing} />
           ))
         ) : (
           <div className="w-full max-w-7xl flex justify-center items-center py-20 text-gray-400 text-xl">
