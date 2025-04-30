@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 
 export default function Calculator() {
+  const currencySymbol = "$"; // Default, can be expanded later
   const [price, setPrice] = useState("");
   const [downPayment, setDownPayment] = useState("");
   const [loanTerm, setLoanTerm] = useState(30);
@@ -180,12 +181,9 @@ export default function Calculator() {
         }`}
       </style>
       <div className="min-h-screen py-10 px-6 bg-white">
-        <div
-          className="grid grid-cols-2 grid-rows-2 gap-6 max-w-6xl w-full bg-white p-6 rounded-xl shadow-lg"
-          style={{ minHeight: "600px" }}
-        >
+        <div className="grid grid-cols-2 gap-6 max-w-6xl w-full bg-white p-6 rounded-xl shadow-lg">
           {/* Top-left: Title and description */}
-          <div className="col-span-2 row-span-1">
+          <div className="col-span-2">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
               Mortgage Calculator
             </h1>
@@ -240,14 +238,14 @@ export default function Calculator() {
           </div>
 
           {/* Inputs block under sliders */}
-          <div className="col-span-2 row-span-1 grid grid-cols-2 gap-6">
+          <div className="col-span-2 grid grid-cols-2 gap-6 mt-2">
             <div className="space-y-4">
               <TextInput
                 label="Property Price"
                 name="price"
                 value={price}
                 onChange={(e) => setPrice(e.target.value.replace(/[^\d]/g, ""))}
-                placeholder="₪ 500000"
+                placeholder="e.g. 500000"
               />
               <TextInput
                 label="Down Payment"
@@ -256,7 +254,7 @@ export default function Calculator() {
                 onChange={(e) =>
                   setDownPayment(e.target.value.replace(/[^\d]/g, ""))
                 }
-                placeholder="₪ 100000"
+                placeholder="e.g. 100000"
               />
               <TextInput
                 label="Primary Interest Rate (%)"
@@ -265,7 +263,7 @@ export default function Calculator() {
                 onChange={(e) =>
                   setPrimaryInterestRate(parseFloat(e.target.value) || 0)
                 }
-                placeholder="e.g. 3.5%"
+                placeholder="e.g. 3.5"
               />
               <TextInput
                 label="Secondary Interest Rate (%)"
@@ -274,7 +272,7 @@ export default function Calculator() {
                 onChange={(e) =>
                   setSecondaryInterestRate(parseFloat(e.target.value) || 0)
                 }
-                placeholder="e.g. 4.0%"
+                placeholder="e.g. 4.0"
               />
             </div>
             <div className="space-y-4">
@@ -347,110 +345,118 @@ export default function Calculator() {
 
           {/* Results and export section, full width bottom row */}
           <div
-            className="col-span-2 row-span-1 flex flex-col justify-between"
+            className="col-span-2 flex flex-col justify-between"
             ref={exportRef}
           >
-            <div className="export-container bg-white p-6 rounded-xl shadow space-y-4 flex flex-col min-h-[320px] justify-between h-full">
-              {monthlyPayment ? (
-                <>
-                  <div className="text-center">
-                    <p className="text-xl text-gray-800">
-                      Estimated Monthly Payment:
-                      <span className="font-bold text-blue-600">
-                        {" "}
-                        ${monthlyPayment}
-                      </span>
-                    </p>
-                  </div>
-                  {totalPayment && totalInterest && (
-                    <div className="text-gray-700 space-y-2">
-                      <p>
-                        Total Payment:
-                        <span className="font-semibold text-blue-600">
+            <div className="export-container bg-white p-6 rounded-xl shadow min-h-[320px] grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Results text column */}
+              <div className="col-span-1 flex flex-col justify-center">
+                {monthlyPayment ? (
+                  <>
+                    <div className="text-center">
+                      <p className="text-xl text-gray-800">
+                        Estimated Monthly Payment:
+                        <span className="font-bold text-blue-600">
                           {" "}
-                          ${totalPayment}
-                        </span>
-                      </p>
-                      <p>
-                        Total Interest:
-                        <span className="font-semibold text-blue-600">
-                          {" "}
-                          ${totalInterest}
-                        </span>
-                      </p>
-                      <p>
-                        Primary Loan Portion:{" "}
-                        <span className="text-blue-600">
-                          {100 - secondaryLoanPercent}%
-                        </span>{" "}
-                        | Secondary Loan Portion:{" "}
-                        <span className="text-blue-600">
-                          {secondaryLoanPercent}%
-                        </span>
-                      </p>
-                      <p>
-                        Loan Type:
-                        <span className="font-semibold text-blue-600">
-                          {" "}
-                          {loanType}
-                        </span>
-                      </p>
-                      {loanType === "Variable" && (
-                        <>
-                          <p>
-                            Initial Fixed Period:{" "}
-                            <span className="text-blue-600">
-                              {fixedPeriodYears} years
-                            </span>
-                          </p>
-                          <p>
-                            Adjustment Rate After Fixed Period:{" "}
-                            <span className="text-blue-600">
-                              {adjustmentRate}%
-                            </span>
-                          </p>
-                        </>
-                      )}
-                      <p>
-                        Primary Interest Rate:{" "}
-                        <span className="text-blue-600">
-                          {primaryInterestRate}%
-                        </span>
-                      </p>
-                      <p>
-                        Secondary Interest Rate:{" "}
-                        <span className="text-blue-600">
-                          {secondaryInterestRate}%
+                          {currencySymbol}
+                          {monthlyPayment}
                         </span>
                       </p>
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex flex-col justify-center items-center h-full min-h-[140px]">
-                  <p className="text-gray-400 text-center">
-                    Enter loan details to see results.
-                  </p>
+                    {totalPayment && totalInterest && (
+                      <div className="text-gray-700 space-y-2 mt-4">
+                        <p>
+                          Total Payment:
+                          <span className="font-semibold text-blue-600">
+                            {" "}
+                            {currencySymbol}
+                            {totalPayment}
+                          </span>
+                        </p>
+                        <p>
+                          Total Interest:
+                          <span className="font-semibold text-blue-600">
+                            {" "}
+                            {currencySymbol}
+                            {totalInterest}
+                          </span>
+                        </p>
+                        <p>
+                          Primary Loan Portion:{" "}
+                          <span className="text-blue-600">
+                            {100 - secondaryLoanPercent}%
+                          </span>{" "}
+                          | Secondary Loan Portion:{" "}
+                          <span className="text-blue-600">
+                            {secondaryLoanPercent}%
+                          </span>
+                        </p>
+                        <p>
+                          Loan Type:
+                          <span className="font-semibold text-blue-600">
+                            {" "}
+                            {loanType}
+                          </span>
+                        </p>
+                        {loanType === "Variable" && (
+                          <>
+                            <p>
+                              Initial Fixed Period:{" "}
+                              <span className="text-blue-600">
+                                {fixedPeriodYears} years
+                              </span>
+                            </p>
+                            <p>
+                              Adjustment Rate After Fixed Period:{" "}
+                              <span className="text-blue-600">
+                                {adjustmentRate}%
+                              </span>
+                            </p>
+                          </>
+                        )}
+                        <p>
+                          Primary Interest Rate:{" "}
+                          <span className="text-blue-600">
+                            {primaryInterestRate}%
+                          </span>
+                        </p>
+                        <p>
+                          Secondary Interest Rate:{" "}
+                          <span className="text-blue-600">
+                            {secondaryInterestRate}%
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex flex-col justify-center items-center h-full min-h-[140px]">
+                    <p className="text-gray-400 text-center">
+                      Enter loan details to see results.
+                    </p>
+                  </div>
+                )}
+              </div>
+              {/* Export buttons column */}
+              <div className="col-span-1 flex flex-col justify-end">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-3 pt-4">
+                  <Button
+                    variant="primaryLight"
+                    size="sm"
+                    onClick={handleGeneratePDF}
+                  >
+                    Download PDF
+                  </Button>
+                  <Button
+                    variant="primaryLight"
+                    size="sm"
+                    onClick={() => {
+                      alert("Email functionality coming soon!");
+                    }}
+                  >
+                    Email Results
+                  </Button>
                 </div>
-              )}
-              {/* Export buttons always at the bottom */}
-              <div className="pt-4 flex flex-row justify-center gap-2 flex-wrap w-full">
-                <Button
-                  variant="primaryLight"
-                  size="sm"
-                  onClick={handleGeneratePDF}
-                >
-                  Download PDF
-                </Button>
-                <Button
-                  variant="primaryLight"
-                  size="sm"
-                  onClick={() => {
-                    alert("Email functionality coming soon!");
-                  }}
-                >
-                  Email Results
-                </Button>
               </div>
             </div>
           </div>
