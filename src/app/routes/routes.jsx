@@ -16,6 +16,12 @@ const AdminModeration = withPageLoader(
 const ManageListings = withPageLoader(
   lazy(() => import("../../pages/admin/ManageListings"))
 );
+const PendingListingDetail = withPageLoader(
+  lazy(() => import("../../pages/PendingListingDetail"))
+);
+const AdminLayout = withPageLoader(
+  lazy(() => import("../../layouts/AdminLayout"))
+);
 
 export default function App() {
   return (
@@ -54,19 +60,16 @@ export default function App() {
               </Layout>
             }
           />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminModeration />} />
+            <Route path="manage" element={<ManageListings />} />
+            {/* Add more subroutes as needed */}
+          </Route>
           <Route
-            path="/admin"
+            path="/pending/:id"
             element={
               <Layout>
-                <AdminModeration />
-              </Layout>
-            }
-          />
-          <Route
-            path="/admin/manage"
-            element={
-              <Layout>
-                <ManageListings />
+                <PendingListingDetail />
               </Layout>
             }
           />

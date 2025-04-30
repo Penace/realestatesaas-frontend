@@ -142,7 +142,7 @@ export default function Publish() {
         images: "",
       });
 
-      navigate(`/listings/${createdListing.id}`);
+      navigate(`/pending/${createdListing.id}`);
     } catch (err) {
       console.error("Submission failed:", err);
       showToast("Something went wrong. Please try again.", "error");
