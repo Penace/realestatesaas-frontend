@@ -16,6 +16,7 @@ export default function AdminLayout() {
             <NavLink
               key={link.to}
               to={link.to}
+              end
               className={({ isActive }) =>
                 `block px-4 py-2 rounded-lg font-medium ${
                   isActive

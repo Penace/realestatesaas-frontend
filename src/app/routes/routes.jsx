@@ -22,6 +22,7 @@ const PendingListingDetail = withPageLoader(
 const AdminLayout = withPageLoader(
   lazy(() => import("../../layouts/AdminLayout"))
 );
+const NotFound = withPageLoader(lazy(() => import("../../pages/NotFound")));
 
 export default function App() {
   return (
@@ -73,6 +74,9 @@ export default function App() {
               </Layout>
             }
           />
+
+          {/* 404 Not Found - LAST */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Router>

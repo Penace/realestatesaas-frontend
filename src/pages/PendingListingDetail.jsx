@@ -38,6 +38,23 @@ export default function PendingListingDetail() {
     );
   }
 
+  if (!listing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center px-4">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-800 mb-4">
+            Listing Not Found
+          </h1>
+          <p className="text-gray-500 mb-6">
+            The listing you're trying to view doesn't exist or was removed.
+          </p>
+          <Button variant="primaryLight" to="/listings">
+            Browse Listings
+          </Button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Image */}
