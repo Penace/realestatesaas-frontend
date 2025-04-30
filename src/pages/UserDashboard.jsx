@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TextInput from "../components/form/TextInput";
 import { useToast } from "../context/ToastProvider";
 import ListingCard from "../components/ListingCard";
+import { getFavorites } from "../services/api";
 
 export default function UserDashboard() {
   const navigate = useNavigate();
@@ -26,14 +27,10 @@ export default function UserDashboard() {
 
   useEffect(() => {
     const loadFavorites = async () => {
-      if (!user?.favorites?.length) return;
+      if (!user?._id) return;
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/listings`);
-        const data = await res.json();
-        const filtered = data.filter((l) =>
-          user.favorites.includes(String(l.id))
-        );
-        setFavoriteListings(filtered);
+        const favorites = await getFavorites(user._id);
+        setFavoriteListings(favorites || []);
       } catch (err) {
         console.error("Failed to load favorites", err);
       }
@@ -152,13 +149,13 @@ export default function UserDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {favoriteListings.map((listing) => (
                   <ListingCard
-                    key={listing.id}
-                    id={listing.id}
+                    key={listing._id}
+                    id={listing._id}
                     title={listing.title}
                     location={listing.location}
                     price={listing.price}
                     image={`/assets/${listing.images?.[0]}`}
-                    to={`/listings/${listing.id}`}
+                    to={`/listings/${listing._id}`}
                   />
                 ))}
               </div>
