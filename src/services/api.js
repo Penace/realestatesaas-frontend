@@ -36,43 +36,34 @@ export async function createListing(listingData) {
 }
 
 // --- Admin Moderation
+export async function createPendingListing(data) {
+  return fetchWithHandling(`${API_URL}/pending`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
 export async function fetchPendingListings() {
-  return fetchWithHandling(`${API_URL}/pendingListings`, {}, []);
+  return fetchWithHandling(`${API_URL}/pending`, {}, []);
+}
+
+export async function fetchPendingListingById(id) {
+  return fetchWithHandling(`${API_URL}/pending/${id}`, {}, null);
 }
 
 export async function approveListing(id) {
-  try {
-    // Fetch the pending listing by ID
-    const pending = await fetchWithHandling(
-      `${API_URL}/pendingListings/${id}`,
-      {},
-      null
-    );
-    if (!pending) throw new Error("Listing not found");
-
-    // Add to main listings
-    await fetchWithHandling(`${API_URL}/listings`, {
+  return fetchWithHandling(
+    `${API_URL}/pending/${id}/approve`,
+    {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(pending),
-    });
-
-    // Remove from pending
-    await fetchWithHandling(
-      `${API_URL}/pendingListings/${id}`,
-      { method: "DELETE" },
-      true
-    );
-    return true;
-  } catch (err) {
-    console.error("Approval Error:", err.message);
-    return false;
-  }
+    },
+    false
+  );
 }
 
 export async function rejectListing(id) {
   return fetchWithHandling(
-    `${API_URL}/pendingListings/${id}`,
+    `${API_URL}/pending/${id}`,
     { method: "DELETE" },
     true
   );
@@ -94,16 +85,14 @@ export async function updateListing(id, updateData) {
 
 // --- Favorites
 export async function getFavorites(userId) {
-  return fetchWithHandling(
-    `${API_URL}/users/${userId}?_embed=favorites`,
-    {},
-    null
-  );
+  return fetchWithHandling(`${API_URL}/users/${userId}/favorites`, {}, null);
 }
 
 export async function toggleFavorite(userId, listingId, isFavorite) {
   const method = isFavorite ? "DELETE" : "POST";
-  const url = `${API_URL}/favorites${isFavorite ? `/${listingId}` : ""}`;
+  const url = `${API_URL}/users/${userId}/favorites${
+    isFavorite ? `/${listingId}` : ""
+  }`;
   const body = isFavorite ? null : JSON.stringify({ userId, listingId });
 
   return fetchWithHandling(url, {
@@ -115,7 +104,7 @@ export async function toggleFavorite(userId, listingId, isFavorite) {
 
 // --- Auth
 export async function fetchUserByEmail(email) {
-  return fetchWithHandling(`${API_URL}/users?email=${email}`, {}, []);
+  return fetchWithHandling(`${API_URL}/users/email/${email}`, {}, null);
 }
 
 export async function getUserById(id) {
