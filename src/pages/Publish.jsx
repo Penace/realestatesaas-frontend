@@ -1,3 +1,4 @@
+import { createPendingListing } from "../services/api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
@@ -91,24 +92,10 @@ export default function Publish() {
 
     try {
       setSubmitting(true);
-
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/pendingListings`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(listing),
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to submit listing");
-
-      const createdListing = await res.json();
-
+      const createdListing = await createPendingListing(listing);
       showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setShowReviewModal(false);
-
       setFormData({
         title: "",
         location: "",
@@ -116,8 +103,7 @@ export default function Publish() {
         description: "",
         images: "",
       });
-
-      navigate(`/pending/${createdListing.id}`);
+      navigate(`/pending/${createdListing._id}`);
     } catch (err) {
       console.error("Submission failed:", err);
       showToast("Something went wrong. Please try again.", "error");
