@@ -23,11 +23,13 @@ export default function Login() {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/users?email=${form.email}`
+        `${import.meta.env.VITE_API_URL}/users/email/${form.email}`
       );
-      const users = await res.json();
-      const user = users[0];
-
+      if (!res.ok) {
+        showToast("Invalid credentials", "error");
+        return;
+      }
+      const user = await res.json();
       if (!user) {
         showToast("Invalid credentials", "error");
         return;
