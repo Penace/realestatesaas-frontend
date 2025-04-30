@@ -8,7 +8,7 @@ export default function Layout({ children }) {
   return (
     <>
       <Navbar user={user} />
-      <main>{children}</main>
+      <main className="px-4 py-8 max-w-7xl mx-auto">{children}</main>
       <ToastContainer /> {/* 👈 Toasts will appear here globally */}
       <footer className="h-40 bg-gray-800 flex items-center justify-center text-gray-400 text-sm">
         © 2025 Penace · All rights reserved.
