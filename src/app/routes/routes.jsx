@@ -20,6 +20,9 @@ const PendingListingDetail = withPageLoader(() =>
 );
 const NotFound = withPageLoader(() => import("../../pages/NotFound"));
 const AdminLayout = withPageLoader(() => import("../../layouts/AdminLayout"));
+const SignUp = withPageLoader(() => import("../../pages/SignUp"));
+const Login = withPageLoader(() => import("../../pages/Login"));
+const UserDashboard = withPageLoader(() => import("../../pages/UserDashboard"));
 
 export default function AppRoutes() {
   return (
@@ -31,6 +34,30 @@ export default function AppRoutes() {
             element={
               <Layout>
                 <Home />
+              </Layout>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <Layout>
+                <SignUp />
+              </Layout>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <Layout>
+                <Login />
+              </Layout>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <Layout>
+                <UserDashboard />
               </Layout>
             }
           />
