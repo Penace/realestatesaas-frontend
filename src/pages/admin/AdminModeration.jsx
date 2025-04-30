@@ -40,10 +40,10 @@ export default function AdminModeration() {
     setLoading(true);
     try {
       if (modalMode === "approve") {
-        await approveListing(selectedListing.id);
+        await approveListing(selectedListing._id);
         showToast("Listing approved!", "success");
       } else {
-        await rejectListing(selectedListing.id);
+        await rejectListing(selectedListing._id);
         showToast("Listing rejected!", "success");
       }
       await loadPending();
@@ -65,8 +65,8 @@ export default function AdminModeration() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
         {pendingListings.map((listing) => (
           <ListingCard
-            key={listing.id}
-            id={listing.id}
+            key={listing._id}
+            id={listing._id}
             title={listing.title}
             location={listing.location}
             price={listing.price}
@@ -76,7 +76,7 @@ export default function AdminModeration() {
                 : "/assets/fallback.jpg"
             }
             fallbackImage="/assets/fallback.jpg"
-            to={`/pending/${listing.id}`}
+            to={`/pending/${listing._id}`}
             actions={[
               <Button
                 key="approve"
