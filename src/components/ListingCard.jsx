@@ -1,7 +1,14 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-export default function ListingCard({ id, images, title, location, price }) {
+export default function ListingCard({
+  id,
+  images,
+  title,
+  location,
+  price,
+  prefix = "listings",
+}) {
   const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
@@ -21,13 +28,13 @@ export default function ListingCard({ id, images, title, location, price }) {
 
   return (
     <Link
-      to={`/listings/${id}`}
+      to={`/${prefix}/${id}`}
       className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all hover:shadow-2xl flex flex-col relative"
     >
       <div
         className="h-48 bg-cover bg-center relative"
         style={{
-          backgroundImage: `url(/assets/${images[0]})`,
+          backgroundImage: `url(/assets/${images?.[0] || "fallback.jpg"})`,
         }}
       >
         <button

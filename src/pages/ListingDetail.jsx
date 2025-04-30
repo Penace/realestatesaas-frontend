@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import Button from "../components/common/Button";
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -42,29 +43,16 @@ export default function ListingDetail() {
     );
   }
 
-  if (!listing) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-center px-4">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-800 mb-4">
-            Listing Not Found
-          </h1>
-          <p className="text-gray-500 mb-6">
-            The listing you're trying to view doesn't exist or was removed.
-          </p>
-          <Button variant="primaryLight" to="/listings">
-            Browse Listings
-          </Button>
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Image */}
       <div
         className="h-[60vh] bg-cover bg-center"
-        style={{ backgroundImage: `url(/assets/${listing.images[0]})` }}
+        style={{
+          backgroundImage: `url(/assets/${
+            listing.images?.[0] || "fallback.jpg"
+          })`,
+        }}
       ></div>
 
       {/* Property Details */}
