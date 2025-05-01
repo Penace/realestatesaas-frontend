@@ -6,12 +6,12 @@ import { fetchListings } from "../services/api";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useHeroParallax } from "../hooks/useHeroParallax";
 import CTASection from "../components/home/CTASection";
-import SectionDivider from "../components/common/SectionDivider";
-import Button from "../components/common/Button";
+import SectionDivider from "../components/common/SectionDivider.jsx";
+import Button from "../components/common/Button.jsx";
 
 export default function Home() {
   const [featuredListings, setFeaturedListings] = useState([]);
-  const [auctionListing, setAuctionListing] = useState(null);
+  const [auctionListing, setAuctionListing] = useState([]);
   const [sponsoredListings, setSponsoredListings] = useState([]);
 
   useHeroParallax();
@@ -24,9 +24,15 @@ export default function Home() {
   useEffect(() => {
     const loadListings = async () => {
       const listings = await fetchListings();
-      setFeaturedListings(listings.filter((l) => l.isFeatured));
-      setAuctionListing(listings.find((l) => l.isAuction));
-      setSponsoredListings(listings.filter((l) => l.isSponsored));
+      setFeaturedListings(
+        listings.filter((l) => l.tag === "featured").slice(0, 2)
+      ); // Only 2 featured
+      setAuctionListing(
+        listings.filter((l) => l.tag === "auction").slice(0, 1)
+      ); // 1 auction
+      setSponsoredListings(
+        listings.filter((l) => l.tag === "sponsored").slice(0, 2)
+      ); // 2 sponsored
     };
 
     loadListings();
@@ -46,29 +52,25 @@ export default function Home() {
       >
         <h1
           id="heroTitle"
-          className="text-4xl md:text-5xl font-bold text-white bg-black/15 backdrop-blur-md px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg w-[90%] max-w-2xl text-center mb-5 ring-1 ring-blue-100/10"
+          className="text-4xl md:text-5xl font-bold text-white bg-black/50 px-6 py-4 rounded-2xl opacity-0 translate-y-10 transition-all duration-700 ease-out shadow-lg backdrop-blur-sm w-[90%] max-w-2xl text-center"
         >
           Find Your Dream Property
         </h1>
-        <Button
-          to="/listings"
-          size="md"
-          variant="hero"
+        <Link
           id="heroButton"
-          className="opacity-0 translate-y-10 transition-all duration-700 ease-out"
+          to="/listings"
+          className="mt-6 text-white bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg text-lg font-semibold opacity-0 translate-y-10 transition-all duration-700 ease-out"
         >
           Browse Listings
-        </Button>
+        </Link>
       </section>
+
       {/* Info Section */}
       <section
         id="infoSection"
-        className="min-h-[45vh] flex flex-col items-center justify-center bg-white space-y-6 p-8 overflow-hidden relative"
+        className="min-h-[30vh] flex flex-col items-center justify-center bg-white space-y-12 p-8 overflow-hidden relative"
       >
-        <div
-          id="infoContent"
-          className="flex flex-col items-center space-y-8 mb-16"
-        >
+        <div id="infoContent" className="flex flex-col items-center space-y-12">
           {/* Text Content */}
           <div className="text-center space-y-6 max-w-3xl">
             <h2 className="text-4xl font-bold text-gray-900">
@@ -99,84 +101,89 @@ export default function Home() {
             />
           </div>
         </div>
-        <div className="flex flex-col md:flex-row gap-6 justify-center items-center mt-10">
-          <Button to="/listings" size="lg" variant="cta">
-            Browse Listings
-          </Button>
-          <Button to="/calculator" size="lg" variant="cta">
-            Try Our Calculator
-          </Button>
-        </div>
       </section>
+
+      <div className="flex gap-6 justify-center mt-6">
+        <Button to="/calculator" size="lg" variant="cta">
+          Try Our Calculator
+        </Button>
+        <Button to="/listings" size="lg" variant="cta">
+          Browse Listings
+        </Button>
+      </div>
+
+      {/* Smooth Background Transition */}
+      <div className="w-full h-16 bg-gradient-to-b from-white via-gray-100/40 to-white" />
+
       {/* Auction Spotlight */}
-      {auctionListing && (
+      {auctionListing.length > 0 && (
         <>
-          <div className="text-center py-8">
-            <h2 className="text-3xl font-semibold text-gray-800">
+          <div className="text-center py-6">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-2">
               Auction Spotlight
             </h2>
             <p className="text-gray-500">
               Exclusive opportunities, limited time.
             </p>
           </div>
-          {/* Smooth Background Transition */}
-          <div className="w-full h-6 bg-gradient-to-b from-white via-slate-100/30 to-white" />
+
           <PropertyShowcase
-            key={auctionListing._id}
-            id={auctionListing._id}
-            images={auctionListing.images}
-            title={auctionListing.title}
-            description={auctionListing.description}
+            key={auctionListing[0]._id}
+            id={auctionListing[0]._id}
+            images={auctionListing[0].images}
+            title={auctionListing[0].title}
+            description={auctionListing[0].description}
           />
         </>
       )}
-      {/* Smooth Background Transition */}
-      <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/25 to-gray-100/25" />
+
       {/* Featured Properties */}
-      <div className="text-center py-12">
-        <h2 className="text-3xl font-semibold text-gray-800">
-          Featured Collection
-        </h2>
-        <p className="text-gray-500">Hand-picked premium listings.</p>
-      </div>
-      {/* Smooth Background Transition */}
-      <div className="w-full h-6 bg-gradient-to-b from-white via-sky-100/30 to-white" />
-      {featuredListings.slice(0, 2).map((listing, idx) => (
-        <div key={`featured-${listing._id}`}>
-          <PropertyShowcase
-            id={listing._id}
-            images={listing.images}
-            title={listing.title}
-            description={listing.description}
-          />
-          {idx === 0 && <SectionDivider />}
-        </div>
-      ))}
+      {featuredListings.length > 0 && (
+        <>
+          <SectionDivider label="Featured Collection" />
+          <div className="text-center py-12">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+              Featured Collection
+            </h2>
+            <p className="text-gray-500">Hand-picked premium listings.</p>
+          </div>
+          {featuredListings.map((listing) => (
+            <PropertyShowcase
+              key={listing._id}
+              id={listing._id}
+              images={listing.images}
+              title={listing.title}
+              description={listing.description}
+            />
+          ))}
+        </>
+      )}
+
+      {/* Sponsored Highlights */}
+      {sponsoredListings.length > 0 && (
+        <>
+          <SectionDivider label="Curated Exclusives" />
+          <div className="text-center py-12">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+              Curated Exclusives
+            </h2>
+            <p className="text-gray-500">Properties by invitation only.</p>
+          </div>
+
+          {sponsoredListings.map((listing) => (
+            <PropertyShowcase
+              key={listing._id}
+              id={listing._id}
+              images={listing.images}
+              title={listing.title}
+              description={listing.description}
+            />
+          ))}
+        </>
+      )}
+
       {/* Soft CTA Section */}
       <CTASection />
-      {/* Smooth Background Transition */}
-      <div className="w-full h-6 bg-gradient-to-b from-white via-sky-100/30 to-white" />{" "}
-      {/* Sponsored Highlights */}
-      <div className="text-center py-12">
-        <h2 className="text-3xl font-semibold text-gray-800">
-          Curated Exclusives
-        </h2>
-        <p className="text-gray-500">Properties by invitation only.</p>
-      </div>
-      {/* Smooth Background Transition */}
-      <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/25 to-gray-100/25" />
-      {sponsoredListings.slice(0, 2).map((listing, idx) => (
-        <div key={`sponsored-${listing._id}`}>
-          <PropertyShowcase
-            key={listing._id}
-            id={listing._id}
-            images={listing.images}
-            title={listing.title}
-            description={listing.description}
-          />
-          {idx === 0 && <SectionDivider />}
-        </div>
-      ))}
     </div>
   );
 }

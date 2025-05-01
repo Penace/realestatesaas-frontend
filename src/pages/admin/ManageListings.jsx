@@ -21,6 +21,7 @@ export default function ManageListings() {
     title: "",
     location: "",
     price: "",
+    tag: "",
   });
   const titleInputRef = useRef();
   const { showToast } = useToast();
@@ -118,6 +119,18 @@ export default function ManageListings() {
                       }
                       className="w-full px-4 py-2 border rounded-lg text-center text-gray-800"
                     />
+                    <select
+                      value={editForm.tag}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, tag: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border rounded-lg text-center text-gray-800"
+                    >
+                      <option value="">No Tag</option>
+                      <option value="featured">Featured</option>
+                      <option value="auction">Auction</option>
+                      <option value="sponsored">Sponsored</option>
+                    </select>
                   </>
                 ) : (
                   <>
@@ -130,16 +143,23 @@ export default function ManageListings() {
                         ? `$${Number(listing.price).toLocaleString()}`
                         : "Price not available"}
                     </p>
+                    {listing.tag && (
+                      <p className="text-sm text-purple-600 font-medium">
+                        {listing.tag}
+                      </p>
+                    )}
                   </>
                 )}
               </div>
 
-              <Link
-                to={`/listings/${listing._id || listing.id}`}
-                className="absolute inset-0 z-0"
-                style={{ zIndex: 0 }}
-                aria-label="View listing details"
-              />
+              {editingListingId !== (listing._id || listing.id) && (
+                <Link
+                  to={`/listings/${listing._id || listing.id}`}
+                  className="absolute inset-0 z-0"
+                  style={{ zIndex: 0 }}
+                  aria-label="View listing details"
+                />
+              )}
 
               {/* Actions */}
               <div className="flex space-x-4 pt-4 justify-center z-10 relative">
@@ -191,6 +211,7 @@ export default function ManageListings() {
                           title: listing.title,
                           location: listing.location,
                           price: listing.price,
+                          tag: listing.tag || "",
                         });
                         setTimeout(() => titleInputRef.current?.focus(), 10);
                       }}

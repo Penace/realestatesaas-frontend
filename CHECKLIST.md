@@ -12,18 +12,18 @@
 
 ## Deployment on VM
 
-- [ ] SSH into Web Server
-- [ ] Clone repository
-- [ ] Install Node.js (if not installed)
-- [ ] Install dependencies (`npm install`)
-- [ ] Build production files (`npm run build`)
-- [ ] Serve via Nginx or Preview Server (`npm run preview`)
+- [x] SSH into Web Server
+- [x] Clone repository
+- [x] Install Node.js (if not installed)
+- [x] Install dependencies (`pnpm install`)
+- [ ] Build production files (`pnpm run build`)
+- [ ] Serve via Nginx or Preview Server (`pnpm run preview`)
 
 ---
 
 ## Final Checks
 
-- [ ] Accessible via VM static IP
+- [x] Accessible via VM static IP
 - [ ] Nginx or PM2 service running
 - [ ] Logs monitored
 

@@ -20,16 +20,24 @@
 
 ## Phase 3: UI and Content
 
-- [ ] Build homepage
-- [ ] Create property listing page
-- [ ] Create property detail page
+- [x] Build homepage
+- [x] Create property listing page
+- [x] Create property detail page
 
 ---
 
 ## Phase 4: API Integration
 
-- [ ] Connect to API Server (json-server or backend)
-- [ ] Display dynamic property data
+- [x] Connect to API Server (json-server or backend)
+- [x] Display dynamic property data
 
+---
+## Phase 5: Admin Features
+
+- [x] Admin layout and routing
+- [x] User moderation panel
+- [x] Listing moderation panel
+- [x] Admin settings
+- [x] Analytics dashboard
 ---
 > ⚡ *Frontend is the bridge between data and experience.*

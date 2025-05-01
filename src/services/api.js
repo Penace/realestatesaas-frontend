@@ -26,6 +26,10 @@ export async function fetchListingById(id) {
   return fetchWithHandling(`${API_URL}/listings/${id}`, {}, null);
 }
 
+export async function fetchListingsByTag(tag) {
+  return fetchWithHandling(`${API_URL}/listings?tag=${tag}`, {}, []);
+}
+
 // --- Publish
 export async function createListing(listingData) {
   return fetchWithHandling(`${API_URL}/listings`, {

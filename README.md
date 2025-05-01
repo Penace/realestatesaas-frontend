@@ -48,7 +48,7 @@ pnpm install
 Create a `.env` file inside the frontend folder with the following contents:
 
 ```dotenv
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:4000
 ```
 
 ✅ This allows the frontend to dynamically connect to your backend API without hardcoding localhost or VM IPs.
@@ -56,7 +56,7 @@ VITE_API_URL=http://localhost:3000
 6. Run development server (optional):
 
 ```bash
-pnpm dev
+pnpm run dev
 ```
 
 > Note: Add `--host` flag if hosting on VM to access from other devices on different sub-networks.
@@ -87,6 +87,13 @@ pnpm preview
 | Styling | TailwindCSS |
 | Deployment | GitOps (clone + build + systemd/PM2) |
 
+---
+## Admin Tools
+
+- Moderate listings
+- Approve users
+- Configure site settings
+- View analytics
 ---
 ## Roadmap
 
