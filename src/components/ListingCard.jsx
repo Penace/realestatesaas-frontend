@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider"; // Assuming you're using Auth context
+import { useAuth } from "../context/AuthProvider";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api"; // Get the API base URL dynamically
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 export default function ListingCard({
   _id,
@@ -22,7 +22,12 @@ export default function ListingCard({
     }
   };
 
-  // Handle click on favorite button
+  // Fallback if images are empty or undefined
+  const imageUrl =
+    images && images.length > 0
+      ? `/assets/${images[0]}`
+      : "/assets/fallback.jpg"; // Use fallback if no image
+
   const handleFavoriteClick = async () => {
     if (!user) {
       alert("You must be logged in to add or remove favorites");
@@ -32,41 +37,25 @@ export default function ListingCard({
     try {
       let updatedFavorites;
       if (isFavorited) {
-        // Remove from favorites (use DELETE)
         updatedFavorites = await removeFavorite(user._id, _id);
       } else {
-        // Add to favorites (use POST)
         updatedFavorites = await addFavorite(user._id, _id);
       }
-
-      // Log the updated favorites to check if it's an array
-      console.log("Updated Favorites Response:", updatedFavorites);
-
-      // Ensure the response is an array before checking
-      if (Array.isArray(updatedFavorites)) {
-        setIsFavorited(updatedFavorites.includes(_id)); // Update the favorite state based on response
-      } else {
-        console.error("Unexpected response format:", updatedFavorites);
-      }
+      setIsFavorited(updatedFavorites.includes(_id));
     } catch (error) {
       console.error("Error updating favorite:", error);
     }
   };
 
   useEffect(() => {
-    if (!user) return; // If the user is not logged in, skip checking
+    if (!user) return;
 
     const checkIfFavorite = async () => {
       try {
-        const res = await fetch(`${API_URL}/users/${user._id}/favorites`, {
-          headers: {
-            "Cache-Control": "no-cache", // Disable caching to force fresh response
-          },
-        });
-
+        const res = await fetch(`${API_URL}/users/${user._id}/favorites`);
         if (res.ok) {
           const favorites = await res.json();
-          setIsFavorited(favorites.some((fav) => fav._id === _id)); // Check if the listing is in the user's favorites
+          setIsFavorited(favorites.some((fav) => fav._id === _id));
         } else {
           throw new Error("Failed to fetch favorites");
         }
@@ -76,26 +65,25 @@ export default function ListingCard({
     };
 
     checkIfFavorite();
-  }, [_id, user]); // Re-run whenever user or listing ID changes
+  }, [_id, user]);
 
   return (
     <Link
       to={`/${prefix}/${_id}`}
       className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all hover:shadow-2xl flex flex-col relative"
-      onClick={handleLinkClick} // Prevent default navigation when the button is clicked
+      onClick={handleLinkClick}
     >
       <div
         className="h-48 bg-cover bg-center relative"
         style={{
-          backgroundImage: `url(/assets/${images?.[0] || "fallback.jpg"})`,
+          backgroundImage: `url(${imageUrl})`, // Use imageUrl for background
         }}
       >
         <button
-          onClick={handleFavoriteClick} // Toggle between add/remove based on the state
+          onClick={handleFavoriteClick}
           className="absolute top-3 right-3 bg-white/80 hover:bg-white text-red-500 p-2 rounded-full shadow-md z-20"
         >
-          {isFavorited ? "♥" : "♡"}{" "}
-          {/* Change the icon based on the favorite status */}
+          {isFavorited ? "♥" : "♡"}
         </button>
       </div>
 
@@ -127,7 +115,7 @@ async function addFavorite(userId, listingId) {
       listingId,
     }),
   });
-  return await res.json(); // Return updated favorites
+  return await res.json();
 }
 
 async function removeFavorite(userId, listingId) {
@@ -141,5 +129,5 @@ async function removeFavorite(userId, listingId) {
       listingId,
     }),
   });
-  return await res.json(); // Return updated favorites
+  return await res.json();
 }
