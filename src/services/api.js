@@ -92,18 +92,52 @@ export async function getFavorites(userId) {
   return fetchWithHandling(`${API_URL}/users/${userId}/favorites`, {}, null);
 }
 
-export async function toggleFavorite(userId, listingId, isFavorite) {
-  const method = isFavorite ? "DELETE" : "POST";
-  const url = `${API_URL}/users/${userId}/favorites${
-    isFavorite ? `/${listingId}` : ""
-  }`;
-  const body = isFavorite ? null : JSON.stringify({ userId, listingId });
+// Add a favorite
+export async function addFavorite(userId, listingId) {
+  try {
+    const res = await fetch(`${API_URL}/users/addFavorite`, {
+      method: "POST", // POST for adding a favorite
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        listingId,
+      }),
+    });
 
-  return fetchWithHandling(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    ...(body && { body }),
-  });
+    if (res.ok) {
+      return await res.json(); // Return the updated list of favorites
+    }
+    throw new Error("Failed to add favorite");
+  } catch (error) {
+    console.error("Error adding favorite:", error);
+    throw error;
+  }
+}
+
+// Remove a favorite
+export async function removeFavorite(userId, listingId) {
+  try {
+    const res = await fetch(`${API_URL}/users/removeFavorite`, {
+      method: "DELETE", // DELETE for removing a favorite
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        listingId,
+      }),
+    });
+
+    if (res.ok) {
+      return await res.json(); // Return the updated list of favorites
+    }
+    throw new Error("Failed to remove favorite");
+  } catch (error) {
+    console.error("Error removing favorite:", error);
+    throw error;
+  }
 }
 
 // --- Auth

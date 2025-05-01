@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Button from "../components/common/Button";
+import { useAuth } from "../context/AuthProvider"; // Assuming you're using Auth context
 
 export default function ListingDetail() {
   const { id } = useParams();
-  console.log("Listing ID from useParams:", id);
+  const { user } = useAuth(); // Access the current user from the auth context
   const [listing, setListing] = useState(null);
   const [error, setError] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
     console.log("Fetching:", `${import.meta.env.VITE_API_URL}/listings/${id}`);
@@ -20,13 +22,46 @@ export default function ListingDetail() {
         }
         const data = await response.json();
         setListing(data);
+
+        // Check if the listing is favorited by the current user
+        if (user) {
+          const res = await fetch(`/api/users/${user._id}/favorites`);
+          const favorites = await res.json();
+          setIsFavorited(favorites.some((fav) => fav._id === id)); // Check if the listing is in the user's favorites
+        }
       } catch (err) {
         setError(err.message);
       }
     }
 
     fetchListing();
-  }, [id]);
+  }, [id, user]);
+
+  const toggleFavorite = async () => {
+    if (!user) {
+      alert("You must be logged in to add favorites");
+      return;
+    }
+
+    try {
+      // Send the request to add/remove from favorites
+      const res = await fetch("/api/users/addFavorite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user._id, // Use the logged-in user's ID
+          listingId: id,
+        }),
+      });
+
+      const updatedFavorites = await res.json();
+      setIsFavorited(updatedFavorites.includes(id)); // Update the favorite state based on response
+    } catch (error) {
+      console.error("Error adding favorite:", error);
+    }
+  };
 
   if (error) {
     return (
@@ -68,6 +103,15 @@ export default function ListingDetail() {
         <p className="max-w-3xl text-gray-700 text-center mt-6">
           {listing.description}
         </p>
+
+        {/* Favorite Button */}
+        <Button
+          onClick={toggleFavorite}
+          size="lg"
+          variant={isFavorited ? "primaryLight" : "secondary"}
+        >
+          {isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+        </Button>
       </div>
     </div>
   );
