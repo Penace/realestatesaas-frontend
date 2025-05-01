@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 // --- Centralized Fetch Helper
 async function fetchWithHandling(url, options = {}, fallback = null) {
@@ -107,6 +107,11 @@ export async function fetchUserByEmail(email) {
   return fetchWithHandling(`${API_URL}/users/email/${email}`, {}, null);
 }
 
+// --- User Profile
+export async function fetchUserById(id) {
+  return fetchWithHandling(`${API_URL}/users/${id}`, {}, null);
+}
+
 export async function getUserById(id) {
   return fetchWithHandling(`${API_URL}/users/${id}`, {}, null);
 }
@@ -114,4 +119,21 @@ export async function getUserById(id) {
 // --- Utilities
 export function isAgentOrAdmin(user) {
   return user?.role === "agent" || user?.role === "admin";
+}
+
+// --- User Moderation
+export async function fetchPendingUsers() {
+  return fetchWithHandling(`${API_URL}/users?approved=false`, {}, []);
+}
+
+export async function approveUser(id) {
+  return fetchWithHandling(`${API_URL}/users/${id}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectUser(id) {
+  return fetchWithHandling(`${API_URL}/users/${id}/reject`, {
+    method: "PATCH",
+  });
 }

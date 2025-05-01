@@ -16,6 +16,7 @@ export default function ManageListings() {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingListingId, setEditingListingId] = useState(null);
+  const [savingListingId, setSavingListingId] = useState(null);
   const [editForm, setEditForm] = useState({
     title: "",
     location: "",
@@ -38,7 +39,7 @@ export default function ManageListings() {
     if (!selectedListing) return;
     setLoading(true);
     try {
-      await deleteListing(selectedListing.id);
+      await deleteListing(selectedListing._id || selectedListing.id);
       showToast("Listing deleted.", "success");
       await loadListings();
     } catch (err) {
@@ -70,7 +71,7 @@ export default function ManageListings() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
           {listings.map((listing) => (
             <div
-              key={listing.id}
+              key={listing._id || listing.id}
               className="relative z-0 bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-out backdrop-blur-sm space-y-4"
             >
               {/* Thumbnail */}
@@ -90,7 +91,7 @@ export default function ManageListings() {
 
               {/* Info */}
               <div className="space-y-2 text-center">
-                {editingListingId === listing.id ? (
+                {editingListingId === (listing._id || listing.id) ? (
                   <>
                     <input
                       ref={titleInputRef}
@@ -134,7 +135,7 @@ export default function ManageListings() {
               </div>
 
               <Link
-                to={`/listings/${listing.id}`}
+                to={`/listings/${listing._id || listing.id}`}
                 className="absolute inset-0 z-0"
                 style={{ zIndex: 0 }}
                 aria-label="View listing details"
@@ -142,13 +143,13 @@ export default function ManageListings() {
 
               {/* Actions */}
               <div className="flex space-x-4 pt-4 justify-center z-10 relative">
-                {editingListingId === listing.id ? (
+                {editingListingId === (listing._id || listing.id) ? (
                   <>
                     <Button
                       size="sm"
                       variant="approve"
                       onClick={async () => {
-                        setLoading(true);
+                        setSavingListingId(editingListingId);
                         try {
                           await updateListing(editingListingId, editForm);
                           showToast("Listing updated.", "success");
@@ -158,11 +159,11 @@ export default function ManageListings() {
                           console.error(err);
                           showToast("Failed to update listing.", "error");
                         } finally {
-                          setLoading(false);
+                          setSavingListingId(null);
                         }
                       }}
                     >
-                      {loading ? (
+                      {savingListingId === (listing._id || listing.id) ? (
                         <div className="flex items-center justify-center space-x-2">
                           <LoadingSpinner size={18} />
                           <span>Saving...</span>
@@ -185,7 +186,7 @@ export default function ManageListings() {
                       size="sm"
                       variant="primaryLight"
                       onClick={() => {
-                        setEditingListingId(listing.id);
+                        setEditingListingId(listing._id || listing.id);
                         setEditForm({
                           title: listing.title,
                           location: listing.location,

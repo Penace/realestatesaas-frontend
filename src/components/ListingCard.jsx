@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function ListingCard({
-  id,
+  _id,
   images,
   title,
   location,
@@ -13,22 +13,22 @@ export default function ListingCard({
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("favorites")) || [];
-    setIsFavorited(stored.includes(id));
-  }, [id]);
+    setIsFavorited(stored.includes(_id));
+  }, [_id]);
 
   const toggleFavorite = (e) => {
     e.preventDefault();
     const stored = JSON.parse(localStorage.getItem("favorites")) || [];
     const updated = isFavorited
-      ? stored.filter((favId) => favId !== id)
-      : [...stored, id];
+      ? stored.filter((favId) => favId !== _id)
+      : [...stored, _id];
     localStorage.setItem("favorites", JSON.stringify(updated));
     setIsFavorited(!isFavorited);
   };
 
   return (
     <Link
-      to={`/${prefix}/${id}`}
+      to={`/${prefix}/${_id}`}
       className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all hover:shadow-2xl flex flex-col relative"
     >
       <div

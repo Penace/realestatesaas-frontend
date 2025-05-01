@@ -4,6 +4,7 @@ import Button from "../components/common/Button";
 
 export default function ListingDetail() {
   const { id } = useParams();
+  console.log("Listing ID from useParams:", id);
   const [listing, setListing] = useState(null);
   const [error, setError] = useState(null);
 

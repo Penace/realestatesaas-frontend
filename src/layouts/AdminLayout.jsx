@@ -13,9 +13,10 @@ export default function AdminLayout() {
           <nav className="space-y-2">
             {[
               { to: "/admin", label: "Moderate Listings" },
+              { to: "/admin/users", label: "Moderate Users" },
               { to: "/admin/manage", label: "Manage Listings" },
-              { to: "/admin/analytics", label: "Analytics (Soon)" },
-              { to: "/admin/settings", label: "Settings (Soon)" },
+              { to: "/admin/analytics", label: "Analytics" },
+              { to: "/admin/settings", label: "Settings" },
             ].map((link) => (
               <NavLink
                 key={link.to}

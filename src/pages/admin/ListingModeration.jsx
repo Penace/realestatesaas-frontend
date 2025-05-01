@@ -21,8 +21,13 @@ export default function AdminModeration() {
   }, []);
 
   const loadPending = async () => {
-    const listings = await fetchPendingListings();
-    setPendingListings(listings);
+    try {
+      const data = await fetchPendingListings(); // or fetchPendingListings
+      setPendingListings([...data]); // force new array
+      console.log("Loaded pending listings:", data);
+    } catch (err) {
+      showToast("Failed to fetch data", "error");
+    }
   };
 
   const openModal = (listing, mode) => {
@@ -63,6 +68,11 @@ export default function AdminModeration() {
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl">
+        {pendingListings.length === 0 && (
+          <p className="text-center col-span-full text-gray-500">
+            No pending listings.
+          </p>
+        )}
         {pendingListings.map((listing) => (
           <ListingCard
             key={listing._id}
