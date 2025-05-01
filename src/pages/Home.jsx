@@ -122,8 +122,8 @@ export default function Home() {
           {/* Smooth Background Transition */}
           <div className="w-full h-6 bg-gradient-to-b from-white via-slate-100/30 to-white" />
           <PropertyShowcase
-            key={auctionListing.id}
-            id={auctionListing.id}
+            key={auctionListing._id}
+            id={auctionListing._id}
             images={auctionListing.images}
             title={auctionListing.title}
             description={auctionListing.description}
@@ -142,9 +142,9 @@ export default function Home() {
       {/* Smooth Background Transition */}
       <div className="w-full h-6 bg-gradient-to-b from-white via-sky-100/30 to-white" />
       {featuredListings.slice(0, 2).map((listing, idx) => (
-        <div key={`featured-${listing.id}`}>
+        <div key={`featured-${listing._id}`}>
           <PropertyShowcase
-            id={listing.id}
+            id={listing._id}
             images={listing.images}
             title={listing.title}
             description={listing.description}
@@ -166,10 +166,10 @@ export default function Home() {
       {/* Smooth Background Transition */}
       <div className="w-full h-8 bg-gradient-to-b from-white via-gray-200/25 to-gray-100/25" />
       {sponsoredListings.slice(0, 2).map((listing, idx) => (
-        <div key={`sponsored-${listing.id}`}>
+        <div key={`sponsored-${listing._id}`}>
           <PropertyShowcase
-            key={listing.id}
-            id={listing.id}
+            key={listing._id}
+            id={listing._id}
             images={listing.images}
             title={listing.title}
             description={listing.description}
