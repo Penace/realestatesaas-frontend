@@ -41,40 +41,6 @@ export async function createListing(listingData) {
   });
 }
 
-// --- Admin Moderation
-export async function createPendingListing(data) {
-  return fetchWithHandling(`${API_URL}/pending`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-}
-export async function fetchPendingListings() {
-  return fetchWithHandling(`${API_URL}/pending`, {}, []);
-}
-
-export async function fetchPendingListingById(id) {
-  return fetchWithHandling(`${API_URL}/pending/${id}`, {}, null);
-}
-
-export async function approveListing(id) {
-  return fetchWithHandling(
-    `${API_URL}/pending/${id}/approve`,
-    {
-      method: "POST",
-    },
-    false
-  );
-}
-
-export async function rejectListing(id) {
-  return fetchWithHandling(
-    `${API_URL}/pending/${id}`,
-    { method: "DELETE" },
-    true
-  );
-}
-
 export async function deleteListing(id) {
   return fetchWithHandling(`${API_URL}/listings/${id}`, {
     method: "DELETE",
@@ -176,4 +142,23 @@ export async function rejectUser(id) {
   return fetchWithHandling(`${API_URL}/users/${id}/reject`, {
     method: "PATCH",
   });
+}
+
+// --- Moderation: Listings
+export async function approveListing(id) {
+  return fetchWithHandling(`${API_URL}/listings/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+export async function rejectListing(id) {
+  return fetchWithHandling(`${API_URL}/listings/${id}/reject`, {
+    method: "POST",
+  });
+}
+
+// --- Fetch Draft and Pending Listings
+export async function fetchDraftAndPendingListings() {
+  const allListings = await fetchWithHandling(`${API_URL}/listings`, {}, []);
+  return allListings.filter((listing) => listing.status === "pending");
 }

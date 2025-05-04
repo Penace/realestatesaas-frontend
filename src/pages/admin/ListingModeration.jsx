@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  fetchPendingListings,
+  fetchDraftAndPendingListings,
   approveListing,
   rejectListing,
 } from "../../services/api";
@@ -22,7 +22,7 @@ export default function AdminModeration() {
 
   const loadPending = async () => {
     try {
-      const data = await fetchPendingListings(); // or fetchPendingListings
+      const data = await fetchDraftAndPendingListings(); // or fetchPendingListings
       setPendingListings([...data]); // force new array
       console.log("Loaded pending listings:", data);
     } catch (err) {

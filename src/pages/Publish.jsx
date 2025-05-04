@@ -1,4 +1,4 @@
-import { createPendingListing } from "../services/api";
+import { createListing } from "../services/api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
@@ -195,7 +195,7 @@ export default function Publish() {
 
     try {
       setSubmitting(true);
-      const createdListing = await createPendingListing(listing);
+      const createdListing = await createListing(listing);
       showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setShowReviewModal(false);
@@ -410,7 +410,7 @@ export default function Publish() {
             };
             try {
               setSubmitting(true);
-              const createdListing = await createPendingListing(listing);
+              const createdListing = await createListing(listing);
               showToast("Listing submitted for review.", "success");
               setSubmitted(true);
               setShowReviewModal(false);
