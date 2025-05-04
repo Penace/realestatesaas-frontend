@@ -19,11 +19,7 @@ export default function Home() {
     heroSectionId: "heroSection",
   });
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth >= 768) {
-      useHeroParallax();
-    }
-  }, []);
+  useHeroParallax();
 
   useEffect(() => {
     const loadListings = async () => {
@@ -112,7 +108,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="flex gap-6 justify-center mt-6 sm:mx-10">
+      <div className="flex gap-6 justify-center mt-6 mx-10">
         <Button to="/calculator" size="lg" variant="cta">
           Try Our Calculator
         </Button>

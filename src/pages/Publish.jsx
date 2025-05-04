@@ -9,6 +9,27 @@ import TextareaInput from "../components/form/TextareaInput";
 import PriceInput from "../components/form/PriceInput";
 import ImageInput from "../components/form/ImageInput";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+
+async function optimizeAndUploadImages(imageListRaw) {
+  const optimizedImages = [];
+
+  for (let file of imageListRaw) {
+    const formData = new FormData();
+    formData.append("image", file, file.name);
+
+    const uploadRes = await fetch(`${API_URL}/uploads`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const { url } = await uploadRes.json();
+    optimizedImages.push(url);
+  }
+
+  return optimizedImages;
+}
+
 export default function Publish() {
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -17,7 +38,7 @@ export default function Publish() {
     location: "",
     price: "",
     description: "",
-    images: "",
+    images: [],
   });
 
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -38,8 +59,13 @@ export default function Publish() {
         return value.trim().length >= 10;
       case "images":
         return (
-          value.split(",").filter((img) => img.trim().endsWith(".jpg")).length >
-          0
+          Array.isArray(value) &&
+          value.length > 0 &&
+          value.every(
+            (file) =>
+              typeof file.name === "string" &&
+              (file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
+          )
         );
       default:
         return true;
@@ -50,6 +76,7 @@ export default function Publish() {
     const { name, value } = e.target;
 
     let newValue = value;
+
     if (name === "price") {
       newValue = value.replace(/[^\d]/g, "");
       if (newValue.length > 0) {
@@ -74,17 +101,15 @@ export default function Publish() {
     const { title, location, price, description, images } = formData;
 
     const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-    const imageListRaw = images.split(",").map((img) => img.trim());
-    const invalidImages = imageListRaw.filter(
-      (img) => !img.endsWith(".jpg") && !img.endsWith(".jpeg")
-    );
+
+    const optimizedImages = await optimizeAndUploadImages(images);
 
     const listing = {
       title: title.trim(),
       location: location.trim(),
       price: numericPrice.toString(),
       description: description.trim(),
-      images: imageListRaw,
+      images: optimizedImages,
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
@@ -101,7 +126,7 @@ export default function Publish() {
         location: "",
         price: "",
         description: "",
-        images: "",
+        images: [],
       });
       navigate(`/pending/${createdListing._id}`);
     } catch (err) {
@@ -112,15 +137,15 @@ export default function Publish() {
     }
   };
 
-  const handleOpenReview = (e) => {
+  const handleOpenReview = async (e) => {
     e.preventDefault();
 
     const { title, location, price, description, images } = formData;
 
     const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-    const imageListRaw = images.split(",").map((img) => img.trim());
-    const invalidImages = imageListRaw.filter(
-      (img) => !img.endsWith(".jpg") && !img.endsWith(".jpeg")
+    const optimizedImages = images;
+    const invalidImages = images.filter(
+      (file) => !file.name.endsWith(".jpg") && !file.name.endsWith(".jpeg")
     );
 
     const listing = {
@@ -128,7 +153,7 @@ export default function Publish() {
       location: location.trim(),
       price: numericPrice.toString(),
       description: description.trim(),
-      images: imageListRaw,
+      images: optimizedImages,
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
@@ -141,7 +166,7 @@ export default function Publish() {
       isNaN(numericPrice) ||
       numericPrice < 100 ||
       numericPrice > 999999999 ||
-      imageListRaw.length === 0 ||
+      optimizedImages.length === 0 ||
       invalidImages.length > 0
     ) {
       showToast("Please fix the errors before reviewing.", "error");
@@ -169,7 +194,42 @@ export default function Publish() {
           isOpen={showReviewModal}
           listing={reviewData}
           onClose={() => setShowReviewModal(false)}
-          onConfirm={handleSubmit}
+          onConfirm={async (e) => {
+            e.preventDefault();
+            const { title, location, price, description, images } = formData;
+            const numericPrice = Number(price.replace(/[^0-9]/g, ""));
+            const optimizedImages = await optimizeAndUploadImages(images);
+            const listing = {
+              title: title.trim(),
+              location: location.trim(),
+              price: numericPrice.toString(),
+              description: description.trim(),
+              images: optimizedImages,
+              isFeatured: false,
+              isAuction: false,
+              isSponsored: false,
+            };
+            try {
+              setSubmitting(true);
+              const createdListing = await createPendingListing(listing);
+              showToast("Listing submitted for review.", "success");
+              setSubmitted(true);
+              setShowReviewModal(false);
+              setFormData({
+                title: "",
+                location: "",
+                price: "",
+                description: "",
+                images: [],
+              });
+              navigate(`/pending/${createdListing._id}`);
+            } catch (err) {
+              console.error("Submission failed:", err);
+              showToast("Something went wrong. Please try again.", "error");
+            } finally {
+              setSubmitting(false);
+            }
+          }}
         />
 
         <form className="space-y-6" onSubmit={handleOpenReview}>
