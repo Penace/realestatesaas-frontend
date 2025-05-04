@@ -53,6 +53,7 @@ export default function Publish() {
     availableFrom: "",
     features: "",
     amenities: "",
+    facilities: "",
     slug: "",
   });
 
@@ -98,6 +99,8 @@ export default function Publish() {
         return !isNaN(Date.parse(value));
       case "features":
       case "amenities":
+        return value.trim().length > 0;
+      case "facilities":
         return value.trim().length > 0;
       default:
         return true;
@@ -147,6 +150,7 @@ export default function Publish() {
       availableFrom,
       features,
       amenities,
+      facilities,
       slug,
     } = formData;
 
@@ -179,6 +183,10 @@ export default function Publish() {
         .split(",")
         .map((a) => a.trim())
         .filter(Boolean),
+      facilities: facilities
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean),
       slug: slug.trim(),
       isFeatured: false,
       isAuction: false,
@@ -208,6 +216,7 @@ export default function Publish() {
         availableFrom: "",
         features: "",
         amenities: "",
+        facilities: "",
         slug: "",
       });
       navigate(`/pending/${createdListing._id}`);
@@ -239,6 +248,7 @@ export default function Publish() {
       availableFrom,
       features,
       amenities,
+      facilities,
       slug,
     } = formData;
 
@@ -263,6 +273,7 @@ export default function Publish() {
       isNaN(Date.parse(availableFrom)) ||
       features.trim().length === 0 ||
       amenities.trim().length === 0 ||
+      facilities.trim().length === 0 ||
       slug.trim().length < 3
     ) {
       showToast("Please fix the errors before reviewing.", "error");
@@ -291,6 +302,10 @@ export default function Publish() {
       amenities: amenities
         .split(",")
         .map((a) => a.trim())
+        .filter(Boolean),
+      facilities: facilities
+        .split(",")
+        .map((f) => f.trim())
         .filter(Boolean),
       slug: slug.trim(),
       isFeatured: false,
@@ -352,6 +367,7 @@ export default function Publish() {
               availableFrom,
               features,
               amenities,
+              facilities,
               slug,
             } = formData;
             const numericPrice = Number(price.replace(/[^0-9]/g, ""));
@@ -383,6 +399,10 @@ export default function Publish() {
                 .split(",")
                 .map((a) => a.trim())
                 .filter(Boolean),
+              facilities: facilities
+                .split(",")
+                .map((f) => f.trim())
+                .filter(Boolean),
               slug: slug.trim(),
               isFeatured: false,
               isAuction: false,
@@ -411,6 +431,7 @@ export default function Publish() {
                 availableFrom: "",
                 features: "",
                 amenities: "",
+                facilities: "",
                 slug: "",
               });
               navigate(`/pending/${createdListing._id}`);
@@ -535,16 +556,60 @@ export default function Publish() {
             label="Features"
             value={formData.features}
             onChange={handleChange}
-            placeholder="Pool, Gym, Garden"
             error={errors.features}
+            suggestions={[
+              "swimmingPool",
+              "garden",
+              "garage",
+              "fireplace",
+              "balcony",
+              "gym",
+              "furnished",
+              "airConditioning",
+              "securitySystem",
+              "smartHome",
+              "petFriendly",
+              "elevator",
+              "seaView",
+            ]}
           />
           <CommaInput
             name="amenities"
             label="Amenities"
             value={formData.amenities}
             onChange={handleChange}
-            placeholder="WiFi, Air Conditioning, Heating"
             error={errors.amenities}
+            suggestions={[
+              "pool",
+              "wifi",
+              "parking",
+              "laundry",
+              "cableTV",
+              "cleaningService",
+              "elevator",
+              "gym",
+              "petFriendly",
+              "securitySystem",
+            ]}
+          />
+          <CommaInput
+            name="facilities"
+            label="Facilities"
+            value={formData.facilities}
+            onChange={handleChange}
+            error={errors.facilities}
+            suggestions={[
+              "kitchen",
+              "bathroom",
+              "parking",
+              "laundryRoom",
+              "accessibleEntrance",
+              "storageRoom",
+              "garage",
+              "outdoorGrill",
+              "backupGenerator",
+              "waterTank",
+            ]}
           />
           <TextareaInput
             name="description"

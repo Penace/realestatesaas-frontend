@@ -1,17 +1,17 @@
 // components/form/DateInput.jsx
 export default function DateInput({ name, label, value, onChange, error }) {
   return (
-    <label className="block text-sm font-medium text-gray-700">
+    <label className="block text-sm font-medium text-gray-700 mb-2">
       {label}
       <input
         type="date"
         name={name}
         value={value}
         onChange={onChange}
-        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm ${
+        className={`mt-1 block w-full rounded-lg border px-4 py-2 text-sm shadow-sm transition focus:outline-none focus:ring-2 ${
           error
-            ? "border-red-500"
-            : "focus:border-indigo-500 focus:ring-indigo-500"
+            ? "border-red-500 focus:ring-red-400"
+            : "border-gray-300 focus:border-blue-500 focus:ring-blue-400 "
         }`}
       />
     </label>
