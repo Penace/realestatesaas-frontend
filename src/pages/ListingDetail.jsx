@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Slider from "react-slick"; // Import the slick carousel
 import Button from "../components/common/Button";
 import { useAuth } from "../context/AuthProvider"; // Assuming you're using Auth context
 
@@ -84,6 +83,8 @@ export default function ListingDetail() {
       setCurrentImageIndex((prevIndex) =>
         prevIndex === listing.images.length - 1 ? 0 : prevIndex + 1
       );
+      setHeroImageClass("fade-out"); // Trigger fade-out
+      setTimeout(() => setHeroImageClass(""), 500); // Remove fade-out after 0.5s for next image
     }
   };
 
@@ -113,14 +114,15 @@ export default function ListingDetail() {
   }
 
   return (
-    <div className="w-full min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Hero Image with Manual Navigation */}
       <div
-        className="hero-image"
+        className="hero-image-listing relative" // Ensure this container is relative
         style={{
           backgroundImage: `url(/assets/${listing.images[currentImageIndex]})`,
           backgroundSize: "cover", // Ensures it covers the entire container
           backgroundPosition: "center center",
+          height: "70vh", // Ensure the hero section has height
         }}
       >
         {/* Hiding the img tag as it's covered by background */}
@@ -131,16 +133,16 @@ export default function ListingDetail() {
         />
         {/* Buttons for navigation */}
         {listing.images?.length > 1 && (
-          <div className="absolute top-60 left-0 right-0 flex justify-between px-4 z-10">
+          <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 flex justify-between px-4 z-10">
             <button
               onClick={handlePreviousImage}
-              className="bg-white bg-opacity-50 p-2 rounded-full"
+              className="bg-white bg-opacity-50 p-2 rounded-full navigation-button"
             >
               Previous
             </button>
             <button
               onClick={handleNextImage}
-              className="bg-white bg-opacity-50 p-2 rounded-full"
+              className="bg-white bg-opacity-50 p-2 rounded-full navigation-button"
             >
               Next
             </button>
@@ -149,7 +151,7 @@ export default function ListingDetail() {
       </div>
 
       {/* Property Details */}
-      <div className="flex flex-col items-center p-10 space-y-6">
+      <div className="flex flex-col items-center p-8 space-y-8">
         <h1 className="text-center text-4xl font-bold text-gray-900">
           {listing.title}
         </h1>
@@ -162,6 +164,54 @@ export default function ListingDetail() {
         <p className="max-w-3xl text-gray-700 text-center mt-6">
           {listing.description}
         </p>
+
+        {/* Property Features */}
+        <h3 className="text-2xl font-semibold text-center mb-4">
+          Property Features
+        </h3>
+        <div className="property-features mt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12 justify-center mx-auto lg:max-w-4xl">
+            {/* First column */}
+            <div className="flex-1 text-left space-y-4">
+              <div className="feature-item">
+                <strong>Bedrooms:</strong> {listing.bedrooms}
+              </div>
+              <div className="feature-item">
+                <strong>Bathrooms:</strong> {listing.bathrooms}
+              </div>
+              <div className="feature-item">
+                <strong>Square Footage:</strong> {listing.squareFootage} sq ft
+              </div>
+            </div>
+
+            {/* Second column */}
+            <div className="flex-1 text-center">
+              <div className="feature-item">
+                <strong>Amenities:</strong>
+                <ul className="list-disc pl-6 mt-2">
+                  {listing.amenities.map((amenity, index) => (
+                    <li key={index} className="mb-2">
+                      {amenity}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Third column */}
+            <div className="flex-1 text-left space-y-4">
+              <div className="feature-item">
+                <strong>Parking Available:</strong> {listing.parkingAvailable}
+              </div>
+              <div className="feature-item">
+                <strong>Year Built:</strong> {listing.yearBuilt}
+              </div>
+              <div className="feature-item">
+                <strong>Property Type:</strong> {listing.propertyType}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Favorite Button */}
         <Button
