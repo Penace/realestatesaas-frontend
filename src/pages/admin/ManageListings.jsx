@@ -79,6 +79,7 @@ export default function ManageListings() {
               <div className="w-full h-40 rounded-xl overflow-hidden bg-gray-100">
                 {listing.images?.length ? (
                   <img
+                    loading="lazy"
                     src={`/assets/${listing.images[0]}`}
                     alt={listing.title}
                     className="w-full h-full object-cover"

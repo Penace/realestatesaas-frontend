@@ -14,25 +14,33 @@ export default function Home() {
   const [auctionListing, setAuctionListing] = useState([]);
   const [sponsoredListings, setSponsoredListings] = useState([]);
 
-  useHeroParallax();
-
   useScrollAnimation({
     infoContentId: "infoContent",
     heroSectionId: "heroSection",
   });
 
   useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+      useHeroParallax();
+    }
+  }, []);
+
+  useEffect(() => {
     const loadListings = async () => {
       const listings = await fetchListings();
-      setFeaturedListings(
-        listings.filter((l) => l.tag === "featured").slice(0, 2)
-      ); // Only 2 featured
-      setAuctionListing(
-        listings.filter((l) => l.tag === "auction").slice(0, 1)
-      ); // 1 auction
-      setSponsoredListings(
-        listings.filter((l) => l.tag === "sponsored").slice(0, 2)
-      ); // 2 sponsored
+      const featured = listings.filter((l) => l.tag === "featured").slice(0, 2);
+      const auction = listings.filter((l) => l.tag === "auction").slice(0, 1);
+      const sponsored = listings
+        .filter((l) => l.tag === "sponsored")
+        .slice(0, 2);
+
+      setFeaturedListings(featured);
+      setAuctionListing(auction);
+      setSponsoredListings(sponsored);
+
+      console.log("featuredListings:", featured);
+      console.log("auctionListing:", auction);
+      console.log("sponsoredListings:", sponsored);
     };
 
     loadListings();
@@ -43,11 +51,12 @@ export default function Home() {
       {/* Hero Section */}
       <section
         id="heroSection"
-        className="h-[120vh] bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center transition-transform duration-700 ease-out overflow-hidden relative"
+        className="h-[90vh] md:min-h-screen lg:min-h-screen xl:min-h-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center transition-transform duration-700 ease-out relative z-0"
         style={{
           backgroundImage: "url('/assets/hero.jpeg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
+          zIndex: 0,
         }}
       >
         <h1
@@ -103,7 +112,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="flex gap-6 justify-center mt-6">
+      <div className="flex gap-6 justify-center mt-6 sm:mx-10">
         <Button to="/calculator" size="lg" variant="cta">
           Try Our Calculator
         </Button>

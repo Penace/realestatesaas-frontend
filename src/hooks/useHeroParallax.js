@@ -1,47 +1,37 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
-export function useHeroParallax() {
-  useEffect(() => {
-    const heroSection = document.getElementById("heroSection");
-    const heroTitle = document.getElementById("heroTitle");
-    const heroButton = document.getElementById("heroButton");
-
-    if (heroButton) {
-      heroButton.classList.remove("opacity-0", "translate-y-10");
-      heroButton.classList.add("opacity-100", "translate-y-0");
-    }
+export function useHeroParallax(ref) {
+  useLayoutEffect(() => {
+    const heroImage = ref?.current;
+    if (!heroImage) return;
 
     const isMobile = window.innerWidth < 768;
 
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
+      const scrollTop = -heroImage.getBoundingClientRect().top;
       const parallaxSpeed = isMobile ? 0.1 : 0.25;
 
-      const rect = heroSection.getBoundingClientRect();
+      const rect = heroImage.getBoundingClientRect();
       const fullyOutOfView = rect.bottom < 0 || rect.top > window.innerHeight;
 
       if (fullyOutOfView) {
-        heroSection.style.backgroundPositionY = "50%";
-        heroSection.style.transform = "scale(1)";
+        heroImage.style.transform = "scale(1)";
         return;
       }
 
-      heroSection.style.backgroundPositionY = `${scrollTop * parallaxSpeed}px`;
-      heroSection.style.transform = `scale(${1 + scrollTop * 0.0002})`;
+      const scale = Math.max(1, 1 + scrollTop * 0.0002);
+      heroImage.style.transform = `translateY(${
+        scrollTop * parallaxSpeed * 0.2
+      }px) scale(${scale})`;
+
+      console.log("scrollTop:", scrollTop);
     };
 
-    setTimeout(() => {
-      if (heroTitle) {
-        heroTitle.classList.remove("opacity-0", "translate-y-10");
-        heroTitle.classList.add("opacity-100", "translate-y-0");
-      }
-      if (heroButton) {
-        heroButton.classList.remove("opacity-0", "translate-y-10");
-        heroButton.classList.add("opacity-100", "translate-y-0");
-      }
-    }, 150);
-
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [ref]); // ✅ Stable dependency
 }

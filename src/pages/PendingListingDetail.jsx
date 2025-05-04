@@ -81,6 +81,7 @@ export default function PendingListingDetail() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-10 pb-20 max-w-5xl mx-auto">
           {listing.images.slice(1).map((img, idx) => (
             <img
+              loading="lazy"
               key={idx}
               src={`/assets/${img}`}
               onError={(e) => {

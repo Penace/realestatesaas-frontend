@@ -24,6 +24,7 @@ export default function ListingCard({
           className="block w-full h-40 rounded-xl overflow-hidden bg-gray-100"
         >
           <img
+            loading="lazy"
             src={image}
             onError={(e) => {
               e.target.onerror = null;
@@ -36,6 +37,7 @@ export default function ListingCard({
       ) : (
         <div className="w-full h-40 rounded-xl overflow-hidden bg-gray-100">
           <img
+            loading="lazy"
             src={image}
             onError={(e) => {
               e.target.onerror = null;

@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Button from "../components/common/Button";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useAuth } from "../context/AuthProvider"; // Assuming you're using Auth context
+// import { useHeroParallax } from "../hooks/useHeroParallax.js";
+import { useScrollAnimation } from "../hooks/useScrollAnimation.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -12,6 +15,34 @@ export default function ListingDetail() {
   const [error, setError] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [heroImageClass, setHeroImageClass] = useState(""); // Add the class state for the hero image transition
+  const [modalDirection, setModalDirection] = useState(null); // For modal swipe animation direction
+  const [heroSwipeClass, setHeroSwipeClass] = useState(""); // For hero swipe animation
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHoveringHero, setIsHoveringHero] = useState(false);
+
+  // useHeroParallax(); // Custom hook for parallax effect
+  useScrollAnimation({
+    infoContentId: "infoContent",
+    heroSectionId: "heroSection",
+  }); // Custom hook for scroll animation
+
+  // Parallax effect for hero image
+  useEffect(() => {
+    const heroImage = document.getElementById("heroImage");
+    if (!heroImage) return;
+
+    const isMobile = window.innerWidth < 768;
+    const parallaxSpeed = isMobile ? 0.1 : 0.25;
+
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      heroImage.style.transform = `translateY(${scrollTop * parallaxSpeed}px)`;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     async function fetchListing() {
@@ -77,25 +108,139 @@ export default function ListingDetail() {
     }
   };
 
-  // Navigate to next image
+  // Navigate to next image with crossfade and swipe animation
   const handleNextImage = () => {
     if (listing?.images?.length > 1) {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === listing.images.length - 1 ? 0 : prevIndex + 1
-      );
-      setHeroImageClass("fade-out"); // Trigger fade-out
-      setTimeout(() => setHeroImageClass(""), 500); // Remove fade-out after 0.5s for next image
+      setHeroImageClass("opacity-0");
+      setHeroSwipeClass("animate-slide-left");
+      setTimeout(() => {
+        setCurrentImageIndex((prevIndex) =>
+          prevIndex === listing.images.length - 1 ? 0 : prevIndex + 1
+        );
+        setHeroImageClass("opacity-100");
+        setTimeout(() => setHeroSwipeClass(""), 500);
+      }, 100);
     }
   };
 
-  // Navigate to previous image
+  // Navigate to previous image with crossfade and swipe animation
   const handlePreviousImage = () => {
     if (listing?.images?.length > 1) {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === 0 ? listing.images.length - 1 : prevIndex - 1
-      );
+      setHeroImageClass("opacity-0");
+      setHeroSwipeClass("animate-slide-right");
+      setTimeout(() => {
+        setCurrentImageIndex((prevIndex) =>
+          prevIndex === 0 ? listing.images.length - 1 : prevIndex - 1
+        );
+        setHeroImageClass("opacity-100");
+        setTimeout(() => setHeroSwipeClass(""), 500);
+      }, 100);
     }
   };
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    let startX = 0;
+    let animFrame;
+
+    const handleTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      cancelAnimationFrame(animFrame);
+      animFrame = requestAnimationFrame(() => {
+        const endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+        if (Math.abs(diffX) > 50) {
+          const direction = diffX > 0 ? "left" : "right";
+          setModalDirection(direction);
+          setTimeout(() => {
+            setCurrentImageIndex((prev) => {
+              if (direction === "left") {
+                return prev === listing.images.length - 1 ? 0 : prev + 1;
+              } else {
+                return prev === 0 ? listing.images.length - 1 : prev - 1;
+              }
+            });
+            setModalDirection(null);
+          }, 250); // Delay until animation completes
+        }
+      });
+    };
+
+    const modal = document.getElementById("imageModal");
+    modal?.addEventListener("touchstart", handleTouchStart);
+    modal?.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      modal?.removeEventListener("touchstart", handleTouchStart);
+      modal?.removeEventListener("touchend", handleTouchEnd);
+      cancelAnimationFrame(animFrame);
+    };
+  }, [isModalOpen, listing]);
+
+  // Add swipe support to main hero image (not just modal)
+  useEffect(() => {
+    if (isModalOpen) return;
+
+    const hero = document.getElementById("heroImage");
+    if (!hero) return;
+
+    let startX = 0;
+    let animFrame;
+
+    const handleTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      cancelAnimationFrame(animFrame);
+      animFrame = requestAnimationFrame(() => {
+        const endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+        if (Math.abs(diffX) > 50) {
+          diffX > 0 ? handleNextImage() : handlePreviousImage();
+        }
+      });
+    };
+
+    hero.addEventListener("touchstart", handleTouchStart);
+    hero.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      hero.removeEventListener("touchstart", handleTouchStart);
+      hero.removeEventListener("touchend", handleTouchEnd);
+      cancelAnimationFrame(animFrame);
+    };
+  }, [listing, isModalOpen]);
+
+  // Disable scroll/touchmove on body when modal is open, re-enable on cleanup
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [isModalOpen]);
+
+  // Autoplay: pause when hovering hero or modal open
+  useEffect(() => {
+    if (isHoveringHero || isModalOpen) return;
+
+    const interval = setInterval(() => {
+      handleNextImage();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [listing, isHoveringHero, isModalOpen]);
 
   if (error) {
     return (
@@ -108,7 +253,7 @@ export default function ListingDetail() {
   if (!listing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold text-gray-500">Loading...</h1>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -117,41 +262,127 @@ export default function ListingDetail() {
     <div className="min-h-screen flex flex-col">
       {/* Hero Image with Manual Navigation */}
       <div
-        className="hero-image-listing relative" // Ensure this container is relative
-        style={{
-          backgroundImage: `url(/assets/${listing.images[currentImageIndex]})`,
-          backgroundSize: "cover", // Ensures it covers the entire container
-          backgroundPosition: "center center",
-          height: "70vh", // Ensure the hero section has height
-        }}
+        id="heroSection"
+        className={`relative h-[77vh] overflow-hidden group`}
       >
-        {/* Hiding the img tag as it's covered by background */}
-        <img
-          src={`/assets/${listing.images[currentImageIndex]}`}
-          alt="Listing Image"
-          className="hidden" // Hide this image since it's covered by backgroundImage
-        />
+        <div className="relative w-full h-full overflow-hidden group pointer-events-auto">
+          <div
+            className="w-full h-full"
+            style={{ width: "100%", height: "100%" }}
+            onClick={() => setIsModalOpen(true)}
+            onMouseMove={(e) => {
+              const magnifier = document.getElementById("magnifier");
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              const y = e.clientY - rect.top;
+
+              const bgPosX = (x / rect.width) * 100;
+              const bgPosY = (y / rect.height) * 100;
+
+              if (magnifier) {
+                magnifier.style.left = `${x - 125}px`;
+                magnifier.style.top = `${y - 125}px`;
+                magnifier.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+              }
+            }}
+            onMouseEnter={() => {
+              setIsHoveringHero(true);
+              const magnifier = document.getElementById("magnifier");
+              if (magnifier) magnifier.style.display = "block";
+            }}
+            onMouseLeave={() => {
+              setIsHoveringHero(false);
+              const magnifier = document.getElementById("magnifier");
+              if (magnifier) magnifier.style.display = "none";
+            }}
+          >
+            <img
+              id="heroImage"
+              src={`/assets/${listing.images[currentImageIndex]}`}
+              alt="Listing"
+              loading="lazy"
+              className={`w-full h-full object-cover pointer-events-none transition-opacity duration-700 ease-in-out ${
+                heroImageClass || "opacity-100"
+              } ${heroSwipeClass}`}
+            />
+            <div
+              id="magnifier"
+              className="hidden absolute w-[250px] h-[250px] border-[0.5px] border-teal-700/70 rounded-lg pointer-events-none z-30"
+              style={{
+                backgroundImage: `url(/assets/${listing.images[currentImageIndex]})`,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "1000% 1000%",
+                display: "none",
+              }}
+            ></div>
+          </div>
+          {/* Swipe hint arrows for mobile */}
+          {listing.images?.length > 1 && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-between px-6 sm:hidden pointer-events-none z-50">
+              <div className="text-white text-xl opacity-50 animate-bounce-left">
+                ←
+              </div>
+              <div className="text-white text-xl opacity-50 animate-bounce-right">
+                →
+              </div>
+            </div>
+          )}
+        </div>
         {/* Buttons for navigation */}
         {listing.images?.length > 1 && (
-          <div className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 flex justify-between px-4 z-10">
+          <div
+            id="heroButton"
+            className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between px-8 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          >
             <button
               onClick={handlePreviousImage}
-              className="bg-white bg-opacity-50 p-2 rounded-full navigation-button"
+              className="bg-white bg-opacity-50 p-2 rounded-full z-50 pointer-events-auto transform transition-all duration-200 hover:scale-105 active:scale-95 hover:bg-opacity-70"
             >
-              Previous
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden text-lg">←</span>
             </button>
             <button
               onClick={handleNextImage}
-              className="bg-white bg-opacity-50 p-2 rounded-full navigation-button"
+              className="bg-white bg-opacity-50 p-2 rounded-full z-50 pointer-events-auto transform transition-all duration-200 hover:scale-105 active:scale-95 hover:bg-opacity-70"
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
+              <span className="sm:hidden text-lg">→</span>
             </button>
           </div>
         )}
       </div>
 
+      {/* Thumbnail Carousel */}
+      {listing.images?.length > 1 && (
+        <div className="flex justify-center items-center gap-3 p-4 bg-white border-b border-gray-200">
+          {listing.images.map((img, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setCurrentImageIndex(index);
+              }}
+              className={`w-20 h-16 rounded overflow-hidden border transform transition-transform duration-300 ${
+                currentImageIndex === index
+                  ? "border-blue-500"
+                  : "border-transparent opacity-70 hover:opacity-100"
+              } hover:scale-105`}
+            >
+              <img
+                src={`/assets/${img}`}
+                alt={`Thumbnail ${index + 1}`}
+                loading="lazy"
+                className="object-cover w-full h-full transition-transform duration-300 ease-in-out hover:scale-110"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Property Details */}
-      <div className="flex flex-col items-center p-8 space-y-8">
+      <div
+        id="infoContent"
+        className="flex flex-col items-center p-8 space-y-8 mt-2"
+      >
         <h1 className="text-center text-4xl font-bold text-gray-900">
           {listing.title}
         </h1>
@@ -172,7 +403,7 @@ export default function ListingDetail() {
         <div className="property-features mt-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12 justify-center mx-auto lg:max-w-4xl">
             {/* First column */}
-            <div className="flex-1 text-left space-y-4">
+            <div className="flex-1 text-left space-y-4 border-b border-gray-200 lg:border-none pb-4 mb-4">
               <div className="feature-item">
                 <strong>Bedrooms:</strong> {listing.bedrooms}
               </div>
@@ -185,7 +416,7 @@ export default function ListingDetail() {
             </div>
 
             {/* Second column */}
-            <div className="flex-1 text-center">
+            <div className="flex-1 text-center border-b border-gray-200 lg:border-none pb-4 mb-4">
               <div className="feature-item">
                 <strong>Amenities:</strong>
                 <ul className="list-disc pl-6 mt-2">
@@ -199,7 +430,7 @@ export default function ListingDetail() {
             </div>
 
             {/* Third column */}
-            <div className="flex-1 text-left space-y-4">
+            <div className="flex-1 text-left space-y-4 pb-4">
               <div className="feature-item">
                 <strong>Parking Available:</strong> {listing.parkingAvailable}
               </div>
@@ -233,6 +464,37 @@ export default function ListingDetail() {
           </Button>
         </div>
       </div>
+      {isModalOpen && (
+        <div
+          id="imageModal"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <img
+            src={`/assets/${listing.images[currentImageIndex]}`}
+            alt="Full preview"
+            loading="lazy"
+            className={`max-w-full max-h-full object-contain transition-transform duration-300 ease-in-out ${
+              modalDirection === "left"
+                ? "animate-slide-out-left"
+                : modalDirection === "right"
+                ? "animate-slide-out-right"
+                : ""
+            }`}
+          />
+          {/* Swipe hint arrows for modal preview (mobile only) */}
+          {listing.images?.length > 1 && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-between px-6 sm:hidden pointer-events-none z-50">
+              <div className="text-white text-xl opacity-50 animate-bounce-left">
+                ←
+              </div>
+              <div className="text-white text-xl opacity-50 animate-bounce-right">
+                →
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

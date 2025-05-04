@@ -45,7 +45,6 @@ export function useScrollAnimation({ infoContentId, heroSectionId }) {
     setTimeout(() => {
       const heroTitle = document.getElementById("heroTitle");
       const heroButton = document.getElementById("heroButton");
-
       if (heroTitle) {
         heroTitle.classList.remove("opacity-0", "translate-y-10");
         heroTitle.classList.add("opacity-100", "translate-y-0");
