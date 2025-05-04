@@ -10,3 +10,72 @@
     padding: 0;
   }
 }
+/* Add this to your global or component-level stylesheet */
+.hero-image {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 60vh; /* Adjust height as needed */
+  object-fit: cover; /* Ensure the image covers the entire space */
+  background-position: center center;
+  background-size: cover;
+}
+
+.hero-image img {
+  display: none; /* Hides the img tag since it's unnecessary with background-image */
+}
+/* Default Layout - for most pages */
+.default-layout {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  max-width: 1280px; /* Adjust max-width as needed */
+  margin: 0 auto; /* Center the content */
+}
+
+/* Homepage Layout - remove extra padding, max-width for a full-width effect */
+.home-main {
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
+  height: 100vh; /* Full height if needed */
+  overflow: hidden;
+}
+
+/* Listing Detail Page Layout - if you need to have specific styles */
+.listing-detail-layout {
+  padding: 0;
+  max-width: cover;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  nav {
+    width: 100%;
+  }
+
+  .mobile-menu {
+    display: block;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .mobile-menu a {
+    padding: 10px;
+    font-size: 1.2rem;
+    color: #333;
+    text-align: center;
+    display: block;
+    width: 100%;
+  }
+
+  .mobile-menu a:hover {
+    background-color: #f4f4f4;
+  }
+}

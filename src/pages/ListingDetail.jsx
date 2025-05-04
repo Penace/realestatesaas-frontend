@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import Slider from "react-slick"; // Import the slick carousel
 import Button from "../components/common/Button";
 import { useAuth } from "../context/AuthProvider"; // Assuming you're using Auth context
 
@@ -11,6 +12,7 @@ export default function ListingDetail() {
   const [listing, setListing] = useState(null);
   const [error, setError] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     async function fetchListing() {
@@ -76,6 +78,24 @@ export default function ListingDetail() {
     }
   };
 
+  // Navigate to next image
+  const handleNextImage = () => {
+    if (listing?.images?.length > 1) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === listing.images.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+  };
+
+  // Navigate to previous image
+  const handlePreviousImage = () => {
+    if (listing?.images?.length > 1) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? listing.images.length - 1 : prevIndex - 1
+      );
+    }
+  };
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -93,20 +113,46 @@ export default function ListingDetail() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Hero Image */}
+    <div className="w-full min-h-screen flex flex-col">
+      {/* Hero Image with Manual Navigation */}
       <div
-        className="h-[60vh] bg-cover bg-center"
+        className="hero-image"
         style={{
-          backgroundImage: `url(/assets/${
-            listing.images?.[0] || "fallback.jpg"
-          })`,
+          backgroundImage: `url(/assets/${listing.images[currentImageIndex]})`,
+          backgroundSize: "cover", // Ensures it covers the entire container
+          backgroundPosition: "center center",
         }}
-      ></div>
+      >
+        {/* Hiding the img tag as it's covered by background */}
+        <img
+          src={`/assets/${listing.images[currentImageIndex]}`}
+          alt="Listing Image"
+          className="hidden" // Hide this image since it's covered by backgroundImage
+        />
+        {/* Buttons for navigation */}
+        {listing.images?.length > 1 && (
+          <div className="absolute top-60 left-0 right-0 flex justify-between px-4 z-10">
+            <button
+              onClick={handlePreviousImage}
+              className="bg-white bg-opacity-50 p-2 rounded-full"
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="bg-white bg-opacity-50 p-2 rounded-full"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Property Details */}
       <div className="flex flex-col items-center p-10 space-y-6">
-        <h1 className="text-4xl font-bold text-gray-900">{listing.title}</h1>
+        <h1 className="text-center text-4xl font-bold text-gray-900">
+          {listing.title}
+        </h1>
         <p className="text-gray-500 text-lg">{listing.location}</p>
         <p className="text-blue-600 text-2xl font-semibold">
           {listing.price && !isNaN(Number(listing.price))
@@ -125,6 +171,8 @@ export default function ListingDetail() {
         >
           {isFavorited ? "Remove from Favorites" : "Add to Favorites"}
         </Button>
+
+        {/* Contact Agent Button */}
         <div className="flex justify-center mt-6">
           <Button
             onClick={() => alert("Contacting the agent...")}
