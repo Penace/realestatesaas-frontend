@@ -8,6 +8,9 @@ import TextInput from "../components/form/TextInput";
 import TextareaInput from "../components/form/TextareaInput";
 import PriceInput from "../components/form/PriceInput";
 import ImageInput from "../components/form/ImageInput";
+import Dropdown from "../components/form/Dropdown";
+import DateInput from "../components/form/DateInput";
+import CommaInput from "../components/form/CommaInput";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -39,6 +42,18 @@ export default function Publish() {
     price: "",
     description: "",
     images: [],
+    address: "",
+    bedrooms: "",
+    bathrooms: "",
+    squareFootage: "",
+    propertyType: "",
+    yearBuilt: "",
+    parkingAvailable: "",
+    listingType: "",
+    availableFrom: "",
+    features: "",
+    amenities: "",
+    slug: "",
   });
 
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -51,6 +66,10 @@ export default function Publish() {
     switch (field) {
       case "title":
       case "location":
+      case "address":
+      case "propertyType":
+      case "parkingAvailable":
+      case "slug":
         return value.trim().length >= 3;
       case "price":
         const numeric = Number(value.replace(/[^0-9.]/g, ""));
@@ -67,6 +86,19 @@ export default function Publish() {
               (file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
           )
         );
+      case "bedrooms":
+      case "bathrooms":
+      case "squareFootage":
+      case "yearBuilt":
+        const numVal = Number(value);
+        return !isNaN(numVal) && numVal >= 0;
+      case "listingType":
+        return value.trim().length > 0;
+      case "availableFrom":
+        return !isNaN(Date.parse(value));
+      case "features":
+      case "amenities":
+        return value.trim().length > 0;
       default:
         return true;
     }
@@ -98,7 +130,25 @@ export default function Publish() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { title, location, price, description, images } = formData;
+    const {
+      title,
+      location,
+      price,
+      description,
+      images,
+      address,
+      bedrooms,
+      bathrooms,
+      squareFootage,
+      propertyType,
+      yearBuilt,
+      parkingAvailable,
+      listingType,
+      availableFrom,
+      features,
+      amenities,
+      slug,
+    } = formData;
 
     const numericPrice = Number(price.replace(/[^0-9]/g, ""));
 
@@ -112,6 +162,24 @@ export default function Publish() {
       images: optimizedImages.map((img) =>
         typeof img === "string" ? img : img.url
       ),
+      address: address.trim(),
+      bedrooms: Number(bedrooms),
+      bathrooms: Number(bathrooms),
+      squareFootage: Number(squareFootage),
+      propertyType: propertyType.trim(),
+      yearBuilt: Number(yearBuilt),
+      parkingAvailable: parkingAvailable.trim(),
+      listingType: listingType.trim(),
+      availableFrom: new Date(availableFrom),
+      features: features
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean),
+      amenities: amenities
+        .split(",")
+        .map((a) => a.trim())
+        .filter(Boolean),
+      slug: slug.trim(),
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
@@ -129,6 +197,18 @@ export default function Publish() {
         price: "",
         description: "",
         images: [],
+        address: "",
+        bedrooms: "",
+        bathrooms: "",
+        squareFootage: "",
+        propertyType: "",
+        yearBuilt: "",
+        parkingAvailable: "",
+        listingType: "",
+        availableFrom: "",
+        features: "",
+        amenities: "",
+        slug: "",
       });
       navigate(`/pending/${createdListing._id}`);
     } catch (err) {
@@ -142,21 +222,27 @@ export default function Publish() {
   const handleOpenReview = async (e) => {
     e.preventDefault();
 
-    const { title, location, price, description, images } = formData;
+    const {
+      title,
+      location,
+      price,
+      description,
+      images,
+      address,
+      bedrooms,
+      bathrooms,
+      squareFootage,
+      propertyType,
+      yearBuilt,
+      parkingAvailable,
+      listingType,
+      availableFrom,
+      features,
+      amenities,
+      slug,
+    } = formData;
 
     const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-    const invalidImages = [];
-
-    const listing = {
-      title: title.trim(),
-      location: location.trim(),
-      price: numericPrice.toString(),
-      description: description.trim(),
-      images,
-      isFeatured: false,
-      isAuction: false,
-      isSponsored: false,
-    };
 
     if (
       title.trim().length < 3 ||
@@ -165,11 +251,52 @@ export default function Publish() {
       isNaN(numericPrice) ||
       numericPrice < 100 ||
       numericPrice > 999999999 ||
-      images.length === 0
+      images.length === 0 ||
+      address.trim().length < 3 ||
+      isNaN(Number(bedrooms)) ||
+      isNaN(Number(bathrooms)) ||
+      isNaN(Number(squareFootage)) ||
+      propertyType.trim().length < 3 ||
+      isNaN(Number(yearBuilt)) ||
+      parkingAvailable.trim().length < 3 ||
+      listingType.trim().length === 0 ||
+      isNaN(Date.parse(availableFrom)) ||
+      features.trim().length === 0 ||
+      amenities.trim().length === 0 ||
+      slug.trim().length < 3
     ) {
       showToast("Please fix the errors before reviewing.", "error");
       return;
     }
+
+    const listing = {
+      title: title.trim(),
+      location: location.trim(),
+      price: numericPrice.toString(),
+      description: description.trim(),
+      images,
+      address: address.trim(),
+      bedrooms: Number(bedrooms),
+      bathrooms: Number(bathrooms),
+      squareFootage: Number(squareFootage),
+      propertyType: propertyType.trim(),
+      yearBuilt: Number(yearBuilt),
+      parkingAvailable: parkingAvailable.trim(),
+      listingType: listingType.trim(),
+      availableFrom: new Date(availableFrom),
+      features: features
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean),
+      amenities: amenities
+        .split(",")
+        .map((a) => a.trim())
+        .filter(Boolean),
+      slug: slug.trim(),
+      isFeatured: false,
+      isAuction: false,
+      isSponsored: false,
+    };
 
     setReviewData(listing);
     setShowReviewModal(true);
@@ -208,7 +335,25 @@ export default function Publish() {
           onClose={() => setShowReviewModal(false)}
           onConfirm={async (e) => {
             e.preventDefault();
-            const { title, location, price, description, images } = formData;
+            const {
+              title,
+              location,
+              price,
+              description,
+              images,
+              address,
+              bedrooms,
+              bathrooms,
+              squareFootage,
+              propertyType,
+              yearBuilt,
+              parkingAvailable,
+              listingType,
+              availableFrom,
+              features,
+              amenities,
+              slug,
+            } = formData;
             const numericPrice = Number(price.replace(/[^0-9]/g, ""));
             const optimizedImages = await optimizeAndUploadImages(
               formData.images
@@ -221,6 +366,24 @@ export default function Publish() {
               images: optimizedImages.map((img) =>
                 typeof img === "string" ? img : img.url
               ),
+              address: address.trim(),
+              bedrooms: Number(bedrooms),
+              bathrooms: Number(bathrooms),
+              squareFootage: Number(squareFootage),
+              propertyType: propertyType.trim(),
+              yearBuilt: Number(yearBuilt),
+              parkingAvailable: parkingAvailable.trim(),
+              listingType: listingType.trim(),
+              availableFrom: new Date(availableFrom),
+              features: features
+                .split(",")
+                .map((f) => f.trim())
+                .filter(Boolean),
+              amenities: amenities
+                .split(",")
+                .map((a) => a.trim())
+                .filter(Boolean),
+              slug: slug.trim(),
               isFeatured: false,
               isAuction: false,
               isSponsored: false,
@@ -237,6 +400,18 @@ export default function Publish() {
                 price: "",
                 description: "",
                 images: [],
+                address: "",
+                bedrooms: "",
+                bathrooms: "",
+                squareFootage: "",
+                propertyType: "",
+                yearBuilt: "",
+                parkingAvailable: "",
+                listingType: "",
+                availableFrom: "",
+                features: "",
+                amenities: "",
+                slug: "",
               });
               navigate(`/pending/${createdListing._id}`);
             } catch (err) {
@@ -265,11 +440,111 @@ export default function Publish() {
             placeholder="New York City, NY"
             error={errors.location}
           />
+          <TextInput
+            name="address"
+            label="Address"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="123 Main St"
+            error={errors.address}
+          />
           <PriceInput
             name="price"
             value={formData.price}
             onChange={handleChange}
             error={errors.price}
+          />
+          <TextInput
+            name="bedrooms"
+            label="Bedrooms"
+            value={formData.bedrooms}
+            onChange={handleChange}
+            placeholder="3"
+            error={errors.bedrooms}
+          />
+          <TextInput
+            name="bathrooms"
+            label="Bathrooms"
+            value={formData.bathrooms}
+            onChange={handleChange}
+            placeholder="2"
+            error={errors.bathrooms}
+          />
+          <TextInput
+            name="squareFootage"
+            label="Square Footage"
+            value={formData.squareFootage}
+            onChange={handleChange}
+            placeholder="1500"
+            error={errors.squareFootage}
+          />
+          <TextInput
+            name="propertyType"
+            label="Property Type"
+            value={formData.propertyType}
+            onChange={handleChange}
+            placeholder="Apartment"
+            error={errors.propertyType}
+          />
+          <TextInput
+            name="yearBuilt"
+            label="Year Built"
+            value={formData.yearBuilt}
+            onChange={handleChange}
+            placeholder="1990"
+            error={errors.yearBuilt}
+          />
+          <TextInput
+            name="parkingAvailable"
+            label="Parking Available"
+            value={formData.parkingAvailable}
+            onChange={handleChange}
+            placeholder="Yes"
+            error={errors.parkingAvailable}
+          />
+          <Dropdown
+            name="listingType"
+            label="Listing Type"
+            value={formData.listingType}
+            onChange={handleChange}
+            options={[
+              { label: "For Sale", value: "sale" },
+              { label: "For Rent", value: "rent" },
+              { label: "Auction", value: "auction" },
+            ]}
+            error={errors.listingType}
+          />
+
+          <TextInput
+            name="slug"
+            label="Slug"
+            value={formData.slug}
+            onChange={handleChange}
+            placeholder="luxury-penthouse-nyc"
+            error={errors.slug}
+          />
+          <DateInput
+            name="availableFrom"
+            label="Available From"
+            value={formData.availableFrom}
+            onChange={handleChange}
+            error={errors.availableFrom}
+          />
+          <CommaInput
+            name="features"
+            label="Features"
+            value={formData.features}
+            onChange={handleChange}
+            placeholder="Pool, Gym, Garden"
+            error={errors.features}
+          />
+          <CommaInput
+            name="amenities"
+            label="Amenities"
+            value={formData.amenities}
+            onChange={handleChange}
+            placeholder="WiFi, Air Conditioning, Heating"
+            error={errors.amenities}
           />
           <TextareaInput
             name="description"
