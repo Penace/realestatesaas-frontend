@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
 import { useToast } from "../context/ToastProvider";
+import { useAuth } from "../context/AuthProvider";
 import ReviewModal from "../components/ReviewModal";
 import TextInput from "../components/form/TextInput";
 import TextareaInput from "../components/form/TextareaInput";
@@ -57,6 +58,11 @@ export default function Publish() {
     slug: "",
   });
 
+  const { user } = useAuth();
+  if (!user || !user._id) {
+    showToast("You must be logged in to publish a listing.", "error");
+    return;
+  }
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewData, setReviewData] = useState(null);
   const [errors, setErrors] = useState({});
@@ -188,14 +194,15 @@ export default function Publish() {
         .map((f) => f.trim())
         .filter(Boolean),
       slug: slug.trim(),
-      isFeatured: false,
-      isAuction: false,
-      isSponsored: false,
+      // Removed isFeatured, isAuction, isSponsored. These are admin controlled.
     };
 
     try {
       setSubmitting(true);
       const createdListing = await createListing(listing);
+      if (!createdListing || !createdListing._id) {
+        throw new Error("Listing creation failed or invalid response");
+      }
       showToast("Listing submitted for review.", "success");
       setSubmitted(true);
       setShowReviewModal(false);
@@ -219,7 +226,9 @@ export default function Publish() {
         facilities: "",
         slug: "",
       });
-      navigate(`/pending/${createdListing._id}`);
+      // Redirect to dashboard pending listings instead of the new listing page
+      navigate("/dashboard/listings?status=pending");
+      return;
     } catch (err) {
       console.error("Submission failed:", err);
       showToast("Something went wrong. Please try again.", "error");
@@ -404,13 +413,14 @@ export default function Publish() {
                 .map((f) => f.trim())
                 .filter(Boolean),
               slug: slug.trim(),
-              isFeatured: false,
-              isAuction: false,
-              isSponsored: false,
+              // Removed isFeatured, isAuction, isSponsored. These are admin controlled.
             };
             try {
               setSubmitting(true);
               const createdListing = await createListing(listing);
+              if (!createdListing || !createdListing._id) {
+                throw new Error("Listing creation failed or invalid response");
+              }
               showToast("Listing submitted for review.", "success");
               setSubmitted(true);
               setShowReviewModal(false);
@@ -434,7 +444,9 @@ export default function Publish() {
                 facilities: "",
                 slug: "",
               });
-              navigate(`/pending/${createdListing._id}`);
+              // Redirect to dashboard pending listings instead of the new listing page
+              navigate("/dashboard/listings?status=pending");
+              return;
             } catch (err) {
               console.error("Submission failed:", err);
               showToast("Something went wrong. Please try again.", "error");
@@ -626,14 +638,60 @@ export default function Publish() {
             error={errors.images}
           />
 
-          <div className="pt-6 flex justify-center">
+          <div className="pt-6 flex justify-center space-x-4">
+            <Button size="lg" variant="cta" type="submit" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit Listing"}
+            </Button>
             <Button
               size="lg"
               variant="primaryLight"
-              type="submit"
-              disabled={submitting}
+              type="button"
+              onClick={async () => {
+                const optimizedImages = await optimizeAndUploadImages(
+                  formData.images
+                );
+
+                const draft = {
+                  ...formData,
+                  price: Number(formData.price.replace(/[^0-9]/g, "")),
+                  bedrooms: Number(formData.bedrooms),
+                  bathrooms: Number(formData.bathrooms),
+                  squareFootage: Number(formData.squareFootage),
+                  yearBuilt: Number(formData.yearBuilt),
+                  availableFrom: new Date(formData.availableFrom),
+                  features: formData.features
+                    .split(",")
+                    .map((f) => f.trim())
+                    .filter(Boolean),
+                  amenities: formData.amenities
+                    .split(",")
+                    .map((a) => a.trim())
+                    .filter(Boolean),
+                  facilities: formData.facilities
+                    .split(",")
+                    .map((f) => f.trim())
+                    .filter(Boolean),
+                  slug: formData.slug.trim(),
+                  images: optimizedImages.map((img) =>
+                    typeof img === "string" ? img : img.url
+                  ),
+                  status: "draft",
+                  createdBy: user?._id,
+                };
+
+                try {
+                  const saved = await createListing(draft);
+                  if (!saved || !saved._id) {
+                    throw new Error("Draft save failed");
+                  }
+                  showToast("Draft saved successfully", "success");
+                } catch (err) {
+                  console.error("Draft save failed:", err);
+                  showToast("Failed to save draft", "error");
+                }
+              }}
             >
-              {submitting ? "Submitting..." : "Submit Listing"}
+              Save Draft
             </Button>
           </div>
         </form>

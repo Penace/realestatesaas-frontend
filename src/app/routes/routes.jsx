@@ -31,6 +31,9 @@ const AdminLayout = withPageLoader(() => import("../../layouts/AdminLayout"));
 const SignUp = withPageLoader(() => import("../../pages/SignUp"));
 const Login = withPageLoader(() => import("../../pages/Login"));
 const UserDashboard = withPageLoader(() => import("../../pages/UserDashboard"));
+const AgentDashboard = withPageLoader(() =>
+  import("../../pages/AgentDashboard")
+);
 const Calculator = withPageLoader(() => import("../../pages/Calculator"));
 const MaintenancePage = withPageLoader(() =>
   import("../../pages/MaintenancePage")
@@ -70,6 +73,14 @@ export default function AppRoutes() {
             element={
               <Layout>
                 <UserDashboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/agent-dashboard"
+            element={
+              <Layout>
+                <AgentDashboard />
               </Layout>
             }
           />

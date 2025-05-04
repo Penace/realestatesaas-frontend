@@ -49,9 +49,15 @@ export default function CommaInput({
 
   useEffect(() => {
     if (document.activeElement === inputRef.current) {
-      setFilteredSuggestions(suggestions.filter((s) => !values.includes(s)));
+      setFilteredSuggestions(
+        suggestions.filter(
+          (s) =>
+            s.toLowerCase().includes(inputValue.toLowerCase()) &&
+            !values.includes(s)
+        )
+      );
     }
-  }, [inputValue, suggestions, values]);
+  }, [inputValue]);
 
   return (
     <div className="flex flex-col w-full">

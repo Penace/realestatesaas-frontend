@@ -2,6 +2,11 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   `${window.location.protocol}//${window.location.hostname}:4000/api`;
 
+export const IMAGE_BASE_URL =
+  import.meta.env.VITE_IMAGE_BASE_URL ||
+  `${window.location.protocol}//${window.location.hostname}:4000`;
+const IMAGE_BASE_URL = `${window.location.protocol}//${window.location.hostname}:4000`;
+
 // --- Centralized Fetch Helper
 async function fetchWithHandling(url, options = {}, fallback = null) {
   try {
@@ -30,6 +35,14 @@ export async function fetchListingById(id) {
 
 export async function fetchListingsByTag(tag) {
   return fetchWithHandling(`${API_URL}/listings?tag=${tag}`, {}, []);
+}
+
+// Fetch listings by status, optionally filtered by userId
+export async function fetchListingsByStatus(status, userId = null) {
+  const url = userId
+    ? `${API_URL}/listings/status/${status}?userId=${userId}`
+    : `${API_URL}/listings/status/${status}`;
+  return fetchWithHandling(url, {}, []);
 }
 
 // --- Publish
@@ -162,3 +175,5 @@ export async function fetchDraftAndPendingListings() {
   const allListings = await fetchWithHandling(`${API_URL}/listings`, {}, []);
   return allListings.filter((listing) => listing.status === "pending");
 }
+
+export { IMAGE_BASE_URL };

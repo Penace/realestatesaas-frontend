@@ -3,17 +3,20 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const VITE_IMAGE_BASE_URL =
+  import.meta.env.VITE_IMAGE_BASE_URL || "http://localhost:4000";
+const favoritesCache = new Map();
 
-export default function ListingCard({
-  _id,
-  images,
-  title,
-  location,
-  price,
-  prefix = "listings",
-}) {
+export default function ListingCard({ listing, prefix = "listings" }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const { user } = useAuth(); // Get the current user from context
+  if (!listing || typeof listing !== "object") return null;
+  console.log("Rendering ListingCard with:", listing);
+  const _id = listing?._id ?? "";
+  const images = listing?.images ?? [];
+  const title = listing?.title ?? "Untitled";
+  const location = listing?.location ?? "Unknown";
+  const price = listing?.price ?? null;
 
   // Prevent default behavior of Link when clicking on the favorite button
   const handleLinkClick = (e) => {
@@ -22,11 +25,14 @@ export default function ListingCard({
     }
   };
 
-  // Fallback if images are empty or undefined
+  // Fallback if images are empty or undefined, eliminate double slashes
+  // Use VITE_IMAGE_BASE_URL for relative paths like /uploads/...
   const imageUrl =
-    images && images.length > 0
-      ? `/assets/${images[0]}`
-      : "/assets/fallback.jpg"; // Use fallback if no image
+    images.length > 0
+      ? images[0].startsWith("http")
+        ? images[0]
+        : `${VITE_IMAGE_BASE_URL}/${images[0].replace(/^\/+/, "")}`
+      : "/assets/fallback.jpg";
 
   const handleFavoriteClick = async () => {
     if (!user) {
@@ -48,28 +54,33 @@ export default function ListingCard({
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !listing?._id) return;
 
     const checkIfFavorite = async () => {
+      if (favoritesCache.has(user._id)) {
+        const favorites = favoritesCache.get(user._id);
+        setIsFavorited(favorites.includes(listing._id));
+        return;
+      }
+
       try {
         const res = await fetch(`${API_URL}/users/${user._id}/favorites`);
-        if (res.ok) {
-          const favorites = await res.json();
-          setIsFavorited(favorites.some((fav) => fav._id === _id));
-        } else {
-          throw new Error("Failed to fetch favorites");
-        }
+        if (!res.ok) throw new Error("Failed to fetch favorites");
+        const favorites = await res.json();
+        const ids = favorites.map((fav) => fav._id);
+        favoritesCache.set(user._id, ids);
+        setIsFavorited(ids.includes(listing._id));
       } catch (error) {
         console.error("Error fetching favorites:", error);
       }
     };
 
     checkIfFavorite();
-  }, [_id, user]);
+  }, [listing?._id, user]);
 
   return (
     <Link
-      to={`/${prefix}/${_id}`}
+      to={`/${prefix}/${listing._id}`}
       className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all hover:shadow-2xl flex flex-col relative"
       onClick={handleLinkClick}
     >

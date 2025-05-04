@@ -67,7 +67,7 @@ export default function Listings() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl transition-all duration-500">
         {filteredListings.length > 0 ? (
           filteredListings.map((listing) => (
-            <ListingCard key={listing._id} {...listing} />
+            <ListingCard key={listing._id} listing={listing} />
           ))
         ) : (
           <div className="w-full max-w-7xl flex justify-center items-center py-20 text-gray-400 text-xl">

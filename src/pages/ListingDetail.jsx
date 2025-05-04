@@ -7,6 +7,8 @@ import { useAuth } from "../context/AuthProvider"; // Assuming you're using Auth
 import { useScrollAnimation } from "../hooks/useScrollAnimation.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const VITE_IMAGE_BASE_URL =
+  import.meta.env.VITE_IMAGE_BASE_URL || "http://localhost:4000";
 
 export default function ListingDetail() {
   const { id } = useParams();
@@ -298,7 +300,9 @@ export default function ListingDetail() {
           >
             <img
               id="heroImage"
-              src={`/assets/${listing.images[currentImageIndex]}`}
+              src={`${VITE_IMAGE_BASE_URL.replace(/\/$/, "")}/${listing.images[
+                currentImageIndex
+              ].replace(/^\/+/, "")}`}
               alt="Listing"
               loading="lazy"
               className={`w-full h-full object-cover pointer-events-none transition-opacity duration-700 ease-in-out ${
@@ -309,7 +313,10 @@ export default function ListingDetail() {
               id="magnifier"
               className="hidden absolute w-[250px] h-[250px] border-[0.5px] border-teal-700/70 rounded-lg pointer-events-none z-30"
               style={{
-                backgroundImage: `url(/assets/${listing.images[currentImageIndex]})`,
+                backgroundImage: `url(${VITE_IMAGE_BASE_URL.replace(
+                  /\/$/,
+                  ""
+                )}/${listing.images[currentImageIndex].replace(/^\/+/, "")})`,
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "1000% 1000%",
                 display: "none",
@@ -368,7 +375,10 @@ export default function ListingDetail() {
               } hover:scale-105`}
             >
               <img
-                src={`/assets/${img}`}
+                src={`${VITE_IMAGE_BASE_URL.replace(/\/$/, "")}/${img.replace(
+                  /^\/+/,
+                  ""
+                )}`}
                 alt={`Thumbnail ${index + 1}`}
                 loading="lazy"
                 className="object-cover w-full h-full transition-transform duration-300 ease-in-out hover:scale-110"
@@ -471,7 +481,9 @@ export default function ListingDetail() {
           onClick={() => setIsModalOpen(false)}
         >
           <img
-            src={`/assets/${listing.images[currentImageIndex]}`}
+            src={`${VITE_IMAGE_BASE_URL.replace(/\/$/, "")}/${listing.images[
+              currentImageIndex
+            ].replace(/^\/+/, "")}`}
             alt="Full preview"
             loading="lazy"
             className={`max-w-full max-h-full object-contain transition-transform duration-300 ease-in-out ${
