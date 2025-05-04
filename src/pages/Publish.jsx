@@ -24,7 +24,7 @@ async function optimizeAndUploadImages(imageListRaw) {
     });
 
     const { url } = await uploadRes.json();
-    optimizedImages.push(url);
+    optimizedImages.push({ url });
   }
 
   return optimizedImages;
@@ -109,7 +109,9 @@ export default function Publish() {
       location: location.trim(),
       price: numericPrice.toString(),
       description: description.trim(),
-      images: optimizedImages,
+      images: optimizedImages.map((img) =>
+        typeof img === "string" ? img : img.url
+      ),
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
@@ -143,17 +145,14 @@ export default function Publish() {
     const { title, location, price, description, images } = formData;
 
     const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-    const optimizedImages = images;
-    const invalidImages = images.filter(
-      (file) => !file.name.endsWith(".jpg") && !file.name.endsWith(".jpeg")
-    );
+    const invalidImages = [];
 
     const listing = {
       title: title.trim(),
       location: location.trim(),
       price: numericPrice.toString(),
       description: description.trim(),
-      images: optimizedImages,
+      images,
       isFeatured: false,
       isAuction: false,
       isSponsored: false,
@@ -166,8 +165,7 @@ export default function Publish() {
       isNaN(numericPrice) ||
       numericPrice < 100 ||
       numericPrice > 999999999 ||
-      optimizedImages.length === 0 ||
-      invalidImages.length > 0
+      images.length === 0
     ) {
       showToast("Please fix the errors before reviewing.", "error");
       return;
@@ -192,19 +190,37 @@ export default function Publish() {
 
         <ReviewModal
           isOpen={showReviewModal}
-          listing={reviewData}
+          listing={
+            reviewData
+              ? {
+                  ...reviewData,
+                  images: reviewData.images.map((img) =>
+                    typeof img === "string"
+                      ? { name: img.split("/").pop(), url: img }
+                      : {
+                          name: img.name,
+                          url: URL.createObjectURL(img),
+                        }
+                  ),
+                }
+              : null
+          }
           onClose={() => setShowReviewModal(false)}
           onConfirm={async (e) => {
             e.preventDefault();
             const { title, location, price, description, images } = formData;
             const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-            const optimizedImages = await optimizeAndUploadImages(images);
+            const optimizedImages = await optimizeAndUploadImages(
+              formData.images
+            );
             const listing = {
               title: title.trim(),
               location: location.trim(),
               price: numericPrice.toString(),
               description: description.trim(),
-              images: optimizedImages,
+              images: optimizedImages.map((img) =>
+                typeof img === "string" ? img : img.url
+              ),
               isFeatured: false,
               isAuction: false,
               isSponsored: false,
@@ -270,7 +286,7 @@ export default function Publish() {
             error={errors.images}
           />
 
-          <div className="pt-6">
+          <div className="pt-6 flex justify-center">
             <Button
               size="lg"
               variant="primaryLight"

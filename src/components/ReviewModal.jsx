@@ -28,9 +28,40 @@ export default function ReviewModal({ isOpen, onClose, onConfirm, listing }) {
           <div>
             <strong>Images:</strong>
             <ul className="mt-1 list-disc list-inside text-blue-500 space-y-1">
-              {listing.images.map((img, i) => (
-                <li key={i}>{img}</li>
-              ))}
+              {listing.images.map((img, i) => {
+                const url = typeof img === "string" ? img : img.url;
+                const name =
+                  typeof img === "string"
+                    ? url.split("/").pop()
+                    : img.name || url.split("/").pop();
+                return (
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 group relative"
+                    title="Click to view full image"
+                  >
+                    <img
+                      src={url}
+                      alt={`preview-${i}`}
+                      className="w-8 h-8 object-cover rounded-md border border-gray-200"
+                    />
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-blue-700 transition-colors"
+                    >
+                      {name}
+                    </a>
+                    {/* File size if available */}
+                    {typeof img === "object" && img.size && (
+                      <span className="text-xs text-gray-500">
+                        ({(img.size / 1024).toFixed(1)} KB)
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
