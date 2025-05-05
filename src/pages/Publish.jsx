@@ -14,27 +14,10 @@ import Dropdown from "../components/form/Dropdown";
 import DateInput from "../components/form/DateInput";
 import CommaInput from "../components/form/CommaInput";
 import { validateField } from "../utils/validation";
+import { optimizeAndUploadImages } from "../utils/imageUpload";
+import { normalize } from "../utils/normalize";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
-
-async function optimizeAndUploadImages(imageListRaw) {
-  const optimizedImages = [];
-
-  for (let file of imageListRaw) {
-    const formData = new FormData();
-    formData.append("image", file, file.name);
-
-    const uploadRes = await fetch(`${API_URL}/uploads`, {
-      method: "POST",
-      body: formData,
-    });
-
-    const { url } = await uploadRes.json();
-    optimizedImages.push({ url });
-  }
-
-  return optimizedImages;
-}
 
 export default function Publish() {
   useEffect(() => {
@@ -928,12 +911,6 @@ export default function Publish() {
                     typeof img === "string" ? img : img.url
                   ),
                 ];
-
-                // Helper to normalize string fields: trim and set to null if empty or undefined
-                const normalize = (value) =>
-                  typeof value === "string" && value.trim() === ""
-                    ? null
-                    : value?.trim?.() ?? null;
 
                 const draft = {
                   title: normalize(formData.title),
