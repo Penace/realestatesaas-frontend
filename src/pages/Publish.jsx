@@ -36,6 +36,8 @@ async function optimizeAndUploadImages(imageListRaw) {
 }
 
 export default function Publish() {
+  const { id: draftId } = useParams();
+  const location = useLocation(); // moved here
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -58,35 +60,84 @@ export default function Publish() {
     facilities: "",
     slug: "",
   });
+  // Track whether we're restoring draft from localStorage
+  const [isRestoringDraft, setIsRestoringDraft] = useState(true);
 
-  // Restore form data from localStorage if available
+  // Restore form data from localStorage if available, but only for new drafts (not editing existing)
   useEffect(() => {
     const savedForm = localStorage.getItem("draftFormData");
-    if (savedForm) {
-      setFormData(JSON.parse(savedForm));
-    }
-  }, []);
 
-  // Persist form data to localStorage whenever it changes
+    // Only restore if not editing an existing draft
+    const isNewPublishPage =
+      location.pathname === "/publish" || location.pathname === "/publish/";
+
+    if (savedForm && isNewPublishPage) {
+      try {
+        const parsedForm = JSON.parse(savedForm);
+        if (
+          parsedForm &&
+          typeof parsedForm === "object" &&
+          Object.keys(parsedForm).length > 5
+        ) {
+          setFormData(parsedForm);
+        }
+      } catch (err) {
+        console.error("Failed to parse saved draft from localStorage:", err);
+      }
+    }
+
+    setIsRestoringDraft(false);
+  }, [draftId, location.pathname]);
+
+  // Show toast after restoring draft from previous session
   useEffect(() => {
-    localStorage.setItem("draftFormData", JSON.stringify(formData));
+    if (!isRestoringDraft && !draftId) {
+      showToast("Draft restored from previous session", "info");
+    }
+  }, [isRestoringDraft]);
+  // Warn user if leaving page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (formData.title || formData.description) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [formData]);
+
+  // Persist form data to localStorage whenever it changes,
+  // but avoid overwriting valid saved form data with an empty form
+  useEffect(() => {
+    // Avoid overwriting valid saved form data with an empty form
+    const isFormMostlyEmpty =
+      Object.values(formData).filter((v) => !!v && v !== "").length < 2;
+    if (!isFormMostlyEmpty) {
+      localStorage.setItem("draftFormData", JSON.stringify(formData));
+    }
   }, [formData]);
 
   const { user } = useAuth();
-  const { id: draftId } = useParams();
-  const location = useLocation();
+  // Move all useState/useEffect hooks above conditional rendering
   const isEditingDraft =
     location.pathname.includes("/publish/draft/") && draftId;
-
-  if (!user || !user._id) {
-    showToast("You must be logged in to publish a listing.", "error");
-    return;
-  }
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewData, setReviewData] = useState(null);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Unconditionally run this effect, but early return if restoring draft
+  useEffect(() => {
+    if (isRestoringDraft) return;
+    if (!user || !user._id) {
+      showToast("You must be logged in to publish a listing.", "error");
+      // Optionally, redirect to login page here if desired, e.g.:
+      // navigate("/login");
+    }
+    // No toast for isRestoringDraft, just block render
+  }, [user, isRestoringDraft, showToast]);
 
   useEffect(() => {
     if (isEditingDraft) {
@@ -124,6 +175,10 @@ export default function Publish() {
       })();
     }
   }, [isEditingDraft, draftId]);
+
+  // Determine if we should block rendering (after all hooks)
+  const shouldBlockRender = !user || !user._id || isRestoringDraft;
+  if (shouldBlockRender) return null;
 
   const validate = (field, value) => {
     switch (field) {
