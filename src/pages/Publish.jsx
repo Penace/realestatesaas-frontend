@@ -237,6 +237,8 @@ export default function Publish() {
         .map((f) => f.trim())
         .filter(Boolean),
       slug: slug.trim(),
+      status: "pending",
+      createdBy: user._id,
       // Removed isFeatured, isAuction, isSponsored. These are admin controlled.
     };
 
@@ -456,6 +458,8 @@ export default function Publish() {
                 .map((f) => f.trim())
                 .filter(Boolean),
               slug: slug.trim(),
+              status: "pending",
+              createdBy: user._id,
               // Removed isFeatured, isAuction, isSponsored. These are admin controlled.
             };
             try {
