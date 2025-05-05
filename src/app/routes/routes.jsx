@@ -1,6 +1,6 @@
 // src/app/routes/routes.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import Layout from "../../layouts/Layout";
 import withPageLoader from "../withPageLoader";
 
@@ -44,21 +44,103 @@ export default function AppRoutes() {
     <Router>
       <Suspense fallback={null}>
         <Routes>
-          {/* Routes with main layout */}
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/agent-dashboard" element={<AgentDashboard />} />
-            <Route path="/calculator" element={<Calculator />} />
-            <Route path="/listings" element={<Listings />} />
-            <Route path="/listings/:id" element={<ListingDetail />} />
-            <Route path="/publish" element={<Publish />} />
-            <Route path="/users/:id" element={<UserProfile />} />
-            <Route path="/pending/:id" element={<PendingListingDetail />} />
-            <Route path="/maintenance" element={<MaintenancePage />} />
-          </Route>
+          {/* Routes with main layout (each page wrapped with Layout) */}
+          <Route
+            path="/"
+            element={
+              <Layout>
+                <Home />
+              </Layout>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <Layout>
+                <SignUp />
+              </Layout>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <Layout>
+                <Login />
+              </Layout>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <Layout>
+                <UserDashboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/agent-dashboard"
+            element={
+              <Layout>
+                <AgentDashboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/calculator"
+            element={
+              <Layout>
+                <Calculator />
+              </Layout>
+            }
+          />
+          <Route
+            path="/listings"
+            element={
+              <Layout>
+                <Listings />
+              </Layout>
+            }
+          />
+          <Route
+            path="/listings/:id"
+            element={
+              <Layout>
+                <ListingDetail />
+              </Layout>
+            }
+          />
+          <Route
+            path="/publish"
+            element={
+              <Layout>
+                <Publish />
+              </Layout>
+            }
+          />
+          <Route
+            path="agent-dashboard"
+            element={
+              <Layout>
+                <AgentDashboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/users/:id"
+            element={
+              <Layout>
+                <UserProfile />
+              </Layout>
+            }
+          />
+          <Route
+            path="/pending/:id"
+            element={
+              <Layout>
+                <PendingListingDetail />
+              </Layout>
+            }
+          />
 
           {/* Admin layout routes (separate from main layout) */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -69,6 +151,7 @@ export default function AppRoutes() {
             <Route path="analytics" element={<Analytics />} />
           </Route>
 
+          <Route path="/maintenance" element={<MaintenancePage />} />
           {/* Not found page */}
           <Route path="*" element={<NotFound />} />
         </Routes>

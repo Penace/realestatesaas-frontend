@@ -11,6 +11,7 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     navigate("/");
+    window.location.reload();
   };
 
   const toggleMobileMenu = () => {
@@ -90,12 +91,14 @@ export default function Navbar() {
             >
               {user.name || user.email}
             </Link>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-red-500 hover:text-red-700"
-            >
-              Log Out
-            </button>
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="text-sm text-red-500 hover:text-red-700"
+              >
+                Log Out
+              </button>
+            )}
           </>
         ) : (
           <>
@@ -161,12 +164,14 @@ export default function Navbar() {
 
           {/* Mobile Links */}
           <div className="flex flex-col space-y-4">
-            <button
-              onClick={handleLogout}
-              className="text-sm text-red-500 hover:text-red-700"
-            >
-              Log Out
-            </button>
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="text-sm text-red-500 hover:text-red-700"
+              >
+                Log Out
+              </button>
+            )}
             <Link
               to="/"
               className="text-gray-600 hover:text-blue-600"

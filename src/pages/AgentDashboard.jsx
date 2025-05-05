@@ -3,6 +3,7 @@ import { fetchListingsByStatus } from "../services/api";
 import { useSearchParams } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
 import { useAuth } from "../context/AuthProvider";
+import DashboardSidebar from "../components/common/DashboardSidebar";
 
 export default function AgentDashboard() {
   const [searchParams] = useSearchParams();
@@ -10,6 +11,7 @@ export default function AgentDashboard() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     async function loadListings() {
@@ -30,22 +32,32 @@ export default function AgentDashboard() {
   }, [status, user]);
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-4 capitalize">{status} Listings</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : listings.length === 0 ? (
-        <p>No listings found for status: {status}</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map((listing) => (
-            <ListingCard
-              key={listing._id}
-              listing={{ ...listing, _id: listing._id }}
-            />
-          ))}
-        </div>
-      )}
+    <div className="flex">
+      <DashboardSidebar
+        title="Agent Panel"
+        links={[{ to: "/agent-dashboard", label: "My Listings" }]}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
+      <main className="flex-1 max-w-5xl mx-auto py-4 px-4 mb-24">
+        <h1 className="text-2xl font-bold mb-4 capitalize">
+          {status} Listings
+        </h1>
+        {loading ? (
+          <p>Loading...</p>
+        ) : listings.length === 0 ? (
+          <p>No saved drafts</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.map((listing) => (
+              <ListingCard
+                key={listing._id}
+                listing={{ ...listing, _id: listing._id }}
+              />
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

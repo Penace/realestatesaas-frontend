@@ -92,7 +92,7 @@ export default function Settings() {
 
       <Button
         onClick={handleSave}
-        loading={saving}
+        {...(saving ? { loading: true } : {})}
         size="md"
         variant="primaryLight"
       >

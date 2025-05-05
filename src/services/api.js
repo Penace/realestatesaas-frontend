@@ -174,3 +174,19 @@ export async function fetchDraftAndPendingListings() {
   const allListings = await fetchWithHandling(`${API_URL}/listings`, {}, []);
   return allListings.filter((listing) => listing.status === "pending");
 }
+
+// --- Settings
+
+export async function updateSettings(settings) {
+  return fetchWithHandling(`${API_URL}/settings`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(settings),
+  });
+}
+
+export async function getSettings() {
+  return fetchWithHandling(`${API_URL}/settings`, {}, {});
+}
