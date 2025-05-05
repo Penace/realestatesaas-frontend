@@ -19,11 +19,12 @@ import {
   handleSubmit,
   handleOpenReview,
 } from "../utils/formHandlers";
-import { useLoadDraft } from "../utils/useLoadDraft";
+import { useLoadDraft } from "../hooks/useLoadDraft";
 import { validateField } from "../utils/validation";
 import { optimizeAndUploadImages } from "../utils/imageUpload";
 import { normalize } from "../utils/normalize";
 import { useFormErrors } from "../utils/formErrors";
+import { useImageInputHandler } from "../hooks/useImageInputHandler";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -68,6 +69,12 @@ export default function Publish() {
     submitting,
     setSubmitting,
   } = useFormErrors();
+
+  const handleImageChange = useImageInputHandler({
+    setFormData,
+    setErrors,
+    setWarnings,
+  });
 
   // Determine if editing or creating a new listing, and set the correct localStorage key
   const isEditing =
@@ -180,14 +187,8 @@ export default function Publish() {
 
   const { user } = useAuth();
   // (isEditing moved above)
-  const {
-    showReviewModal,
-    reviewData,
-    openModal,
-    closeModal,
-    setReviewData,
-    setShowReviewModal,
-  } = useModalHandlers();
+  const { showReviewModal, reviewData, openModal, closeModal } =
+    useModalHandlers();
 
   // Prevent multiple redundant login toasts: show only after restoring draft and add delay
   useEffect(() => {
@@ -498,25 +499,7 @@ export default function Publish() {
             name="images"
             label="Images"
             value={formData.images}
-            onChange={(files) => {
-              let imageArray = [];
-              if (Array.isArray(files)) {
-                imageArray = files.filter(
-                  (file) => file instanceof File || typeof file === "string"
-                );
-              } else if (files instanceof FileList) {
-                imageArray = Array.from(files);
-              }
-
-              setFormData((prev) => ({
-                ...prev,
-                images: imageArray,
-              }));
-
-              const { error, warning } = validateField("images", imageArray);
-              setErrors((prev) => ({ ...prev, images: error }));
-              setWarnings((prev) => ({ ...prev, images: warning }));
-            }}
+            onChange={handleImageChange}
             error={Boolean(errors.images)}
             helperText={errors.images}
           />
