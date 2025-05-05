@@ -26,12 +26,10 @@ export default function ListingCard({ listing, prefix = "listings" }) {
   };
 
   // Fallback if images are empty or undefined, eliminate double slashes
-  // Use VITE_IMAGE_BASE_URL for relative paths like /uploads/...
+  // Use /assets/ directory for all images
   const imageUrl =
     images.length > 0
-      ? images[0].startsWith("http")
-        ? images[0]
-        : `${VITE_IMAGE_BASE_URL}/${images[0].replace(/^\/+/, "")}`
+      ? `/assets/${images[0].replace(/^\/+/, "")}`
       : "/assets/fallback.jpg";
 
   const handleFavoriteClick = async () => {

@@ -5,7 +5,6 @@ const API_URL =
 export const IMAGE_BASE_URL =
   import.meta.env.VITE_IMAGE_BASE_URL ||
   `${window.location.protocol}//${window.location.hostname}:4000`;
-const IMAGE_BASE_URL = `${window.location.protocol}//${window.location.hostname}:4000`;
 
 // --- Centralized Fetch Helper
 async function fetchWithHandling(url, options = {}, fallback = null) {
@@ -175,5 +174,3 @@ export async function fetchDraftAndPendingListings() {
   const allListings = await fetchWithHandling(`${API_URL}/listings`, {}, []);
   return allListings.filter((listing) => listing.status === "pending");
 }
-
-export { IMAGE_BASE_URL };

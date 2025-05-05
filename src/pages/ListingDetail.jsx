@@ -300,9 +300,10 @@ export default function ListingDetail() {
           >
             <img
               id="heroImage"
-              src={`${VITE_IMAGE_BASE_URL.replace(/\/$/, "")}/${listing.images[
-                currentImageIndex
-              ].replace(/^\/+/, "")}`}
+              src={`/assets/${listing.images[currentImageIndex].replace(
+                /^\/+/,
+                ""
+              )}`}
               alt="Listing"
               loading="lazy"
               className={`w-full h-full object-cover pointer-events-none transition-opacity duration-700 ease-in-out ${
@@ -313,10 +314,9 @@ export default function ListingDetail() {
               id="magnifier"
               className="hidden absolute w-[250px] h-[250px] border-[0.5px] border-teal-700/70 rounded-lg pointer-events-none z-30"
               style={{
-                backgroundImage: `url(${VITE_IMAGE_BASE_URL.replace(
-                  /\/$/,
-                  ""
-                )}/${listing.images[currentImageIndex].replace(/^\/+/, "")})`,
+                backgroundImage: `url(/assets/${listing.images[
+                  currentImageIndex
+                ].replace(/^\/+/, "")})`,
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "1000% 1000%",
                 display: "none",
@@ -375,10 +375,7 @@ export default function ListingDetail() {
               } hover:scale-105`}
             >
               <img
-                src={`${VITE_IMAGE_BASE_URL.replace(/\/$/, "")}/${img.replace(
-                  /^\/+/,
-                  ""
-                )}`}
+                src={`/assets/${img.replace(/^\/+/, "")}`}
                 alt={`Thumbnail ${index + 1}`}
                 loading="lazy"
                 className="object-cover w-full h-full transition-transform duration-300 ease-in-out hover:scale-110"
@@ -391,65 +388,93 @@ export default function ListingDetail() {
       {/* Property Details */}
       <div
         id="infoContent"
-        className="flex flex-col items-center p-8 space-y-8 mt-2"
+        className="flex flex-col items-center p-8 space-y-8 mt-2 bg-gray-50"
       >
-        <h1 className="text-center text-4xl font-bold text-gray-900">
-          {listing.title}
-        </h1>
-        <p className="text-gray-500 text-lg">{listing.location}</p>
-        <p className="text-blue-600 text-2xl font-semibold">
-          {listing.price && !isNaN(Number(listing.price))
-            ? `$${Number(listing.price).toLocaleString()}`
-            : "Price not available"}
-        </p>
-        <p className="max-w-3xl text-gray-700 text-center mt-6">
+        <div className="w-full max-w-5xl text-center">
+          <h1 className="text-4xl font-bold text-gray-900">{listing.title}</h1>
+          <p className="text-lg text-gray-500 mt-1">{listing.location}</p>
+          <p className="text-2xl font-semibold text-blue-600 mt-2">
+            {listing.price && !isNaN(Number(listing.price))
+              ? `$${Number(listing.price).toLocaleString()}`
+              : "Price not available"}
+          </p>
+        </div>
+
+        <p className="max-w-3xl text-gray-700 text-center leading-relaxed">
           {listing.description}
         </p>
 
-        {/* Property Features */}
-        <h3 className="text-2xl font-semibold text-center mb-4">
-          Property Features
-        </h3>
-        <div className="property-features mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12 justify-center mx-auto lg:max-w-4xl">
-            {/* First column */}
-            <div className="flex-1 text-left space-y-4 border-b border-gray-200 lg:border-none pb-4 mb-4">
-              <div className="feature-item">
-                <strong>Bedrooms:</strong> {listing.bedrooms}
-              </div>
-              <div className="feature-item">
-                <strong>Bathrooms:</strong> {listing.bathrooms}
-              </div>
-              <div className="feature-item">
-                <strong>Square Footage:</strong> {listing.squareFootage} sq ft
-              </div>
-            </div>
+        <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 gap-8 mt-10">
+          {/* Overview */}
+          <div className="space-y-3">
+            <h4 className="text-xl font-semibold text-gray-800 border-b pb-1">
+              Overview
+            </h4>
+            <ul className="text-sm text-gray-700 space-y-1">
+              <li>
+                <strong>Bedrooms:</strong> {listing.bedrooms ?? "N/A"}
+              </li>
+              <li>
+                <strong>Bathrooms:</strong> {listing.bathrooms ?? "N/A"}
+              </li>
+              <li>
+                <strong>Area:</strong> {listing.squareFootage ?? "N/A"} sq ft
+              </li>
+              <li>
+                <strong>Year Built:</strong> {listing.yearBuilt ?? "N/A"}
+              </li>
+              <li>
+                <strong>Property Type:</strong> {listing.propertyType ?? "N/A"}
+              </li>
+              <li>
+                <strong>Listing Type:</strong> {listing.listingType ?? "N/A"}
+              </li>
+              <li>
+                <strong>Available From:</strong>{" "}
+                {listing.availableFrom
+                  ? new Date(listing.availableFrom).toLocaleDateString()
+                  : "N/A"}
+              </li>
+            </ul>
+          </div>
 
-            {/* Second column */}
-            <div className="flex-1 text-center border-b border-gray-200 lg:border-none pb-4 mb-4">
-              <div className="feature-item">
-                <strong>Amenities:</strong>
-                <ul className="list-disc pl-6 mt-2">
-                  {listing.amenities.map((amenity, index) => (
-                    <li key={index} className="mb-2">
-                      {amenity}
-                    </li>
+          {/* Features & Amenities */}
+          <div className="space-y-6">
+            {/* Features */}
+            <div>
+              <h4 className="text-xl font-semibold text-gray-800 border-b pb-1">
+                Features
+              </h4>
+              {listing.features?.length > 0 ? (
+                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                  {listing.features.map((feature, idx) => (
+                    <li key={idx}>{feature}</li>
                   ))}
                 </ul>
-              </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No special features listed.
+                </p>
+              )}
             </div>
 
-            {/* Third column */}
-            <div className="flex-1 text-left space-y-4 pb-4">
-              <div className="feature-item">
-                <strong>Parking Available:</strong> {listing.parkingAvailable}
-              </div>
-              <div className="feature-item">
-                <strong>Year Built:</strong> {listing.yearBuilt}
-              </div>
-              <div className="feature-item">
-                <strong>Property Type:</strong> {listing.propertyType}
-              </div>
+            {/* Amenities */}
+            <div>
+              <h4 className="text-xl font-semibold text-gray-800 border-b pb-1">
+                Amenities
+              </h4>
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                {listing.parkingAvailable && (
+                  <li>Parking: {listing.parkingAvailable}</li>
+                )}
+                {listing.amenities?.length > 0 ? (
+                  listing.amenities.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))
+                ) : (
+                  <li className="text-gray-500">No additional amenities.</li>
+                )}
+              </ul>
             </div>
           </div>
         </div>
@@ -481,9 +506,10 @@ export default function ListingDetail() {
           onClick={() => setIsModalOpen(false)}
         >
           <img
-            src={`${VITE_IMAGE_BASE_URL.replace(/\/$/, "")}/${listing.images[
-              currentImageIndex
-            ].replace(/^\/+/, "")}`}
+            src={`/assets/${listing.images[currentImageIndex].replace(
+              /^\/+/,
+              ""
+            )}`}
             alt="Full preview"
             loading="lazy"
             className={`max-w-full max-h-full object-contain transition-transform duration-300 ease-in-out ${
