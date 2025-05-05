@@ -27,23 +27,33 @@ export default function ImageInput({ name, value = [], onChange, error }) {
       </label>
       {value.length > 0 && (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-          {value.map((file, index) => (
-            <div key={index} className="relative group w-24 h-24">
-              <img
-                src={URL.createObjectURL(file)}
-                alt={`Preview ${index}`}
-                className="w-full h-full object-cover rounded border border-gray-300 group-hover:opacity-80 transition"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveFile(index)}
-                className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-xl font-bold rounded opacity-0 group-hover:opacity-100 transition"
-                title="Remove"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+          {Array.isArray(value) &&
+            value.map((file, index) => {
+              const url =
+                typeof file === "string"
+                  ? file
+                  : file instanceof File
+                  ? URL.createObjectURL(file)
+                  : "";
+
+              return (
+                <div key={index} className="relative group w-24 h-24">
+                  <img
+                    src={url}
+                    alt={`Preview ${index}`}
+                    className="w-full h-full object-cover rounded border border-gray-300 group-hover:opacity-80 transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFile(index)}
+                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-xl font-bold rounded opacity-0 group-hover:opacity-100 transition"
+                    title="Remove"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
         </div>
       )}
     </div>

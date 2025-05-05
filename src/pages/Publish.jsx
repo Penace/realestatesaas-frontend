@@ -120,8 +120,10 @@ export default function Publish() {
 
   const { user } = useAuth();
   // Move all useState/useEffect hooks above conditional rendering
-  const isEditingDraft =
-    location.pathname.includes("/publish/draft/") && draftId;
+  const isEditing =
+    (location.pathname.includes("/publish/draft/") ||
+      location.pathname.includes("/listings/")) &&
+    draftId;
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewData, setReviewData] = useState(null);
   const [errors, setErrors] = useState({});
@@ -140,7 +142,7 @@ export default function Publish() {
   }, [user, isRestoringDraft, showToast]);
 
   useEffect(() => {
-    if (isEditingDraft) {
+    if (isEditing) {
       (async () => {
         try {
           const draft = await getListingById(draftId);
@@ -177,7 +179,7 @@ export default function Publish() {
         }
       })();
     }
-  }, [isEditingDraft, draftId]);
+  }, [isEditing, draftId]);
 
   // Determine if we should block rendering (after all hooks)
   const shouldBlockRender = !user || !user._id || isRestoringDraft;
@@ -770,7 +772,7 @@ export default function Publish() {
               type="button"
               onClick={async () => {
                 // Prevent creating duplicate drafts when editing
-                if (isEditingDraft && !draftId) {
+                if (isEditing && !draftId) {
                   showToast("Missing draft ID for editing", "error");
                   return;
                 }
@@ -821,7 +823,7 @@ export default function Publish() {
                 console.log("Saving draft with user ID:", user._id);
 
                 try {
-                  const saved = isEditingDraft
+                  const saved = isEditing
                     ? await updateListing(draftId, draft)
                     : await createListing(draft);
                   if (!saved || !saved._id) {
@@ -831,7 +833,7 @@ export default function Publish() {
                   // Remove draft backup from localStorage after successful save
                   localStorage.removeItem("draftFormData");
                   // Optionally, after updateListing, you can skip the redirect if you want users to continue editing
-                  if (!isEditingDraft) {
+                  if (!isEditing) {
                     navigate("/agent-dashboard?tab=drafts");
                   }
                   // If you want to always redirect after saving, use:
