@@ -146,7 +146,7 @@ export default function Publish() {
           const draft = await getListingById(draftId);
           if (!draft) return;
 
-          setFormData({
+          const loadedFormData = {
             title: draft.title || "",
             location: draft.location || "",
             price: draft.price ? `$${draft.price}` : "",
@@ -167,7 +167,10 @@ export default function Publish() {
             amenities: draft.amenities?.join(", ") || "",
             facilities: draft.facilities?.join(", ") || "",
             slug: draft.slug || "",
-          });
+          };
+          setFormData(loadedFormData);
+          // Persist loaded draft to localStorage for consistency
+          localStorage.setItem("draftFormData", JSON.stringify(loadedFormData));
         } catch (err) {
           console.error("Failed to load draft:", err);
           showToast("Failed to load draft", "error");

@@ -78,38 +78,59 @@ export default function ListingCard({ listing, prefix = "listings" }) {
   }, [listing?._id, user]);
 
   return (
-    <Link
-      to={`/${prefix}/${listing._id}`}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all hover:shadow-2xl flex flex-col relative"
-      onClick={handleLinkClick}
-    >
-      <div
-        className="h-48 bg-cover bg-center relative"
-        style={{
-          backgroundImage: `url(${imageUrl})`, // Use imageUrl for background
-        }}
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all hover:shadow-2xl flex flex-col relative">
+      <Link
+        to={`/${prefix}/${listing._id}`}
+        className="block"
+        onClick={handleLinkClick}
       >
-        <button
-          onClick={handleFavoriteClick}
-          className="absolute top-3 right-3 bg-white/80 hover:bg-white text-red-500 p-2 rounded-full shadow-md z-20"
+        <div
+          className="h-48 bg-cover bg-center relative"
+          style={{
+            backgroundImage: `url(${imageUrl})`,
+          }}
         >
-          {isFavorited ? "♥" : "♡"}
-        </button>
-      </div>
+          <img
+            src={imageUrl}
+            alt=""
+            className="hidden"
+            onError={(e) => {
+              e.target.parentNode.style.backgroundImage = `url('/assets/fallback.jpg')`;
+            }}
+          />
+          <button
+            onClick={handleFavoriteClick}
+            className="absolute top-3 right-3 bg-white/80 hover:bg-white text-red-500 p-2 rounded-full shadow-md z-20"
+          >
+            {isFavorited ? "♥" : "♡"}
+          </button>
+        </div>
 
-      <div className="p-6 flex flex-col space-y-2">
-        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
-        <p className="text-gray-500">{location}</p>
-        <p className="text-lg font-semibold text-blue-600">
-          {price && !isNaN(Number(price))
-            ? new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-              }).format(Number(price))
-            : "Price not available"}
-        </p>
-      </div>
-    </Link>
+        <div className="p-6 flex flex-col space-y-2">
+          <h3 className="text-xl font-bold text-gray-800">{title}</h3>
+          <p className="text-gray-500">{location}</p>
+          <p className="text-lg font-semibold text-blue-600">
+            {price && !isNaN(Number(price))
+              ? new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                }).format(Number(price))
+              : "Price not available"}
+          </p>
+        </div>
+      </Link>
+
+      {listing.status === "draft" && (
+        <div className="px-6 pb-6">
+          <Link
+            to={`/${prefix}/${listing._id}/edit`}
+            className="inline-block mt-2 px-4 py-2 text-sm font-semibold text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
+          >
+            Edit Draft
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
 

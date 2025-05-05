@@ -110,6 +110,14 @@ export default function AppRoutes() {
             }
           />
           <Route
+            path="/listings/:id/edit"
+            element={
+              <Layout>
+                <Publish />
+              </Layout>
+            }
+          />
+          <Route
             path="/publish"
             element={
               <Layout>
