@@ -63,15 +63,28 @@ export default function Publish() {
   // Track whether we're restoring draft from localStorage
   const [isRestoringDraft, setIsRestoringDraft] = useState(true);
 
-  // Restore form data from localStorage if available, but only for new drafts (not editing existing)
-  useEffect(() => {
-    const savedForm = localStorage.getItem("draftFormData");
+  // Determine if editing or creating a new listing, and set the correct localStorage key
+  const isEditing =
+    (location.pathname.includes("/publish/draft/") ||
+      location.pathname.includes("/listings/")) &&
+    draftId;
+  const storageKey = isEditing
+    ? `editDraftForm_${draftId}`
+    : "newListingDraftForm";
 
-    // Only restore if not editing an existing draft
+  // Restore form data from localStorage if available
+  useEffect(() => {
+    const savedForm = localStorage.getItem(storageKey);
+
+    // Only restore if not editing an existing draft for new publish page
     const isNewPublishPage =
       location.pathname === "/publish" || location.pathname === "/publish/";
 
-    if (savedForm && isNewPublishPage) {
+    if (
+      savedForm &&
+      ((isEditing && location.pathname.includes("/listings/")) ||
+        (!isEditing && isNewPublishPage))
+    ) {
       try {
         const parsedForm = JSON.parse(savedForm);
         if (
@@ -87,14 +100,15 @@ export default function Publish() {
     }
 
     setIsRestoringDraft(false);
+    // eslint-disable-next-line
   }, [draftId, location.pathname]);
 
-  // Show toast after restoring draft from previous session
+  // Show toast after restoring draft from previous session (only for new listing)
   useEffect(() => {
-    if (!isRestoringDraft && !draftId) {
+    if (!isRestoringDraft && !isEditing) {
       showToast("Draft restored from previous session", "info");
     }
-  }, [isRestoringDraft]);
+  }, [isRestoringDraft, isEditing]);
   // Warn user if leaving page with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -114,16 +128,12 @@ export default function Publish() {
     const isFormMostlyEmpty =
       Object.values(formData).filter((v) => !!v && v !== "").length < 2;
     if (!isFormMostlyEmpty) {
-      localStorage.setItem("draftFormData", JSON.stringify(formData));
+      localStorage.setItem(storageKey, JSON.stringify(formData));
     }
-  }, [formData]);
+  }, [formData, storageKey]);
 
   const { user } = useAuth();
-  // Move all useState/useEffect hooks above conditional rendering
-  const isEditing =
-    (location.pathname.includes("/publish/draft/") ||
-      location.pathname.includes("/listings/")) &&
-    draftId;
+  // (isEditing moved above)
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewData, setReviewData] = useState(null);
   const [errors, setErrors] = useState({});
@@ -172,14 +182,14 @@ export default function Publish() {
           };
           setFormData(loadedFormData);
           // Persist loaded draft to localStorage for consistency
-          localStorage.setItem("draftFormData", JSON.stringify(loadedFormData));
+          localStorage.setItem(storageKey, JSON.stringify(loadedFormData));
         } catch (err) {
           console.error("Failed to load draft:", err);
           showToast("Failed to load draft", "error");
         }
       })();
     }
-  }, [isEditing, draftId]);
+  }, [isEditing, draftId, storageKey, showToast]);
 
   // Determine if we should block rendering (after all hooks)
   const shouldBlockRender = !user || !user._id || isRestoringDraft;
@@ -348,7 +358,7 @@ export default function Publish() {
         slug: "",
       });
       // Remove draft backup from localStorage after successful submit
-      localStorage.removeItem("draftFormData");
+      localStorage.removeItem(storageKey);
       // Redirect to dashboard pending listings instead of the new listing page
       navigate("/dashboard/listings?status=pending");
       return;
@@ -455,9 +465,48 @@ export default function Publish() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center py-20 px-6">
       <div className="w-full max-w-2xl space-y-8">
-        <h1 className="text-4xl font-bold text-gray-900 text-center">
-          Publish Your Listing
-        </h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-gray-900">
+            Publish Your Listing
+          </h1>
+          {!isEditing && (
+            <button
+              type="button"
+              className="text-sm text-red-500 hover:underline"
+              onClick={() => {
+                const confirmed = window.confirm(
+                  "Are you sure you want to clear the entire form?"
+                );
+                if (confirmed) {
+                  setFormData({
+                    title: "",
+                    location: "",
+                    price: "",
+                    description: "",
+                    images: [],
+                    address: "",
+                    bedrooms: "",
+                    bathrooms: "",
+                    squareFootage: "",
+                    propertyType: "",
+                    yearBuilt: "",
+                    parkingAvailable: "",
+                    listingType: "",
+                    availableFrom: "",
+                    features: "",
+                    amenities: "",
+                    facilities: "",
+                    slug: "",
+                  });
+                  localStorage.removeItem("newListingDraftForm");
+                  showToast("Form cleared.", "info");
+                }
+              }}
+            >
+              🧹 Clear Form
+            </button>
+          )}
+        </div>
 
         {submitted && (
           <div className="p-4 rounded-xl bg-green-100 text-green-700 font-medium text-center shadow">
@@ -573,7 +622,7 @@ export default function Publish() {
                 slug: "",
               });
               // Remove draft backup from localStorage after successful submit
-              localStorage.removeItem("draftFormData");
+              localStorage.removeItem(storageKey);
               // Redirect to dashboard pending listings instead of the new listing page
               navigate("/dashboard/listings?status=pending");
               return;
@@ -897,7 +946,7 @@ export default function Publish() {
                   }
                   showToast("Draft saved successfully", "success");
                   // Remove draft backup from localStorage after successful save
-                  localStorage.removeItem("draftFormData");
+                  localStorage.removeItem(storageKey);
                   // Always redirect to agent dashboard drafts tab after saving
                   navigate("/agent-dashboard?tab=drafts");
                 } catch (err) {
@@ -908,6 +957,44 @@ export default function Publish() {
             >
               Save Draft
             </Button>
+            {!isEditing && (
+              <Button
+                size="md"
+                variant="cancel"
+                type="button"
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Are you sure you want to clear the entire form?"
+                  );
+                  if (confirmed) {
+                    setFormData({
+                      title: "",
+                      location: "",
+                      price: "",
+                      description: "",
+                      images: [],
+                      address: "",
+                      bedrooms: "",
+                      bathrooms: "",
+                      squareFootage: "",
+                      propertyType: "",
+                      yearBuilt: "",
+                      parkingAvailable: "",
+                      listingType: "",
+                      availableFrom: "",
+                      features: "",
+                      amenities: "",
+                      facilities: "",
+                      slug: "",
+                    });
+                    localStorage.removeItem("newListingDraftForm");
+                    showToast("Form cleared.", "info");
+                  }
+                }}
+              >
+                🧹 Clear All Fields
+              </Button>
+            )}
             {isEditing && (
               <Button
                 size="lg"
