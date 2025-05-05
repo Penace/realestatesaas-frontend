@@ -44,78 +44,23 @@ export default function AppRoutes() {
     <Router>
       <Suspense fallback={null}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Layout>
-                <Home />
-              </Layout>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <Layout>
-                <SignUp />
-              </Layout>
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <Layout>
-                <Login />
-              </Layout>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <Layout>
-                <UserDashboard />
-              </Layout>
-            }
-          />
-          <Route
-            path="/agent-dashboard"
-            element={
-              <Layout>
-                <AgentDashboard />
-              </Layout>
-            }
-          />
-          <Route
-            path="/calculator"
-            element={
-              <Layout>
-                <Calculator />
-              </Layout>
-            }
-          />
-          <Route
-            path="/listings"
-            element={
-              <Layout>
-                <Listings />
-              </Layout>
-            }
-          />
-          <Route
-            path="/listings/:id"
-            element={
-              <Layout>
-                <ListingDetail />
-              </Layout>
-            }
-          />
-          <Route
-            path="/publish"
-            element={
-              <Layout>
-                <Publish />
-              </Layout>
-            }
-          />
+          {/* Routes with main layout */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/agent-dashboard" element={<AgentDashboard />} />
+            <Route path="/calculator" element={<Calculator />} />
+            <Route path="/listings" element={<Listings />} />
+            <Route path="/listings/:id" element={<ListingDetail />} />
+            <Route path="/publish" element={<Publish />} />
+            <Route path="/users/:id" element={<UserProfile />} />
+            <Route path="/pending/:id" element={<PendingListingDetail />} />
+            <Route path="/maintenance" element={<MaintenancePage />} />
+          </Route>
+
+          {/* Admin layout routes (separate from main layout) */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<ListingModeration />} />
             <Route path="manage" element={<ManageListings />} />
@@ -123,23 +68,8 @@ export default function AppRoutes() {
             <Route path="settings" element={<AdminSettings />} />
             <Route path="analytics" element={<Analytics />} />
           </Route>
-          <Route
-            path="/users/:id"
-            element={
-              <Layout>
-                <UserProfile />
-              </Layout>
-            }
-          />
-          <Route
-            path="/pending/:id"
-            element={
-              <Layout>
-                <PendingListingDetail />
-              </Layout>
-            }
-          />
-          <Route path="/maintenance" element={<MaintenancePage />} />
+
+          {/* Not found page */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

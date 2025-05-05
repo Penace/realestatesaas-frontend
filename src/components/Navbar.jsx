@@ -2,9 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider.jsx";
 import { useState, useEffect, useRef } from "react";
 
-export default function Navbar({ user }) {
+export default function Navbar() {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null); // Reference for the mobile menu
 
@@ -56,9 +56,17 @@ export default function Navbar({ user }) {
             Calculator
           </Link>
           {(user?.role === "agent" || user?.role === "admin") && (
-            <Link to="/publish" className="text-gray-600 hover:text-blue-600">
-              Publish
-            </Link>
+            <>
+              <Link to="/publish" className="text-gray-600 hover:text-blue-600">
+                Publish
+              </Link>
+              <Link
+                to="/agent-dashboard"
+                className="text-gray-600 hover:text-blue-600"
+              >
+                Agent Dashboard
+              </Link>
+            </>
           )}
         </div>
       </div>
@@ -181,13 +189,22 @@ export default function Navbar({ user }) {
               Calculator
             </Link>
             {(user?.role === "agent" || user?.role === "admin") && (
-              <Link
-                to="/publish"
-                className="text-gray-600 hover:text-blue-600"
-                onClick={closeMobileMenu}
-              >
-                Publish
-              </Link>
+              <>
+                <Link
+                  to="/publish"
+                  className="text-gray-600 hover:text-blue-600"
+                  onClick={closeMobileMenu}
+                >
+                  Publish
+                </Link>
+                <Link
+                  to="/agent-dashboard"
+                  className="text-gray-600 hover:text-blue-600"
+                  onClick={closeMobileMenu}
+                >
+                  Agent Dashboard
+                </Link>
+              </>
             )}
 
             {/* Right: Auth and User */}

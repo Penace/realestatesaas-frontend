@@ -388,7 +388,7 @@ export default function ListingDetail() {
       {/* Property Details */}
       <div
         id="infoContent"
-        className="flex flex-col items-center p-8 space-y-8 mt-2 bg-gray-50"
+        className="flex flex-col items-center justify-center p-8 space-y-8 mt-2 bg-gray-50 text-center"
       >
         <div className="w-full max-w-5xl text-center">
           <h1 className="text-4xl font-bold text-gray-900">{listing.title}</h1>
@@ -404,47 +404,50 @@ export default function ListingDetail() {
           {listing.description}
         </p>
 
-        <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 gap-8 mt-10">
+        {/* Grid for property info */}
+        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 mx-auto text-center justify-items-center">
           {/* Overview */}
-          <div className="space-y-3">
-            <h4 className="text-xl font-semibold text-gray-800 border-b pb-1">
+          <div>
+            <h4 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-2 text-center">
               Overview
             </h4>
-            <ul className="text-sm text-gray-700 space-y-1">
-              <li>
-                <strong>Bedrooms:</strong> {listing.bedrooms ?? "N/A"}
-              </li>
-              <li>
-                <strong>Bathrooms:</strong> {listing.bathrooms ?? "N/A"}
-              </li>
-              <li>
-                <strong>Area:</strong> {listing.squareFootage ?? "N/A"} sq ft
-              </li>
-              <li>
-                <strong>Year Built:</strong> {listing.yearBuilt ?? "N/A"}
-              </li>
-              <li>
-                <strong>Property Type:</strong> {listing.propertyType ?? "N/A"}
-              </li>
-              <li>
-                <strong>Listing Type:</strong> {listing.listingType ?? "N/A"}
-              </li>
-              <li>
-                <strong>Available From:</strong>{" "}
-                {listing.availableFrom
-                  ? new Date(listing.availableFrom).toLocaleDateString()
-                  : "N/A"}
-              </li>
-            </ul>
+            <div className="flex flex-col items-center">
+              <ul className="text-sm text-gray-700 space-y-1">
+                <li>
+                  <strong>Bedrooms:</strong> {listing.bedrooms ?? "N/A"}
+                </li>
+                <li>
+                  <strong>Bathrooms:</strong> {listing.bathrooms ?? "N/A"}
+                </li>
+                <li>
+                  <strong>Area:</strong> {listing.squareFootage ?? "N/A"} sq ft
+                </li>
+                <li>
+                  <strong>Year Built:</strong> {listing.yearBuilt ?? "N/A"}
+                </li>
+                <li>
+                  <strong>Property Type:</strong>{" "}
+                  {listing.propertyType ?? "N/A"}
+                </li>
+                <li>
+                  <strong>Listing Type:</strong> {listing.listingType ?? "N/A"}
+                </li>
+                <li>
+                  <strong>Available From:</strong>{" "}
+                  {listing.availableFrom
+                    ? new Date(listing.availableFrom).toLocaleDateString()
+                    : "N/A"}
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Features & Amenities */}
-          <div className="space-y-6">
-            {/* Features */}
-            <div>
-              <h4 className="text-xl font-semibold text-gray-800 border-b pb-1">
-                Features
-              </h4>
+          {/* Features */}
+          <div>
+            <h4 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-2 text-center">
+              Features
+            </h4>
+            <div className="flex flex-col items-center">
               {listing.features?.length > 0 ? (
                 <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
                   {listing.features.map((feature, idx) => (
@@ -457,12 +460,14 @@ export default function ListingDetail() {
                 </p>
               )}
             </div>
+          </div>
 
-            {/* Amenities */}
-            <div>
-              <h4 className="text-xl font-semibold text-gray-800 border-b pb-1">
-                Amenities
-              </h4>
+          {/* Amenities */}
+          <div>
+            <h4 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-2 text-center">
+              Amenities
+            </h4>
+            <div className="flex flex-col items-center">
               <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
                 {listing.parkingAvailable && (
                   <li>Parking: {listing.parkingAvailable}</li>
@@ -479,17 +484,15 @@ export default function ListingDetail() {
           </div>
         </div>
 
-        {/* Favorite Button */}
-        <Button
-          onClick={handleFavoriteClick}
-          size="lg"
-          variant={isFavorited ? "primaryLight" : "cta"}
-        >
-          {isFavorited ? "Remove from Favorites" : "Add to Favorites"}
-        </Button>
-
-        {/* Contact Agent Button */}
-        <div className="flex justify-center mt-6">
+        {/* Favorite and contact buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+          <Button
+            onClick={handleFavoriteClick}
+            size="lg"
+            variant={isFavorited ? "primaryLight" : "cta"}
+          >
+            {isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+          </Button>
           <Button
             onClick={() => alert("Contacting the agent...")}
             size="lg"
