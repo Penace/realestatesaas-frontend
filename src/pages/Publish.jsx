@@ -13,6 +13,7 @@ import ImageInput from "../components/form/ImageInput";
 import Dropdown from "../components/form/Dropdown";
 import DateInput from "../components/form/DateInput";
 import CommaInput from "../components/form/CommaInput";
+import { validateField } from "../utils/validation";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -75,133 +76,7 @@ export default function Publish() {
     ? `editDraftForm_${draftId}`
     : "newListingDraftForm";
 
-  // --- Move validate function above useEffect hooks ---
   const [warnings, setWarnings] = useState({});
-  const validate = (field, value) => {
-    let error = "";
-    let warning = "";
-
-    switch (field) {
-      case "title":
-        error =
-          value.trim().length >= 3
-            ? ""
-            : "Title must be at least 3 characters.";
-        break;
-      case "location":
-        error =
-          value.trim().length >= 3
-            ? ""
-            : "Location must be at least 3 characters.";
-        break;
-      case "address":
-        error =
-          value.trim().length >= 3
-            ? ""
-            : "Address must be at least 3 characters.";
-        break;
-      case "propertyType":
-        error =
-          value.trim().length >= 3
-            ? ""
-            : "Property type must be at least 3 characters.";
-        break;
-      case "parkingAvailable":
-        error =
-          value.trim().length >= 3
-            ? ""
-            : "Parking must be at least 3 characters.";
-        break;
-      case "slug":
-        error =
-          value.trim().length >= 3 ? "" : "Slug must be at least 3 characters.";
-        break;
-      case "price": {
-        const numeric = Number(value.replace(/[^0-9.]/g, ""));
-        if (isNaN(numeric) || numeric < 100) {
-          error = "Price must be at least $100.";
-        } else if (numeric > 100_000_000) {
-          warning = "This is an extremely high price. Please confirm.";
-        }
-        break;
-      }
-      case "description":
-        error =
-          value.trim().length >= 10
-            ? ""
-            : "Description must be at least 10 characters.";
-        break;
-      case "images":
-        error =
-          Array.isArray(value) &&
-          value.length >= 3 &&
-          value.every(
-            (file) =>
-              typeof file.name === "string" &&
-              (file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
-          )
-            ? ""
-            : "Please upload at least 3 JPG/JPEG images.";
-        break;
-      case "bedrooms":
-      case "bathrooms": {
-        const numVal = Number(value);
-        if (isNaN(numVal) || numVal < 0) {
-          error = `Please enter a valid number of ${field}.`;
-        } else if (numVal > 100) {
-          error = `Maximum allowed for ${field} is 100.`;
-        } else if (numVal > 50) {
-          warning = `Unusually high number of ${field}. Please confirm.`;
-        }
-        break;
-      }
-      case "squareFootage": {
-        const numVal = Number(value);
-        if (isNaN(numVal) || numVal < 0) {
-          error = "Please enter a valid square footage.";
-        } else if (numVal > 50000) {
-          warning =
-            "That's a massive property. Double-check the square footage.";
-        }
-        break;
-      }
-      case "yearBuilt": {
-        const numVal = Number(value);
-        const currentYear = new Date().getFullYear();
-        if (isNaN(numVal) || numVal < 0) {
-          error = "Please enter a valid year.";
-        } else if (numVal < 1600) {
-          warning = "Is this a heritage listing? Very old year.";
-        } else if (numVal > currentYear + 5) {
-          error = `Year cannot be more than ${currentYear + 5}.`;
-        } else if (numVal > currentYear) {
-          warning = "Future year? Please confirm it's correct.";
-        }
-        break;
-      }
-      case "listingType":
-        error = value.trim().length > 0 ? "" : "Please select a listing type.";
-        break;
-      case "availableFrom":
-        error = !isNaN(Date.parse(value)) ? "" : "Please enter a valid date.";
-        break;
-      case "features":
-        error =
-          value.trim().length > 0 ? "" : "Please enter at least one feature.";
-        break;
-      case "amenities":
-        error =
-          value.trim().length > 0 ? "" : "Please enter at least one amenity.";
-        break;
-      case "facilities":
-        error =
-          value.trim().length > 0 ? "" : "Please enter at least one facility.";
-        break;
-      default:
-        break;
-    }
-    return { error, warning };
-  };
 
   // Restore form data from localStorage if available
   useEffect(() => {
@@ -241,7 +116,7 @@ export default function Publish() {
                 "facilities",
               ].includes(field)
             ) {
-              const { error, warning } = validate(field, value);
+              const { error, warning } = validateField(field, value);
               restoredErrors[field] = error;
               restoredWarnings[field] = warning;
             }
@@ -396,7 +271,7 @@ export default function Publish() {
 
     setErrors((prevErrors) => {
       const updatedErrors = { ...prevErrors };
-      const { error, warning } = validate(name, newValue);
+      const { error, warning } = validateField(name, newValue);
       updatedErrors[name] = error;
       setWarnings((prevWarnings) => ({
         ...prevWarnings,
@@ -1012,7 +887,7 @@ export default function Publish() {
                 images: imageArray,
               }));
 
-              const { error, warning } = validate("images", imageArray);
+              const { error, warning } = validateField("images", imageArray);
               setErrors((prev) => ({ ...prev, images: error }));
               setWarnings((prev) => ({ ...prev, images: warning }));
             }}
