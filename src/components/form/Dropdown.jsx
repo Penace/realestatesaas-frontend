@@ -6,6 +6,7 @@ export default function Dropdown({
   onChange,
   options = [],
   error,
+  helperText,
 }) {
   return (
     <label className="flex flex-col w-full relative">
@@ -15,7 +16,7 @@ export default function Dropdown({
           name={name}
           value={value}
           onChange={onChange}
-          className={`w-full px-4 py-3 border rounded-xl shadow-lg text-sm font-semibold tracking-wide transition-all focus:outline-none focus:ring-2 bg-white text-black${
+          className={`w-full px-4 py-3 border rounded-xl shadow-lg text-sm font-semibold tracking-wide transition-all focus:outline-none focus:ring-2 bg-white text-gray-800 ${
             error
               ? "border-red-400 focus:ring-red-400 bg-red-50 text-red-700"
               : "border-blue-500 focus:ring-blue-300 text-gray-800"

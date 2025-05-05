@@ -7,6 +7,7 @@ export default function CommaInput({
   label,
   error,
   suggestions = [],
+  helperText,
 }) {
   const [inputValue, setInputValue] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
@@ -102,11 +103,12 @@ export default function CommaInput({
             );
           }}
           placeholder="Add value..."
+          aria-describedby={error ? `${name}-error` : undefined}
           className="flex-grow bg-transparent outline-none text-sm min-w-[150px]"
         />
       </div>
       {filteredSuggestions.length > 0 && (
-        <div className="border border-gray-300 rounded-md mt-1 shadow-sm bg-white z-10 absolute max-w-md">
+        <div className="border border-gray-300 rounded-md mt-20 shadow-sm bg-white z-10 absolute max-w-md">
           {filteredSuggestions.map((sug, i) => (
             <div
               key={i}
@@ -120,6 +122,11 @@ export default function CommaInput({
       )}
       {error && (
         <p className="mt-1 text-sm text-red-600">This field is required.</p>
+      )}
+      {error && helperText && (
+        <p id={`${name}-error`} className="mt-1 text-sm text-red-500">
+          {helperText}
+        </p>
       )}
     </div>
   );

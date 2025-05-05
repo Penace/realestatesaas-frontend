@@ -72,6 +72,130 @@ export default function Publish() {
     ? `editDraftForm_${draftId}`
     : "newListingDraftForm";
 
+  // --- Move validate function above useEffect hooks ---
+  const [warnings, setWarnings] = useState({});
+  const validate = (field, value) => {
+    let error = "";
+    let warning = "";
+
+    switch (field) {
+      case "title":
+        error =
+          value.trim().length >= 3
+            ? ""
+            : "Title must be at least 3 characters.";
+        break;
+      case "location":
+        error =
+          value.trim().length >= 3
+            ? ""
+            : "Location must be at least 3 characters.";
+        break;
+      case "address":
+        error =
+          value.trim().length >= 3
+            ? ""
+            : "Address must be at least 3 characters.";
+        break;
+      case "propertyType":
+        error =
+          value.trim().length >= 3
+            ? ""
+            : "Property type must be at least 3 characters.";
+        break;
+      case "parkingAvailable":
+        error =
+          value.trim().length >= 3
+            ? ""
+            : "Parking must be at least 3 characters.";
+        break;
+      case "slug":
+        error =
+          value.trim().length >= 3 ? "" : "Slug must be at least 3 characters.";
+        break;
+      case "price": {
+        const numeric = Number(value.replace(/[^0-9.]/g, ""));
+        if (isNaN(numeric) || numeric < 100) {
+          error = "Price must be at least $100.";
+        } else if (numeric > 100_000_000) {
+          warning = "This is an extremely high price. Please confirm.";
+        }
+        break;
+      }
+      case "description":
+        error =
+          value.trim().length >= 10
+            ? ""
+            : "Description must be at least 10 characters.";
+        break;
+      case "images":
+        error =
+          Array.isArray(value) &&
+          value.length > 0 &&
+          value.every(
+            (file) =>
+              typeof file.name === "string" &&
+              (file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
+          )
+            ? ""
+            : "Please upload at least one JPG/JPEG image.";
+        break;
+      case "bedrooms":
+      case "bathrooms": {
+        const numVal = Number(value);
+        if (isNaN(numVal) || numVal < 0) {
+          error = `Please enter a valid number of ${field}.`;
+        } else if (numVal > 50) {
+          warning = `Unusually high number of ${field}. Please confirm.`;
+        }
+        break;
+      }
+      case "squareFootage": {
+        const numVal = Number(value);
+        if (isNaN(numVal) || numVal < 0) {
+          error = "Please enter a valid square footage.";
+        } else if (numVal > 50000) {
+          warning =
+            "That's a massive property. Double-check the square footage.";
+        }
+        break;
+      }
+      case "yearBuilt": {
+        const numVal = Number(value);
+        const currentYear = new Date().getFullYear();
+        if (isNaN(numVal) || numVal < 0) {
+          error = "Please enter a valid year.";
+        } else if (numVal < 1600) {
+          warning = "Is this a heritage listing? Very old year.";
+        } else if (numVal > currentYear) {
+          warning = "Future year? Please confirm it's correct.";
+        }
+        break;
+      }
+      case "listingType":
+        error = value.trim().length > 0 ? "" : "Please select a listing type.";
+        break;
+      case "availableFrom":
+        error = !isNaN(Date.parse(value)) ? "" : "Please enter a valid date.";
+        break;
+      case "features":
+        error =
+          value.trim().length > 0 ? "" : "Please enter at least one feature.";
+        break;
+      case "amenities":
+        error =
+          value.trim().length > 0 ? "" : "Please enter at least one amenity.";
+        break;
+      case "facilities":
+        error =
+          value.trim().length > 0 ? "" : "Please enter at least one facility.";
+        break;
+      default:
+        break;
+    }
+    return { error, warning };
+  };
+
   // Restore form data from localStorage if available
   useEffect(() => {
     const savedForm = localStorage.getItem(storageKey);
@@ -93,6 +217,30 @@ export default function Publish() {
           Object.keys(parsedForm).length > 5
         ) {
           setFormData(parsedForm);
+          // Immediately validate fields after restoring
+          const restoredErrors = {};
+          const restoredWarnings = {};
+          Object.entries(parsedForm).forEach(([field, value]) => {
+            if (
+              [
+                "title",
+                "location",
+                "address",
+                "price",
+                "description",
+                "images",
+                "features",
+                "amenities",
+                "facilities",
+              ].includes(field)
+            ) {
+              const { error, warning } = validate(field, value);
+              restoredErrors[field] = error;
+              restoredWarnings[field] = warning;
+            }
+          });
+          setErrors((prev) => ({ ...prev, ...restoredErrors }));
+          setWarnings((prev) => ({ ...prev, ...restoredWarnings }));
         }
       } catch (err) {
         console.error("Failed to parse saved draft from localStorage:", err);
@@ -111,7 +259,11 @@ export default function Publish() {
       formData &&
       Object.values(formData).filter((v) => !!v && v !== "").length > 2
     ) {
-      showToast("Draft restored from previous session", "info");
+      const hasToastShown = sessionStorage.getItem("draftToastShown");
+      if (!hasToastShown) {
+        showToast("Draft restored from previous session", "info");
+        sessionStorage.setItem("draftToastShown", "true");
+      }
     }
   }, [isRestoringDraft, isEditing, formData]);
   // Warn user if leaving page with unsaved changes
@@ -200,50 +352,6 @@ export default function Publish() {
   const shouldBlockRender = !user || !user._id || isRestoringDraft;
   if (shouldBlockRender) return null;
 
-  const validate = (field, value) => {
-    switch (field) {
-      case "title":
-      case "location":
-      case "address":
-      case "propertyType":
-      case "parkingAvailable":
-      case "slug":
-        return value.trim().length >= 3;
-      case "price":
-        const numeric = Number(value.replace(/[^0-9.]/g, ""));
-        return !isNaN(numeric) && numeric >= 100;
-      case "description":
-        return value.trim().length >= 10;
-      case "images":
-        return (
-          Array.isArray(value) &&
-          value.length > 0 &&
-          value.every(
-            (file) =>
-              typeof file.name === "string" &&
-              (file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
-          )
-        );
-      case "bedrooms":
-      case "bathrooms":
-      case "squareFootage":
-      case "yearBuilt":
-        const numVal = Number(value);
-        return !isNaN(numVal) && numVal >= 0;
-      case "listingType":
-        return value.trim().length > 0;
-      case "availableFrom":
-        return !isNaN(Date.parse(value));
-      case "features":
-      case "amenities":
-        return value.trim().length > 0;
-      case "facilities":
-        return value.trim().length > 0;
-      default:
-        return true;
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -261,10 +369,16 @@ export default function Publish() {
       [name]: newValue,
     }));
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: !validate(name, newValue),
-    }));
+    setErrors((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+      const { error, warning } = validate(name, newValue);
+      updatedErrors[name] = error;
+      setWarnings((prevWarnings) => ({
+        ...prevWarnings,
+        [name]: warning,
+      }));
+      return updatedErrors;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -647,10 +761,8 @@ export default function Publish() {
             value={formData.title}
             onChange={handleChange}
             placeholder="Luxury Penthouse"
-            error={errors.title}
-            helperText={
-              errors.title ? "Title must be at least 3 characters." : ""
-            }
+            error={Boolean(errors.title)}
+            helperText={errors.title}
           />
           <TextInput
             name="location"
@@ -658,10 +770,8 @@ export default function Publish() {
             value={formData.location}
             onChange={handleChange}
             placeholder="New York City, NY"
-            error={errors.location}
-            helperText={
-              errors.location ? "Location must be at least 3 characters." : ""
-            }
+            error={Boolean(errors.location)}
+            helperText={errors.location}
           />
           <TextInput
             name="address"
@@ -669,17 +779,15 @@ export default function Publish() {
             value={formData.address}
             onChange={handleChange}
             placeholder="123 Main St"
-            error={errors.address}
-            helperText={
-              errors.address ? "Address must be at least 3 characters." : ""
-            }
+            error={Boolean(errors.address)}
+            helperText={errors.address}
           />
           <PriceInput
             name="price"
             value={formData.price}
             onChange={handleChange}
-            error={errors.price}
-            helperText={errors.price ? "Price must be at least $100." : ""}
+            error={Boolean(errors.price)}
+            helperText={errors.price}
           />
           <TextInput
             name="bedrooms"
@@ -687,10 +795,8 @@ export default function Publish() {
             value={formData.bedrooms}
             onChange={handleChange}
             placeholder="3"
-            error={errors.bedrooms}
-            helperText={
-              errors.bedrooms ? "Please enter a valid number of bedrooms." : ""
-            }
+            error={Boolean(errors.bedrooms)}
+            helperText={errors.bedrooms}
           />
           <TextInput
             name="bathrooms"
@@ -698,12 +804,8 @@ export default function Publish() {
             value={formData.bathrooms}
             onChange={handleChange}
             placeholder="2"
-            error={errors.bathrooms}
-            helperText={
-              errors.bathrooms
-                ? "Please enter a valid number of bathrooms."
-                : ""
-            }
+            error={Boolean(errors.bathrooms)}
+            helperText={errors.bathrooms}
           />
           <TextInput
             name="squareFootage"
@@ -711,10 +813,8 @@ export default function Publish() {
             value={formData.squareFootage}
             onChange={handleChange}
             placeholder="1500"
-            error={errors.squareFootage}
-            helperText={
-              errors.squareFootage ? "Please enter a valid square footage." : ""
-            }
+            error={Boolean(errors.squareFootage)}
+            helperText={errors.squareFootage}
           />
           <TextInput
             name="propertyType"
@@ -722,12 +822,8 @@ export default function Publish() {
             value={formData.propertyType}
             onChange={handleChange}
             placeholder="Apartment"
-            error={errors.propertyType}
-            helperText={
-              errors.propertyType
-                ? "Property type must be at least 3 characters."
-                : ""
-            }
+            error={Boolean(errors.propertyType)}
+            helperText={errors.propertyType}
           />
           <TextInput
             name="yearBuilt"
@@ -735,8 +831,8 @@ export default function Publish() {
             value={formData.yearBuilt}
             onChange={handleChange}
             placeholder="1990"
-            error={errors.yearBuilt}
-            helperText={errors.yearBuilt ? "Please enter a valid year." : ""}
+            error={Boolean(errors.yearBuilt)}
+            helperText={errors.yearBuilt}
           />
           <TextInput
             name="parkingAvailable"
@@ -744,12 +840,8 @@ export default function Publish() {
             value={formData.parkingAvailable}
             onChange={handleChange}
             placeholder="Yes"
-            error={errors.parkingAvailable}
-            helperText={
-              errors.parkingAvailable
-                ? "Parking must be at least 3 characters."
-                : ""
-            }
+            error={Boolean(errors.parkingAvailable)}
+            helperText={errors.parkingAvailable}
           />
           <Dropdown
             name="listingType"
@@ -761,10 +853,8 @@ export default function Publish() {
               { label: "For Rent", value: "rent" },
               { label: "Auction", value: "auction" },
             ]}
-            error={errors.listingType}
-            helperText={
-              errors.listingType ? "Please select a listing type." : ""
-            }
+            error={Boolean(errors.listingType)}
+            helperText={errors.listingType}
           />
           <TextInput
             name="slug"
@@ -772,30 +862,24 @@ export default function Publish() {
             value={formData.slug}
             onChange={handleChange}
             placeholder="luxury-penthouse-nyc"
-            error={errors.slug}
-            helperText={
-              errors.slug ? "Slug must be at least 3 characters." : ""
-            }
+            error={Boolean(errors.slug)}
+            helperText={errors.slug}
           />
           <DateInput
             name="availableFrom"
             label="Available From"
             value={formData.availableFrom}
             onChange={handleChange}
-            error={errors.availableFrom}
-            helperText={
-              errors.availableFrom ? "Please enter a valid date." : ""
-            }
+            error={Boolean(errors.availableFrom)}
+            helperText={errors.availableFrom}
           />
           <CommaInput
             name="features"
             label="Features"
             value={formData.features}
             onChange={handleChange}
-            error={errors.features}
-            helperText={
-              errors.features ? "Please enter at least one feature." : ""
-            }
+            error={Boolean(errors.features)}
+            helperText={errors.features}
             suggestions={[
               "swimmingPool",
               "garden",
@@ -817,10 +901,8 @@ export default function Publish() {
             label="Amenities"
             value={formData.amenities}
             onChange={handleChange}
-            error={errors.amenities}
-            helperText={
-              errors.amenities ? "Please enter at least one amenity." : ""
-            }
+            error={Boolean(errors.amenities)}
+            helperText={errors.amenities}
             suggestions={[
               "pool",
               "wifi",
@@ -839,10 +921,8 @@ export default function Publish() {
             label="Facilities"
             value={formData.facilities}
             onChange={handleChange}
-            error={errors.facilities}
-            helperText={
-              errors.facilities ? "Please enter at least one facility." : ""
-            }
+            error={Boolean(errors.facilities)}
+            helperText={errors.facilities}
             suggestions={[
               "kitchen",
               "bathroom",
@@ -862,21 +942,15 @@ export default function Publish() {
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe your property in detail..."
-            error={errors.description}
-            helperText={
-              errors.description
-                ? "Description must be at least 10 characters."
-                : ""
-            }
+            error={Boolean(errors.description)}
+            helperText={errors.description}
           />
           <ImageInput
             name="images"
             value={formData.images}
             onChange={handleChange}
-            error={errors.images}
-            helperText={
-              errors.images ? "Please upload at least one JPG/JPEG image." : ""
-            }
+            error={Boolean(errors.images)}
+            helperText={errors.images}
           />
 
           <div className="pt-6 flex justify-center space-x-4">

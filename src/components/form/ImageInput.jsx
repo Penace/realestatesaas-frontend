@@ -1,6 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 
-export default function ImageInput({ name, value = [], onChange, error }) {
+export default function ImageInput({
+  name,
+  value = [],
+  onChange,
+  error,
+  helperText,
+}) {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
@@ -46,6 +52,7 @@ export default function ImageInput({ name, value = [], onChange, error }) {
           onChange({ target: { name, value: updatedFiles } });
         }
       }}
+      aria-describedby={error ? `${name}-error` : undefined}
       className={`relative border-2 border-dashed rounded-md p-4 transition-colors ${
         isDragging ? "border-blue-400 bg-blue-50" : "border-transparent"
       }`}
@@ -91,7 +98,11 @@ export default function ImageInput({ name, value = [], onChange, error }) {
                     <button
                       type="button"
                       onClick={() => handleRemoveFile(index)}
-                      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-xl font-bold rounded opacity-0 group-hover:opacity-100 transition"
+                      className={`absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white text-xl font-bold rounded opacity-0 group-hover:opacity-100 transition ${
+                        error
+                          ? "border-red-400 focus:ring-red-400 bg-red-50 text-red-700"
+                          : "border-blue-500 focus:ring-blue-300 text-gray-800"
+                      } `}
                       title="Remove"
                     >
                       ×
@@ -106,6 +117,11 @@ export default function ImageInput({ name, value = [], onChange, error }) {
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-blue-100 bg-opacity-60 text-blue-700 font-semibold rounded pointer-events-none">
           Drop files here
         </div>
+      )}
+      {error && helperText && (
+        <p id={`${name}-error`} className="text-red-500 text-sm mt-1">
+          {helperText}
+        </p>
       )}
     </div>
   );
