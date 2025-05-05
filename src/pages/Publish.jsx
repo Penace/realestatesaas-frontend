@@ -6,6 +6,7 @@ import Button from "../components/common/Button";
 import { useToast } from "../context/ToastProvider";
 import { useAuth } from "../context/AuthProvider";
 import ReviewModal from "../components/ReviewModal";
+import { useModalHandlers } from "../utils/modalHandlers";
 import TextInput from "../components/form/TextInput";
 import TextareaInput from "../components/form/TextareaInput";
 import PriceInput from "../components/form/PriceInput";
@@ -179,8 +180,14 @@ export default function Publish() {
 
   const { user } = useAuth();
   // (isEditing moved above)
-  const [showReviewModal, setShowReviewModal] = useState(false);
-  const [reviewData, setReviewData] = useState(null);
+  const {
+    showReviewModal,
+    reviewData,
+    openModal,
+    closeModal,
+    setReviewData,
+    setShowReviewModal,
+  } = useModalHandlers();
 
   // Prevent multiple redundant login toasts: show only after restoring draft and add delay
   useEffect(() => {
@@ -266,7 +273,7 @@ export default function Publish() {
                 }
               : null
           }
-          onClose={() => setShowReviewModal(false)}
+          onClose={closeModal}
           onConfirm={handleSubmit}
         />
 
@@ -288,15 +295,7 @@ export default function Publish() {
         </div>
         <form
           className="space-y-6"
-          onSubmit={(e) =>
-            handleOpenReview(
-              e,
-              formData,
-              setReviewData,
-              setShowReviewModal,
-              showToast
-            )
-          }
+          onSubmit={(e) => handleOpenReview(e, formData, openModal, showToast)}
         >
           {/* Basic Info */}
           <TextInput
