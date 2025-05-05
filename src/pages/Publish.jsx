@@ -1,6 +1,7 @@
 import { createListing } from "../services/api";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { getListingById, updateListing } from "../services/api";
 import Button from "../components/common/Button";
 import { useToast } from "../context/ToastProvider";
 import { useAuth } from "../context/AuthProvider";
@@ -59,6 +60,11 @@ export default function Publish() {
   });
 
   const { user } = useAuth();
+  const { id: draftId } = useParams();
+  const location = useLocation();
+  const isEditingDraft =
+    location.pathname.includes("/publish/draft/") && draftId;
+
   if (!user || !user._id) {
     showToast("You must be logged in to publish a listing.", "error");
     return;
@@ -68,6 +74,43 @@ export default function Publish() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isEditingDraft) {
+      (async () => {
+        try {
+          const draft = await getListingById(draftId);
+          if (!draft) return;
+
+          setFormData({
+            title: draft.title || "",
+            location: draft.location || "",
+            price: draft.price ? `$${draft.price}` : "",
+            description: draft.description || "",
+            images: draft.images || [],
+            address: draft.address || "",
+            bedrooms: draft.bedrooms?.toString() || "",
+            bathrooms: draft.bathrooms?.toString() || "",
+            squareFootage: draft.squareFootage?.toString() || "",
+            propertyType: draft.propertyType || "",
+            yearBuilt: draft.yearBuilt?.toString() || "",
+            parkingAvailable: draft.parkingAvailable || "",
+            listingType: draft.listingType || "",
+            availableFrom: draft.availableFrom
+              ? new Date(draft.availableFrom).toISOString().split("T")[0]
+              : "",
+            features: draft.features?.join(", ") || "",
+            amenities: draft.amenities?.join(", ") || "",
+            facilities: draft.facilities?.join(", ") || "",
+            slug: draft.slug || "",
+          });
+        } catch (err) {
+          console.error("Failed to load draft:", err);
+          showToast("Failed to load draft", "error");
+        }
+      })();
+    }
+  }, [isEditingDraft, draftId]);
 
   const validate = (field, value) => {
     switch (field) {
@@ -647,9 +690,27 @@ export default function Publish() {
               variant="primaryLight"
               type="button"
               onClick={async () => {
-                const optimizedImages = await optimizeAndUploadImages(
-                  formData.images
+                // Prevent creating duplicate drafts when editing
+                if (isEditingDraft && !draftId) {
+                  showToast("Missing draft ID for editing", "error");
+                  return;
+                }
+                const alreadyUploaded = formData.images.filter(
+                  (img) => typeof img === "string" && img.startsWith("http")
                 );
+                const newImages = formData.images.filter(
+                  (img) => img instanceof File
+                );
+                const optimizedNewImages = await optimizeAndUploadImages(
+                  newImages
+                );
+
+                const allImages = [
+                  ...alreadyUploaded,
+                  ...optimizedNewImages.map((img) =>
+                    typeof img === "string" ? img : img.url
+                  ),
+                ];
 
                 const draft = {
                   ...formData,
@@ -672,19 +733,28 @@ export default function Publish() {
                     .map((f) => f.trim())
                     .filter(Boolean),
                   slug: formData.slug.trim(),
-                  images: optimizedImages.map((img) =>
-                    typeof img === "string" ? img : img.url
-                  ),
+                  images: allImages,
                   status: "draft",
-                  createdBy: user?._id,
+                  createdBy: user._id,
                 };
 
+                // Log user ID before creating draft
+                console.log("Saving draft with user ID:", user._id);
+
                 try {
-                  const saved = await createListing(draft);
+                  const saved = isEditingDraft
+                    ? await updateListing(draftId, draft)
+                    : await createListing(draft);
                   if (!saved || !saved._id) {
                     throw new Error("Draft save failed");
                   }
                   showToast("Draft saved successfully", "success");
+                  // Optionally, after updateListing, you can skip the redirect if you want users to continue editing
+                  if (!isEditingDraft) {
+                    navigate("/agent-dashboard?tab=drafts");
+                  }
+                  // If you want to always redirect after saving, use:
+                  // navigate("/agent-dashboard?tab=drafts");
                 } catch (err) {
                   console.error("Draft save failed:", err);
                   showToast("Failed to save draft", "error");

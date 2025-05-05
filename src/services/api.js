@@ -32,16 +32,25 @@ export async function fetchListingById(id) {
   return fetchWithHandling(`${API_URL}/listings/${id}`, {}, null);
 }
 
+// Named export for getListingById using fetchListingById
+export { fetchListingById as getListingById };
+
 export async function fetchListingsByTag(tag) {
   return fetchWithHandling(`${API_URL}/listings?tag=${tag}`, {}, []);
 }
 
 // Fetch listings by status, optionally filtered by userId
-export async function fetchListingsByStatus(status, userId = null) {
-  const url = userId
-    ? `${API_URL}/listings/status/${status}?userId=${userId}`
-    : `${API_URL}/listings/status/${status}`;
-  return fetchWithHandling(url, {}, []);
+export async function fetchListingsByStatus(status, userId) {
+  try {
+    const res = await fetch(
+      `${API_URL}/listings/status/${status}?userId=${userId}&t=${Date.now()}`
+    );
+    if (!res.ok) throw new Error("Fetch failed: " + res.status);
+    return await res.json();
+  } catch (err) {
+    console.error("API Error:", err.message);
+    throw err;
+  }
 }
 
 // --- Publish

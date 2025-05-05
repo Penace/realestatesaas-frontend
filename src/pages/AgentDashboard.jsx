@@ -16,6 +16,7 @@ export default function AgentDashboard() {
   useEffect(() => {
     async function loadListings() {
       try {
+        // Add cache-busting timestamp to the status query
         const res = await fetchListingsByStatus(status, user?._id);
         console.log("Fetched Listings:", res); // Debug log
         setListings(res);
@@ -35,7 +36,11 @@ export default function AgentDashboard() {
     <div className="flex">
       <DashboardSidebar
         title="Agent Panel"
-        links={[{ to: "/agent-dashboard", label: "My Listings" }]}
+        links={[
+          { to: "/agent-dashboard", label: "My Listings" },
+          { to: "/publish", label: "Create New Listing" },
+          { to: "/agent-dashboard?status=pending", label: "Pending Approval" },
+        ]}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
@@ -46,7 +51,14 @@ export default function AgentDashboard() {
         {loading ? (
           <p>Loading...</p>
         ) : listings.length === 0 ? (
-          <p>No saved drafts</p>
+          <>
+            {console.log("Listings array is empty:", listings)}
+            <p>
+              {status === "draft"
+                ? "No saved drafts found."
+                : "No listings found for this status."}
+            </p>
+          </>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
