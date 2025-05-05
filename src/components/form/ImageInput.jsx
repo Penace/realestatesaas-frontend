@@ -67,6 +67,9 @@ export default function ImageInput({ name, value = [], onChange, error }) {
             className="hidden"
           />
         </label>
+        <p className="text-xs text-gray-500 italic mb-3">
+          or drag and drop images into this area
+        </p>
         {value.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
             {Array.isArray(value) &&
