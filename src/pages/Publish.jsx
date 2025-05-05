@@ -841,12 +841,8 @@ export default function Publish() {
                   showToast("Draft saved successfully", "success");
                   // Remove draft backup from localStorage after successful save
                   localStorage.removeItem("draftFormData");
-                  // Optionally, after updateListing, you can skip the redirect if you want users to continue editing
-                  if (!isEditing) {
-                    navigate("/agent-dashboard?tab=drafts");
-                  }
-                  // If you want to always redirect after saving, use:
-                  // navigate("/agent-dashboard?tab=drafts");
+                  // Always redirect to agent dashboard drafts tab after saving
+                  navigate("/agent-dashboard?tab=drafts");
                 } catch (err) {
                   console.error("Draft save failed:", err);
                   showToast("Failed to save draft", "error");
