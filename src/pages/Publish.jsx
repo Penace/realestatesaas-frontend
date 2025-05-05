@@ -854,7 +854,7 @@ export default function Publish() {
             {isEditing && (
               <Button
                 size="lg"
-                variant="dangerLight"
+                variant="cancel"
                 type="button"
                 onClick={() => navigate("/agent-dashboard?tab=drafts")}
               >

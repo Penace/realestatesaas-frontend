@@ -40,6 +40,13 @@ export default function Button({
   transition-all duration-200 ease-out
   transition-colors duration-200
 `,
+    cancel: `
+  bg-white text-red-600
+  ring-1 ring-red-200
+  hover:bg-red-50 hover:text-red-700
+  transition-all duration-200 ease-out
+  shadow
+`,
     cta: `
   bg-gradient-to-br from-white/10 to-white/5
   text-blue-600
