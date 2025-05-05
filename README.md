@@ -1,17 +1,24 @@
-# RealEstateSaaS – Frontend
+# RealEstateSaaS – Frontend (Vite + Tailwind)
 
 ## Overview
 
-This is the frontend for the RealEstateSaaS project.
+This is the frontend for the RealEstateSaaS platform – a full-featured real estate listing system with dashboards, admin controls, and modular UI.
 
-Built with:
-- Vite.js
-- TailwindCSS
-- Modular GitOps deployment standards
-- PNPM package manager for faster builds
+Built for performance, scalability, and developer experience using:
+- Vite for blazing-fast dev & build
+- TailwindCSS for utility-first styling
+- Modular GitOps-friendly deployment
 
 ---
-## Development Setup
+## Admin Features
+
+- Moderate listings
+- Approve users
+- Configure site settings
+- View analytics
+
+---
+## Local Development Setup
 
 1. Install Node.js on your machine or VM:
 
@@ -48,10 +55,13 @@ pnpm install
 Create a `.env` file inside the frontend folder with the following contents:
 
 ```dotenv
-VITE_API_URL=http://localhost:4000
+VITE_API_URL=http://localhost:4000/api
+VITE_IMAGE_BASE_URL=http://localhost:4000
 ```
 
-✅ This allows the frontend to dynamically connect to your backend API without hardcoding localhost or VM IPs.
+✅ These variables allow the frontend to dynamically connect to your backend API and serve optimized image URLs without hardcoding values into the codebase.
+
+> 💡 To connect to a production backend, update `VITE_API_URL` (and `VITE_IMAGE_BASE_URL` if needed) to point to your live API endpoint.
 
 6. Run development server (optional):
 
@@ -60,6 +70,13 @@ pnpm run dev
 ```
 
 > Note: Add `--host` flag if hosting on VM to access from other devices on different sub-networks.
+
+7. Optional formatting and linting:
+
+```bash
+pnpm run format
+pnpm run lint
+```
 
 ---
 ## Production Build
@@ -88,13 +105,6 @@ pnpm preview
 | Deployment | GitOps (clone + build + systemd/PM2) |
 
 ---
-## Admin Tools
-
-- Moderate listings
-- Approve users
-- Configure site settings
-- View analytics
----
 ## Roadmap
 
 See [ROADMAP.md](./ROADMAP.md)
@@ -103,3 +113,8 @@ See [ROADMAP.md](./ROADMAP.md)
 ## Additional Resources
 
 - [RealEstateSaaS Backend Repo](https://github.com/Penace/realestatesaas-backend)
+
+---
+## License
+
+TBD – License details will be added here for open-source or closed-source usage.
