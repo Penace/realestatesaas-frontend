@@ -13,6 +13,7 @@ import ImageInput from "../components/form/ImageInput";
 import Dropdown from "../components/form/Dropdown";
 import DateInput from "../components/form/DateInput";
 import CommaInput from "../components/form/CommaInput";
+import { handleChange, handleSubmit, handleOpenReview } from "../utils/formHandlers";
 import { validateField } from "../utils/validation";
 import { optimizeAndUploadImages } from "../utils/imageUpload";
 import { normalize } from "../utils/normalize";
@@ -224,245 +225,6 @@ export default function Publish() {
   const shouldBlockRender = !user || !user._id || isRestoringDraft;
   if (shouldBlockRender) return null;
 
-  const handleChange = (e) => {
-    console.log("📝 handleChange called with:", e);
-    const { name, value } = e.target;
-
-    let newValue = value;
-
-    if (name === "price") {
-      newValue = value.replace(/[^\d]/g, "");
-      if (newValue.length > 0) {
-        newValue = `$${newValue}`;
-      }
-    }
-
-    // Handle special case for images (value is passed as FileList or array)
-    if (name === "images" && !(typeof newValue === "string")) {
-      if (newValue instanceof FileList) {
-        newValue = Array.from(newValue);
-      } else if (!Array.isArray(newValue)) {
-        newValue = [];
-      }
-    }
-
-    console.log(`🛠️ Updating ${name} with:`, newValue);
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-
-    setErrors((prevErrors) => {
-      const updatedErrors = { ...prevErrors };
-      const { error, warning } = validateField(name, newValue);
-      updatedErrors[name] = error;
-      setWarnings((prevWarnings) => ({
-        ...prevWarnings,
-        [name]: warning,
-      }));
-      return updatedErrors;
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const {
-      title,
-      location,
-      price,
-      description,
-      images,
-      address,
-      bedrooms,
-      bathrooms,
-      squareFootage,
-      propertyType,
-      yearBuilt,
-      parkingAvailable,
-      listingType,
-      availableFrom,
-      features,
-      amenities,
-      facilities,
-      slug,
-    } = formData;
-
-    const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-
-    const optimizedImages = await optimizeAndUploadImages(images);
-
-    const listing = {
-      title: title.trim(),
-      location: location.trim(),
-      price: numericPrice.toString(),
-      description: description.trim(),
-      images: optimizedImages.map((img) =>
-        typeof img === "string" ? img : img.url
-      ),
-      address: address.trim(),
-      bedrooms: Number(bedrooms),
-      bathrooms: Number(bathrooms),
-      squareFootage: Number(squareFootage),
-      propertyType: propertyType.trim(),
-      yearBuilt: Number(yearBuilt),
-      parkingAvailable: parkingAvailable.trim(),
-      listingType: listingType.trim(),
-      availableFrom: new Date(availableFrom),
-      features: features
-        .split(",")
-        .map((f) => f.trim())
-        .filter(Boolean)
-        .filter((v, i, a) => a.indexOf(v) === i),
-      amenities: amenities
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean)
-        .filter((v, i, a) => a.indexOf(v) === i),
-      facilities: facilities
-        .split(",")
-        .map((f) => f.trim())
-        .filter(Boolean)
-        .filter((v, i, a) => a.indexOf(v) === i),
-      slug: slug.trim(),
-      status: "pending",
-      createdBy: user._id,
-      // Removed isFeatured, isAuction, isSponsored. These are admin controlled.
-    };
-
-    try {
-      setSubmitting(true);
-      const createdListing = await createListing(listing);
-      if (!createdListing || !createdListing._id) {
-        throw new Error("Listing creation failed or invalid response");
-      }
-      showToast("Listing submitted for review.", "success");
-      setSubmitted(true);
-      setShowReviewModal(false);
-      setFormData({
-        title: "",
-        location: "",
-        price: "",
-        description: "",
-        images: [],
-        address: "",
-        bedrooms: "",
-        bathrooms: "",
-        squareFootage: "",
-        propertyType: "",
-        yearBuilt: "",
-        parkingAvailable: "",
-        listingType: "",
-        availableFrom: "",
-        features: "",
-        amenities: "",
-        facilities: "",
-        slug: "",
-      });
-      // Remove draft backup from localStorage after successful submit
-      localStorage.removeItem(storageKey);
-      // Redirect to dashboard pending listings instead of the new listing page
-      navigate("/dashboard/listings?status=pending");
-      return;
-    } catch (err) {
-      console.error("Submission failed:", err);
-      showToast("Something went wrong. Please try again.", "error");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleOpenReview = async (e) => {
-    e.preventDefault();
-
-    const {
-      title,
-      location,
-      price,
-      description,
-      images,
-      address,
-      bedrooms,
-      bathrooms,
-      squareFootage,
-      propertyType,
-      yearBuilt,
-      parkingAvailable,
-      listingType,
-      availableFrom,
-      features,
-      amenities,
-      facilities,
-      slug,
-    } = formData;
-
-    const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-
-    if (
-      title.trim().length < 3 ||
-      location.trim().length < 3 ||
-      description.trim().length < 10 ||
-      isNaN(numericPrice) ||
-      numericPrice < 100 ||
-      numericPrice > 999999999 ||
-      images.length < 3 ||
-      address.trim().length < 3 ||
-      isNaN(Number(bedrooms)) ||
-      isNaN(Number(bathrooms)) ||
-      isNaN(Number(squareFootage)) ||
-      propertyType.trim().length < 3 ||
-      isNaN(Number(yearBuilt)) ||
-      parkingAvailable.trim().length < 3 ||
-      listingType.trim().length === 0 ||
-      isNaN(Date.parse(availableFrom)) ||
-      features.trim().length === 0 ||
-      amenities.trim().length === 0 ||
-      facilities.trim().length === 0 ||
-      slug.trim().length < 3
-    ) {
-      showToast("Please fix the errors before reviewing.", "error");
-      return;
-    }
-
-    const listing = {
-      title: title.trim(),
-      location: location.trim(),
-      price: numericPrice.toString(),
-      description: description.trim(),
-      images,
-      address: address.trim(),
-      bedrooms: Number(bedrooms),
-      bathrooms: Number(bathrooms),
-      squareFootage: Number(squareFootage),
-      propertyType: propertyType.trim(),
-      yearBuilt: Number(yearBuilt),
-      parkingAvailable: parkingAvailable.trim(),
-      listingType: listingType.trim(),
-      availableFrom: new Date(availableFrom),
-      features: features
-        .split(",")
-        .map((f) => f.trim())
-        .filter(Boolean)
-        .filter((v, i, a) => a.indexOf(v) === i),
-      amenities: amenities
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean)
-        .filter((v, i, a) => a.indexOf(v) === i),
-      facilities: facilities
-        .split(",")
-        .map((f) => f.trim())
-        .filter(Boolean)
-        .filter((v, i, a) => a.indexOf(v) === i),
-      slug: slug.trim(),
-      isFeatured: false,
-      isAuction: false,
-      isSponsored: false,
-    };
-
-    setReviewData(listing);
-    setShowReviewModal(true);
-  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center py-20 px-6">
@@ -534,107 +296,7 @@ export default function Publish() {
               : null
           }
           onClose={() => setShowReviewModal(false)}
-          onConfirm={async (e) => {
-            e.preventDefault();
-            const {
-              title,
-              location,
-              price,
-              description,
-              images,
-              address,
-              bedrooms,
-              bathrooms,
-              squareFootage,
-              propertyType,
-              yearBuilt,
-              parkingAvailable,
-              listingType,
-              availableFrom,
-              features,
-              amenities,
-              facilities,
-              slug,
-            } = formData;
-            const numericPrice = Number(price.replace(/[^0-9]/g, ""));
-            const optimizedImages = await optimizeAndUploadImages(
-              formData.images
-            );
-            const listing = {
-              title: title.trim(),
-              location: location.trim(),
-              price: numericPrice.toString(),
-              description: description.trim(),
-              images: optimizedImages.map((img) =>
-                typeof img === "string" ? img : img.url
-              ),
-              address: address.trim(),
-              bedrooms: Number(bedrooms),
-              bathrooms: Number(bathrooms),
-              squareFootage: Number(squareFootage),
-              propertyType: propertyType.trim(),
-              yearBuilt: Number(yearBuilt),
-              parkingAvailable: parkingAvailable.trim(),
-              listingType: listingType.trim(),
-              availableFrom: new Date(availableFrom),
-              features: features
-                .split(",")
-                .map((f) => f.trim())
-                .filter(Boolean),
-              amenities: amenities
-                .split(",")
-                .map((a) => a.trim())
-                .filter(Boolean),
-              facilities: facilities
-                .split(",")
-                .map((f) => f.trim())
-                .filter(Boolean),
-              slug: slug.trim(),
-              status: "pending",
-              createdBy: user._id,
-              // Removed isFeatured, isAuction, isSponsored. These are admin controlled.
-            };
-            try {
-              setSubmitting(true);
-              const createdListing = await createListing(listing);
-              if (!createdListing || !createdListing._id) {
-                throw new Error("Listing creation failed or invalid response");
-              }
-              showToast("Listing submitted for review.", "success");
-              setSubmitted(true);
-              setShowReviewModal(false);
-              setFormData({
-                title: "",
-                location: "",
-                price: "",
-                description: "",
-                images: [],
-                address: "",
-                bedrooms: "",
-                bathrooms: "",
-                squareFootage: "",
-                propertyType: "",
-                yearBuilt: "",
-                parkingAvailable: "",
-                listingType: "",
-                availableFrom: "",
-                features: "",
-                amenities: "",
-                facilities: "",
-                slug: "",
-              });
-              // Remove draft backup from localStorage after successful submit
-              localStorage.removeItem(storageKey);
-              // Redirect to dashboard pending listings instead of the new listing page
-              navigate("/dashboard/listings?status=pending");
-              return;
-            } catch (err) {
-              console.error("Submission failed:", err);
-              showToast("Something went wrong. Please try again.", "error");
-            } finally {
-              setSubmitting(false);
-            }
-          }}
+          onConfirm={handleSubmit}
         />
 
         <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg shadow border border-blue-200">
@@ -653,7 +315,18 @@ export default function Publish() {
             <li>Upload at least 3 high-quality JPG/JPEG images.</li>
           </ul>
         </div>
-        <form className="space-y-6" onSubmit={handleOpenReview}>
+        <form
+          className="space-y-6"
+          onSubmit={(e) =>
+            handleOpenReview(
+              e,
+              formData,
+              setReviewData,
+              setShowReviewModal,
+              showToast
+            )
+          }
+        >
           {/* Basic Info */}
           <TextInput
             name="title"
