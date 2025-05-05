@@ -300,15 +300,18 @@ export default function Publish() {
       features: features
         .split(",")
         .map((f) => f.trim())
-        .filter(Boolean),
+        .filter(Boolean)
+        .filter((v, i, a) => a.indexOf(v) === i),
       amenities: amenities
         .split(",")
         .map((a) => a.trim())
-        .filter(Boolean),
+        .filter(Boolean)
+        .filter((v, i, a) => a.indexOf(v) === i),
       facilities: facilities
         .split(",")
         .map((f) => f.trim())
-        .filter(Boolean),
+        .filter(Boolean)
+        .filter((v, i, a) => a.indexOf(v) === i),
       slug: slug.trim(),
       status: "pending",
       createdBy: user._id,
@@ -427,15 +430,18 @@ export default function Publish() {
       features: features
         .split(",")
         .map((f) => f.trim())
-        .filter(Boolean),
+        .filter(Boolean)
+        .filter((v, i, a) => a.indexOf(v) === i),
       amenities: amenities
         .split(",")
         .map((a) => a.trim())
-        .filter(Boolean),
+        .filter(Boolean)
+        .filter((v, i, a) => a.indexOf(v) === i),
       facilities: facilities
         .split(",")
         .map((f) => f.trim())
-        .filter(Boolean),
+        .filter(Boolean)
+        .filter((v, i, a) => a.indexOf(v) === i),
       slug: slug.trim(),
       isFeatured: false,
       isAuction: false,
@@ -804,15 +810,18 @@ export default function Publish() {
                   features: formData.features
                     .split(",")
                     .map((f) => f.trim())
-                    .filter(Boolean),
+                    .filter(Boolean)
+                    .filter((v, i, a) => a.indexOf(v) === i),
                   amenities: formData.amenities
                     .split(",")
                     .map((a) => a.trim())
-                    .filter(Boolean),
+                    .filter(Boolean)
+                    .filter((v, i, a) => a.indexOf(v) === i),
                   facilities: formData.facilities
                     .split(",")
                     .map((f) => f.trim())
-                    .filter(Boolean),
+                    .filter(Boolean)
+                    .filter((v, i, a) => a.indexOf(v) === i),
                   slug: formData.slug.trim(),
                   images: allImages,
                   status: "draft",
@@ -846,6 +855,16 @@ export default function Publish() {
             >
               Save Draft
             </Button>
+            {isEditing && (
+              <Button
+                size="lg"
+                variant="dangerLight"
+                type="button"
+                onClick={() => navigate("/agent-dashboard?tab=drafts")}
+              >
+                Cancel Edit
+              </Button>
+            )}
           </div>
         </form>
       </div>
