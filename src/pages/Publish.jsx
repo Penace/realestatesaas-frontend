@@ -103,12 +103,17 @@ export default function Publish() {
     // eslint-disable-next-line
   }, [draftId, location.pathname]);
 
-  // Show toast after restoring draft from previous session (only for new listing)
+  // Show toast after restoring draft from previous session (only for new listing, and only if data exists)
   useEffect(() => {
-    if (!isRestoringDraft && !isEditing) {
+    if (
+      !isRestoringDraft &&
+      !isEditing &&
+      formData &&
+      Object.values(formData).filter((v) => !!v && v !== "").length > 2
+    ) {
       showToast("Draft restored from previous session", "info");
     }
-  }, [isRestoringDraft, isEditing]);
+  }, [isRestoringDraft, isEditing, formData]);
   // Warn user if leaving page with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -140,16 +145,14 @@ export default function Publish() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Unconditionally run this effect, but early return if restoring draft
+  // Prevent multiple redundant login toasts: show only after restoring draft and add delay
   useEffect(() => {
-    if (isRestoringDraft) return;
-    if (!user || !user._id) {
-      showToast("You must be logged in to publish a listing.", "error");
-      // Optionally, redirect to login page here if desired, e.g.:
-      // navigate("/login");
+    if (!isRestoringDraft && (!user || !user._id)) {
+      setTimeout(() => {
+        showToast("You must be logged in to publish a listing.", "error");
+      }, 200); // Add slight delay to avoid overlap
     }
-    // No toast for isRestoringDraft, just block render
-  }, [user, isRestoringDraft, showToast]);
+  }, [user, isRestoringDraft]);
 
   useEffect(() => {
     if (isEditing) {
@@ -180,9 +183,11 @@ export default function Publish() {
             facilities: draft.facilities?.join(", ") || "",
             slug: draft.slug || "",
           };
-          setFormData(loadedFormData);
-          // Persist loaded draft to localStorage for consistency
-          localStorage.setItem(storageKey, JSON.stringify(loadedFormData));
+          const existingDraft = localStorage.getItem(storageKey);
+          if (!existingDraft) {
+            setFormData(loadedFormData);
+            localStorage.setItem(storageKey, JSON.stringify(loadedFormData));
+          }
         } catch (err) {
           console.error("Failed to load draft:", err);
           showToast("Failed to load draft", "error");
