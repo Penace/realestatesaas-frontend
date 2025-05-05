@@ -1,7 +1,20 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 export default function ImageInput({ name, value = [], onChange, error }) {
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const handleWindowDragOver = (e) => e.preventDefault();
+    const handleWindowDrop = (e) => e.preventDefault();
+
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", handleWindowDrop);
+
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, []);
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
@@ -86,6 +99,11 @@ export default function ImageInput({ name, value = [], onChange, error }) {
           </div>
         )}
       </div>
+      {isDragging && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-blue-100 bg-opacity-60 text-blue-700 font-semibold rounded pointer-events-none">
+          Drop files here
+        </div>
+      )}
     </div>
   );
 }
