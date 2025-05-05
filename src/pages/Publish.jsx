@@ -22,6 +22,7 @@ import { useLoadDraft } from "../utils/useLoadDraft";
 import { validateField } from "../utils/validation";
 import { optimizeAndUploadImages } from "../utils/imageUpload";
 import { normalize } from "../utils/normalize";
+import { useFormErrors } from "../utils/formErrors";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
@@ -56,6 +57,17 @@ export default function Publish() {
   // Track whether we're restoring draft from localStorage
   const [isRestoringDraft, setIsRestoringDraft] = useState(true);
 
+  const {
+    errors,
+    setErrors,
+    warnings,
+    setWarnings,
+    submitted,
+    setSubmitted,
+    submitting,
+    setSubmitting,
+  } = useFormErrors();
+
   // Determine if editing or creating a new listing, and set the correct localStorage key
   const isEditing =
     (location.pathname.includes("/publish/draft/") ||
@@ -64,8 +76,6 @@ export default function Publish() {
   const storageKey = isEditing
     ? `editDraftForm_${draftId}`
     : "newListingDraftForm";
-
-  const [warnings, setWarnings] = useState({});
 
   // Restore form data from localStorage if available
   useEffect(() => {
@@ -171,9 +181,6 @@ export default function Publish() {
   // (isEditing moved above)
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewData, setReviewData] = useState(null);
-  const [errors, setErrors] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   // Prevent multiple redundant login toasts: show only after restoring draft and add delay
   useEffect(() => {
