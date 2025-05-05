@@ -131,20 +131,22 @@ export default function Publish() {
       case "images":
         error =
           Array.isArray(value) &&
-          value.length > 0 &&
+          value.length >= 3 &&
           value.every(
             (file) =>
               typeof file.name === "string" &&
               (file.name.endsWith(".jpg") || file.name.endsWith(".jpeg"))
           )
             ? ""
-            : "Please upload at least one JPG/JPEG image.";
+            : "Please upload at least 3 JPG/JPEG images.";
         break;
       case "bedrooms":
       case "bathrooms": {
         const numVal = Number(value);
         if (isNaN(numVal) || numVal < 0) {
           error = `Please enter a valid number of ${field}.`;
+        } else if (numVal > 100) {
+          error = `Maximum allowed for ${field} is 100.`;
         } else if (numVal > 50) {
           warning = `Unusually high number of ${field}. Please confirm.`;
         }
@@ -167,6 +169,8 @@ export default function Publish() {
           error = "Please enter a valid year.";
         } else if (numVal < 1600) {
           warning = "Is this a heritage listing? Very old year.";
+        } else if (numVal > currentYear + 5) {
+          error = `Year cannot be more than ${currentYear + 5}.`;
         } else if (numVal > currentYear) {
           warning = "Future year? Please confirm it's correct.";
         }
@@ -522,7 +526,7 @@ export default function Publish() {
       isNaN(numericPrice) ||
       numericPrice < 100 ||
       numericPrice > 999999999 ||
-      images.length === 0 ||
+      images.length < 3 ||
       address.trim().length < 3 ||
       isNaN(Number(bedrooms)) ||
       isNaN(Number(bathrooms)) ||
@@ -754,6 +758,22 @@ export default function Publish() {
           }}
         />
 
+        <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg shadow border border-blue-200">
+          <p>
+            <strong>Listing Instructions:</strong>
+          </p>
+          <ul className="list-disc list-inside mt-2 space-y-1">
+            <li>
+              Please ensure all required fields are filled before submitting.
+            </li>
+            <li>Drafts can be saved with basic info and completed later.</li>
+            <li>
+              Listings with extreme values (e.g., very high price, many rooms)
+              are allowed but will be flagged for admin review.
+            </li>
+            <li>Upload at least 3 high-quality JPG/JPEG images.</li>
+          </ul>
+        </div>
         <form className="space-y-6" onSubmit={handleOpenReview}>
           <TextInput
             name="title"
@@ -1017,6 +1037,8 @@ export default function Publish() {
                 console.log("Saving draft with user ID:", user._id);
 
                 try {
+                  // DRAFT VALIDATION: Allow saving even with minimal fields, so do NOT block for missing/invalid fields.
+                  // (Removed strict validation for drafts.)
                   const saved = isEditing
                     ? await updateListing(draftId, draft)
                     : await createListing(draft);
