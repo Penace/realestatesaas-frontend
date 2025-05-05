@@ -594,6 +594,9 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="Luxury Penthouse"
             error={errors.title}
+            helperText={
+              errors.title ? "Title must be at least 3 characters." : ""
+            }
           />
           <TextInput
             name="location"
@@ -602,6 +605,9 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="New York City, NY"
             error={errors.location}
+            helperText={
+              errors.location ? "Location must be at least 3 characters." : ""
+            }
           />
           <TextInput
             name="address"
@@ -610,12 +616,16 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="123 Main St"
             error={errors.address}
+            helperText={
+              errors.address ? "Address must be at least 3 characters." : ""
+            }
           />
           <PriceInput
             name="price"
             value={formData.price}
             onChange={handleChange}
             error={errors.price}
+            helperText={errors.price ? "Price must be at least $100." : ""}
           />
           <TextInput
             name="bedrooms"
@@ -624,6 +634,9 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="3"
             error={errors.bedrooms}
+            helperText={
+              errors.bedrooms ? "Please enter a valid number of bedrooms." : ""
+            }
           />
           <TextInput
             name="bathrooms"
@@ -632,6 +645,11 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="2"
             error={errors.bathrooms}
+            helperText={
+              errors.bathrooms
+                ? "Please enter a valid number of bathrooms."
+                : ""
+            }
           />
           <TextInput
             name="squareFootage"
@@ -640,6 +658,9 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="1500"
             error={errors.squareFootage}
+            helperText={
+              errors.squareFootage ? "Please enter a valid square footage." : ""
+            }
           />
           <TextInput
             name="propertyType"
@@ -648,6 +669,11 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="Apartment"
             error={errors.propertyType}
+            helperText={
+              errors.propertyType
+                ? "Property type must be at least 3 characters."
+                : ""
+            }
           />
           <TextInput
             name="yearBuilt"
@@ -656,6 +682,7 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="1990"
             error={errors.yearBuilt}
+            helperText={errors.yearBuilt ? "Please enter a valid year." : ""}
           />
           <TextInput
             name="parkingAvailable"
@@ -664,6 +691,11 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="Yes"
             error={errors.parkingAvailable}
+            helperText={
+              errors.parkingAvailable
+                ? "Parking must be at least 3 characters."
+                : ""
+            }
           />
           <Dropdown
             name="listingType"
@@ -676,8 +708,10 @@ export default function Publish() {
               { label: "Auction", value: "auction" },
             ]}
             error={errors.listingType}
+            helperText={
+              errors.listingType ? "Please select a listing type." : ""
+            }
           />
-
           <TextInput
             name="slug"
             label="Slug"
@@ -685,6 +719,9 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="luxury-penthouse-nyc"
             error={errors.slug}
+            helperText={
+              errors.slug ? "Slug must be at least 3 characters." : ""
+            }
           />
           <DateInput
             name="availableFrom"
@@ -692,6 +729,9 @@ export default function Publish() {
             value={formData.availableFrom}
             onChange={handleChange}
             error={errors.availableFrom}
+            helperText={
+              errors.availableFrom ? "Please enter a valid date." : ""
+            }
           />
           <CommaInput
             name="features"
@@ -699,6 +739,9 @@ export default function Publish() {
             value={formData.features}
             onChange={handleChange}
             error={errors.features}
+            helperText={
+              errors.features ? "Please enter at least one feature." : ""
+            }
             suggestions={[
               "swimmingPool",
               "garden",
@@ -721,6 +764,9 @@ export default function Publish() {
             value={formData.amenities}
             onChange={handleChange}
             error={errors.amenities}
+            helperText={
+              errors.amenities ? "Please enter at least one amenity." : ""
+            }
             suggestions={[
               "pool",
               "wifi",
@@ -740,6 +786,9 @@ export default function Publish() {
             value={formData.facilities}
             onChange={handleChange}
             error={errors.facilities}
+            helperText={
+              errors.facilities ? "Please enter at least one facility." : ""
+            }
             suggestions={[
               "kitchen",
               "bathroom",
@@ -760,12 +809,20 @@ export default function Publish() {
             onChange={handleChange}
             placeholder="Describe your property in detail..."
             error={errors.description}
+            helperText={
+              errors.description
+                ? "Description must be at least 10 characters."
+                : ""
+            }
           />
           <ImageInput
             name="images"
             value={formData.images}
             onChange={handleChange}
             error={errors.images}
+            helperText={
+              errors.images ? "Please upload at least one JPG/JPEG image." : ""
+            }
           />
 
           <div className="pt-6 flex justify-center space-x-4">
