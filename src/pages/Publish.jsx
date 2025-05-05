@@ -59,6 +59,19 @@ export default function Publish() {
     slug: "",
   });
 
+  // Restore form data from localStorage if available
+  useEffect(() => {
+    const savedForm = localStorage.getItem("draftFormData");
+    if (savedForm) {
+      setFormData(JSON.parse(savedForm));
+    }
+  }, []);
+
+  // Persist form data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("draftFormData", JSON.stringify(formData));
+  }, [formData]);
+
   const { user } = useAuth();
   const { id: draftId } = useParams();
   const location = useLocation();
@@ -271,6 +284,8 @@ export default function Publish() {
         facilities: "",
         slug: "",
       });
+      // Remove draft backup from localStorage after successful submit
+      localStorage.removeItem("draftFormData");
       // Redirect to dashboard pending listings instead of the new listing page
       navigate("/dashboard/listings?status=pending");
       return;
@@ -491,6 +506,8 @@ export default function Publish() {
                 facilities: "",
                 slug: "",
               });
+              // Remove draft backup from localStorage after successful submit
+              localStorage.removeItem("draftFormData");
               // Redirect to dashboard pending listings instead of the new listing page
               navigate("/dashboard/listings?status=pending");
               return;
@@ -753,6 +770,8 @@ export default function Publish() {
                     throw new Error("Draft save failed");
                   }
                   showToast("Draft saved successfully", "success");
+                  // Remove draft backup from localStorage after successful save
+                  localStorage.removeItem("draftFormData");
                   // Optionally, after updateListing, you can skip the redirect if you want users to continue editing
                   if (!isEditingDraft) {
                     navigate("/agent-dashboard?tab=drafts");
