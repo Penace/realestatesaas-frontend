@@ -13,7 +13,12 @@ import ImageInput from "../components/form/ImageInput";
 import Dropdown from "../components/form/Dropdown";
 import DateInput from "../components/form/DateInput";
 import CommaInput from "../components/form/CommaInput";
-import { handleChange, handleSubmit, handleOpenReview } from "../utils/formHandlers";
+import {
+  handleChange,
+  handleSubmit,
+  handleOpenReview,
+} from "../utils/formHandlers";
+import { useLoadDraft } from "../utils/useLoadDraft";
 import { validateField } from "../utils/validation";
 import { optimizeAndUploadImages } from "../utils/imageUpload";
 import { normalize } from "../utils/normalize";
@@ -179,52 +184,11 @@ export default function Publish() {
     }
   }, [user, isRestoringDraft]);
 
-  useEffect(() => {
-    if (isEditing) {
-      (async () => {
-        try {
-          const draft = await getListingById(draftId);
-          if (!draft) return;
-
-          const loadedFormData = {
-            title: draft.title || "",
-            location: draft.location || "",
-            price: draft.price ? `$${draft.price}` : "",
-            description: draft.description || "",
-            images: draft.images || [],
-            address: draft.address || "",
-            bedrooms: draft.bedrooms?.toString() || "",
-            bathrooms: draft.bathrooms?.toString() || "",
-            squareFootage: draft.squareFootage?.toString() || "",
-            propertyType: draft.propertyType || "",
-            yearBuilt: draft.yearBuilt?.toString() || "",
-            parkingAvailable: draft.parkingAvailable || "",
-            listingType: draft.listingType || "",
-            availableFrom: draft.availableFrom
-              ? new Date(draft.availableFrom).toISOString().split("T")[0]
-              : "",
-            features: draft.features?.join(", ") || "",
-            amenities: draft.amenities?.join(", ") || "",
-            facilities: draft.facilities?.join(", ") || "",
-            slug: draft.slug || "",
-          };
-          const existingDraft = localStorage.getItem(storageKey);
-          if (!existingDraft) {
-            setFormData(loadedFormData);
-            localStorage.setItem(storageKey, JSON.stringify(loadedFormData));
-          }
-        } catch (err) {
-          console.error("Failed to load draft:", err);
-          showToast("Failed to load draft", "error");
-        }
-      })();
-    }
-  }, [isEditing, draftId, storageKey, showToast]);
+  useLoadDraft(isEditing, draftId, storageKey, setFormData, showToast);
 
   // Determine if we should block rendering (after all hooks)
   const shouldBlockRender = !user || !user._id || isRestoringDraft;
   if (shouldBlockRender) return null;
-
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center py-20 px-6">
