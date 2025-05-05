@@ -25,15 +25,19 @@ export default function Dropdown({
           <option value="" disabled className="text-gray-500 font-medium">
             Select {label}
           </option>
-          {options.map((opt) => (
-            <option
-              key={opt.value}
-              value={opt.value}
-              className="bg-white text-gray-800 hover:bg-blue-50 px-4 py-3 transition-colors"
-            >
-              {opt.label}
-            </option>
-          ))}
+          {options.map((opt, idx) => {
+            const optionValue = typeof opt === "string" ? opt : opt.value;
+            const optionLabel = typeof opt === "string" ? opt : opt.label;
+            return (
+              <option
+                key={optionValue || idx}
+                value={optionValue}
+                className="bg-white text-gray-800 hover:bg-blue-50 px-4 py-3 transition-colors"
+              >
+                {optionLabel}
+              </option>
+            );
+          })}
         </select>
         <div className="pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
           <svg

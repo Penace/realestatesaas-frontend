@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { features, amenities, facilities } from "../../utils/constants";
 
 export default function CommaInput({
   name,
@@ -13,22 +14,36 @@ export default function CommaInput({
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const inputRef = useRef(null);
 
-  const values = value
-    .split(",")
-    .map((v) => v.trim())
-    .filter((v) => v);
+  const values = Array.isArray(value) ? value : [];
 
   const handleAddValue = (val) => {
-    if (!values.includes(val)) {
-      const newValue = [...values, val].join(", ");
-      onChange({ target: { name, value: newValue } });
+    const current = Array.isArray(value)
+      ? value
+      : typeof value === "string"
+      ? value
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean)
+      : [];
+
+    if (!current.includes(val)) {
+      const updated = [...current, val];
+      onChange({ target: { name, value: updated } });
       setInputValue("");
     }
   };
 
   const handleRemove = (val) => {
-    const newValue = values.filter((v) => v !== val).join(", ");
-    onChange({ target: { name, value: newValue } });
+    const current = Array.isArray(value)
+      ? value
+      : typeof value === "string"
+      ? value
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean)
+      : [];
+    const updated = current.filter((v) => v !== val);
+    onChange({ target: { name, value: updated } });
   };
 
   const handleInputChange = (e) => {
@@ -48,17 +63,27 @@ export default function CommaInput({
     setTimeout(() => setFilteredSuggestions([]), 100); // delay to allow click
   };
 
-  useEffect(() => {
-    if (document.activeElement === inputRef.current) {
-      setFilteredSuggestions(
-        suggestions.filter(
-          (s) =>
-            s.toLowerCase().includes(inputValue.toLowerCase()) &&
-            !values.includes(s)
-        )
+  const updateFilteredSuggestions = () => {
+    const lowerInput = inputValue.toLowerCase();
+    const filtered = suggestions.filter((s) => {
+      return (
+        s.toLowerCase().includes(lowerInput) &&
+        !values.some((v) => v.toLowerCase() === s.toLowerCase())
       );
+    });
+    setFilteredSuggestions(filtered);
+  };
+
+  useEffect(() => {
+    if (typeof inputValue === "string") {
+      updateFilteredSuggestions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue]);
+
+  const allSuggestions = [...features, ...amenities, ...facilities].map((s) =>
+    s.toLowerCase()
+  );
 
   return (
     <div className="flex flex-col w-full">
@@ -75,33 +100,35 @@ export default function CommaInput({
             : "border-gray-300 focus-within:ring-blue-400")
         }
       >
-        {values.map((val, i) => (
-          <span
-            key={i}
-            className="flex items-center bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full"
-          >
-            {val}
-            <button
-              type="button"
-              className="ml-2 text-blue-500 hover:text-red-500"
-              onClick={() => handleRemove(val)}
+        {values.map((val, i) => {
+          const isSuggested = allSuggestions.includes(val.toLowerCase());
+          const colorClass = isSuggested
+            ? "bg-blue-100 text-blue-800 border-blue-300"
+            : "bg-purple-100 text-purple-800 border-purple-300";
+          return (
+            <span
+              key={`tag-${val}-${i}`}
+              className={`flex items-center text-sm px-2 py-1 rounded-full border ${colorClass}`}
             >
-              &times;
-            </button>
-          </span>
-        ))}
+              {val}
+              <button
+                type="button"
+                className="ml-2 text-gray-500 hover:text-red-500"
+                onClick={() => handleRemove(val)}
+              >
+                &times;
+              </button>
+            </span>
+          );
+        })}
         <input
           type="text"
           ref={inputRef}
           value={inputValue}
-          onChange={handleInputChange}
+          onChange={(e) => handleInputChange(e)}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          onFocus={() => {
-            setFilteredSuggestions(
-              suggestions.filter((s) => !values.includes(s))
-            );
-          }}
+          onFocus={updateFilteredSuggestions}
           placeholder="Add value..."
           aria-describedby={error ? `${name}-error` : undefined}
           className="flex-grow bg-transparent outline-none text-sm min-w-[150px]"

@@ -5,7 +5,12 @@ export default function ToastContainer({ toasts = [], dismiss }) {
         <div
           key={toast.id}
           className={`flex justify-between items-center px-4 py-2 rounded shadow-lg text-white transition-opacity duration-300 ease-in-out ${
-            toast.type === "error" ? "bg-red-500" : "bg-green-500"
+            {
+              error: "bg-red-500",
+              warning: "bg-yellow-500",
+              info: "bg-blue-500",
+              success: "bg-green-500",
+            }[toast.type] || "bg-green-500"
           }`}
         >
           <span>{toast.message}</span>

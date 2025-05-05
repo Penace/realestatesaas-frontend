@@ -7,13 +7,7 @@ import { useToast } from "../context/ToastProvider";
 import { useAuth } from "../context/AuthProvider";
 import ReviewModal from "../components/ReviewModal";
 import { useModalHandlers } from "../utils/modalHandlers";
-import TextInput from "../components/form/TextInput";
-import TextareaInput from "../components/form/TextareaInput";
-import PriceInput from "../components/form/PriceInput";
-import ImageInput from "../components/form/ImageInput";
-import Dropdown from "../components/form/Dropdown";
-import DateInput from "../components/form/DateInput";
-import CommaInput from "../components/form/CommaInput";
+import ListingForm from "../components/form/ListingForm";
 import {
   handleChange,
   handleSubmit,
@@ -259,23 +253,43 @@ export default function Publish() {
 
         <ReviewModal
           isOpen={showReviewModal}
-          listing={
-            reviewData
-              ? {
-                  ...reviewData,
-                  images: reviewData.images.map((img) =>
-                    typeof img === "string"
-                      ? { name: img.split("/").pop(), url: img }
-                      : {
-                          name: img.name,
-                          url: URL.createObjectURL(img),
-                        }
-                  ),
-                }
-              : null
-          }
+          listing={{
+            ...(reviewData || {}),
+            images: Array.isArray(reviewData?.images)
+              ? reviewData.images.map((img) =>
+                  typeof img === "string"
+                    ? { name: img.split("/").pop(), url: img }
+                    : {
+                        name: img.name,
+                        url: URL.createObjectURL(img),
+                      }
+                )
+              : [],
+          }}
           onClose={closeModal}
-          onConfirm={handleSubmit}
+          onConfirm={() => {
+            const requiredFields = [
+              "title",
+              "location",
+              "address",
+              "price",
+              "description",
+              "bedrooms",
+              "bathrooms",
+              "squareFootage",
+              "propertyType",
+              "yearBuilt",
+            ];
+            const invalid = requiredFields.some((field) => !formData[field]);
+            if (invalid) {
+              showToast(
+                "Please complete the required fields before submitting.",
+                "error"
+              );
+              return;
+            }
+            handleSubmit();
+          }}
         />
 
         <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg shadow border border-blue-200">
@@ -294,353 +308,36 @@ export default function Publish() {
             <li>Upload at least 3 high-quality JPG/JPEG images.</li>
           </ul>
         </div>
-        <form
-          className="space-y-6"
-          onSubmit={(e) => handleOpenReview(e, formData, openModal, showToast)}
-        >
-          {/* Basic Info */}
-          <TextInput
-            name="title"
-            label="Title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Luxury Penthouse"
-            error={Boolean(errors.title)}
-            helperText={errors.title}
-          />
-          <TextInput
-            name="slug"
-            label="Slug"
-            value={formData.slug}
-            onChange={handleChange}
-            placeholder="luxury-penthouse-nyc"
-            error={Boolean(errors.slug)}
-            helperText={errors.slug}
-          />
-          <TextInput
-            name="location"
-            label="Location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="New York City, NY"
-            error={Boolean(errors.location)}
-            helperText={errors.location}
-          />
-          <TextInput
-            name="address"
-            label="Address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="123 Main St"
-            error={Boolean(errors.address)}
-            helperText={errors.address}
-          />
-
-          {/* Property Details */}
-          <PriceInput
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            error={Boolean(errors.price)}
-            helperText={errors.price}
-          />
-          <TextInput
-            name="bedrooms"
-            label="Bedrooms"
-            value={formData.bedrooms}
-            onChange={handleChange}
-            placeholder="3"
-            error={Boolean(errors.bedrooms)}
-            helperText={errors.bedrooms}
-          />
-          <TextInput
-            name="bathrooms"
-            label="Bathrooms"
-            value={formData.bathrooms}
-            onChange={handleChange}
-            placeholder="2"
-            error={Boolean(errors.bathrooms)}
-            helperText={errors.bathrooms}
-          />
-          <TextInput
-            name="squareFootage"
-            label="Square Footage"
-            value={formData.squareFootage}
-            onChange={handleChange}
-            placeholder="1500"
-            error={Boolean(errors.squareFootage)}
-            helperText={errors.squareFootage}
-          />
-          <TextInput
-            name="yearBuilt"
-            label="Year Built"
-            value={formData.yearBuilt}
-            onChange={handleChange}
-            placeholder="1990"
-            error={Boolean(errors.yearBuilt)}
-            helperText={errors.yearBuilt}
-          />
-          <TextInput
-            name="propertyType"
-            label="Property Type"
-            value={formData.propertyType}
-            onChange={handleChange}
-            placeholder="Apartment"
-            error={Boolean(errors.propertyType)}
-            helperText={errors.propertyType}
-          />
-          <TextInput
-            name="parkingAvailable"
-            label="Parking Available"
-            value={formData.parkingAvailable}
-            onChange={handleChange}
-            placeholder="Yes"
-            error={Boolean(errors.parkingAvailable)}
-            helperText={errors.parkingAvailable}
-          />
-          <Dropdown
-            name="listingType"
-            label="Listing Type"
-            value={formData.listingType}
-            onChange={handleChange}
-            options={[
-              { label: "For Sale", value: "sale" },
-              { label: "For Rent", value: "rent" },
-              { label: "Auction", value: "auction" },
-            ]}
-            error={Boolean(errors.listingType)}
-            helperText={errors.listingType}
-          />
-          <DateInput
-            name="availableFrom"
-            label="Available From"
-            value={formData.availableFrom}
-            onChange={handleChange}
-            error={Boolean(errors.availableFrom)}
-            helperText={errors.availableFrom}
-          />
-
-          {/* Description & Tags */}
-          <TextareaInput
-            name="description"
-            label="Description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Describe your property in detail..."
-            error={Boolean(errors.description)}
-            helperText={errors.description}
-          />
-          <CommaInput
-            name="features"
-            label="Features"
-            value={formData.features}
-            onChange={handleChange}
-            error={Boolean(errors.features)}
-            helperText={errors.features}
-            suggestions={[
-              "swimmingPool",
-              "garden",
-              "garage",
-              "fireplace",
-              "balcony",
-              "gym",
-              "furnished",
-              "airConditioning",
-              "securitySystem",
-              "smartHome",
-              "petFriendly",
-              "elevator",
-              "seaView",
-            ]}
-          />
-          <CommaInput
-            name="amenities"
-            label="Amenities"
-            value={formData.amenities}
-            onChange={handleChange}
-            error={Boolean(errors.amenities)}
-            helperText={errors.amenities}
-            suggestions={[
-              "pool",
-              "wifi",
-              "parking",
-              "laundry",
-              "cableTV",
-              "cleaningService",
-              "elevator",
-              "gym",
-              "petFriendly",
-              "securitySystem",
-            ]}
-          />
-          <CommaInput
-            name="facilities"
-            label="Facilities"
-            value={formData.facilities}
-            onChange={handleChange}
-            error={Boolean(errors.facilities)}
-            helperText={errors.facilities}
-            suggestions={[
-              "kitchen",
-              "bathroom",
-              "parking",
-              "laundryRoom",
-              "accessibleEntrance",
-              "storageRoom",
-              "garage",
-              "outdoorGrill",
-              "backupGenerator",
-              "waterTank",
-            ]}
-          />
-
-          {/* Images */}
-          <ImageInput
-            name="images"
-            label="Images"
-            value={formData.images}
-            onChange={handleImageChange}
-            error={Boolean(errors.images)}
-            helperText={errors.images}
-          />
-
-          <div className="pt-6 flex justify-center space-x-4">
-            <Button size="lg" variant="cta" type="submit" disabled={submitting}>
-              {submitting ? "Submitting..." : "Submit Listing"}
-            </Button>
-            <Button
-              size="lg"
-              variant="primaryLight"
-              type="button"
-              onClick={async () => {
-                // Prevent creating duplicate drafts when editing
-                if (isEditing && !draftId) {
-                  showToast("Missing draft ID for editing", "error");
-                  return;
-                }
-                const imageArray = Array.isArray(formData.images)
-                  ? formData.images
-                  : [];
-                const alreadyUploaded = imageArray.filter(
-                  (img) => typeof img === "string" && img.startsWith("http")
-                );
-                const newImages = imageArray.filter(
-                  (img) => img instanceof File
-                );
-                const optimizedNewImages = await optimizeAndUploadImages(
-                  newImages
-                );
-
-                const allImages = [
-                  ...alreadyUploaded,
-                  ...optimizedNewImages.map((img) =>
-                    typeof img === "string" ? img : img.url
-                  ),
-                ];
-
-                const draft = {
-                  title: normalize(formData.title),
-                  location: normalize(formData.location),
-                  price: formData.price
-                    ? Number(formData.price.replace(/[^0-9]/g, ""))
-                    : null,
-                  description: normalize(formData.description),
-                  address: normalize(formData.address),
-                  bedrooms:
-                    formData.bedrooms && !isNaN(Number(formData.bedrooms))
-                      ? Math.min(Number(formData.bedrooms), 100)
-                      : null,
-                  bathrooms:
-                    formData.bathrooms && !isNaN(Number(formData.bathrooms))
-                      ? Math.min(Number(formData.bathrooms), 100)
-                      : null,
-                  squareFootage:
-                    formData.squareFootage &&
-                    !isNaN(Number(formData.squareFootage))
-                      ? Math.min(Number(formData.squareFootage), 500000)
-                      : null,
-                  propertyType: normalize(formData.propertyType),
-                  yearBuilt: formData.yearBuilt
-                    ? Number(formData.yearBuilt)
-                    : null,
-                  parkingAvailable: normalize(formData.parkingAvailable),
-                  listingType:
-                    formData.listingType &&
-                    formData.listingType.trim().length > 0
-                      ? formData.listingType.trim()
-                      : undefined,
-                  availableFrom:
-                    formData.availableFrom &&
-                    !isNaN(Date.parse(formData.availableFrom))
-                      ? new Date(formData.availableFrom)
-                      : undefined,
-                  features: formData.features
-                    ? formData.features
-                        .split(",")
-                        .map((f) => f.trim())
-                        .filter(Boolean)
-                        .filter((v, i, a) => a.indexOf(v) === i)
-                    : undefined,
-                  amenities: formData.amenities
-                    ? formData.amenities
-                        .split(",")
-                        .map((a) => a.trim())
-                        .filter(Boolean)
-                        .filter((v, i, a) => a.indexOf(v) === i)
-                    : undefined,
-                  facilities: formData.facilities
-                    ? formData.facilities
-                        .split(",")
-                        .map((f) => f.trim())
-                        .filter(Boolean)
-                        .filter((v, i, a) => a.indexOf(v) === i)
-                    : undefined,
-                  slug:
-                    formData.slug && formData.slug.trim().length > 0
-                      ? formData.slug.trim()
-                      : undefined,
-                  images: allImages.length > 0 ? allImages : undefined,
-                  status: "draft",
-                  createdBy: user._id,
-                };
-
-                // Log user ID before creating draft
-                console.log("Saving draft with user ID:", user._id);
-
-                try {
-                  // DRAFT VALIDATION: Allow saving even with minimal fields, so do NOT block for missing/invalid fields.
-                  // (Removed strict validation for drafts.)
-                  const saved = isEditing
-                    ? await updateListing(draftId, draft)
-                    : await createListing(draft);
-                  if (!saved || !saved._id) {
-                    throw new Error("Draft save failed");
-                  }
-                  showToast("Draft saved successfully", "success");
-                  // Remove draft backup from localStorage after successful save
-                  localStorage.removeItem(storageKey);
-                  // Always redirect to agent dashboard drafts tab after saving
-                  navigate("/agent-dashboard?tab=drafts");
-                } catch (err) {
-                  console.error("Draft save failed:", err);
-                  showToast("Failed to save draft", "error");
-                }
-              }}
-            >
-              Save Draft
-            </Button>
-            {isEditing && (
-              <Button
-                size="lg"
-                variant="cancel"
-                type="button"
-                onClick={() => navigate("/agent-dashboard?tab=drafts")}
-              >
-                Cancel Edit
-              </Button>
-            )}
-          </div>
-        </form>
+        <ListingForm
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+          warnings={warnings}
+          setErrors={setErrors}
+          setWarnings={setWarnings}
+          submitting={submitting}
+          submitted={submitted}
+          isEditing={isEditing}
+          showToast={showToast}
+          openModal={openModal}
+          handleImageChange={handleImageChange}
+          user={user}
+          storageKey={storageKey}
+          draftId={draftId}
+          navigate={navigate}
+          setReviewData={(reviewData) =>
+            setFormData({ ...formData, reviewData })
+          }
+          setShowReviewModal={openModal}
+          setImagesForReview={(images) => {
+            setFormData((prev) => ({ ...prev, reviewImages: images }));
+          }}
+          setSubmitting={setSubmitting}
+          handleSaveDraft={(data) => {
+            console.log("📝 Saving draft from Publish:", data);
+            // add actual save logic later or call a separate handler
+          }}
+        />
       </div>
     </div>
   );

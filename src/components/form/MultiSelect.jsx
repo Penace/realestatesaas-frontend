@@ -2,16 +2,16 @@
 export default function MultiSelect({
   name,
   label,
-  value = [],
+  selected = [],
   onChange,
   options = [],
   error,
   helperText,
 }) {
   const handleToggle = (option) => {
-    const newValue = value.includes(option)
-      ? value.filter((item) => item !== option)
-      : [...value, option];
+    const newValue = selected.includes(option)
+      ? selected.filter((item) => item !== option)
+      : [...selected, option];
     onChange({ target: { name, value: newValue } });
   };
 
@@ -23,7 +23,7 @@ export default function MultiSelect({
           <label key={option} className="flex items-center space-x-2 text-sm">
             <input
               type="checkbox"
-              checked={value.includes(option)}
+              checked={selected.includes(option)}
               onChange={() => handleToggle(option)}
               aria-describedby={error ? `${name}-error` : undefined}
               className={`px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all text-gray-800 ${

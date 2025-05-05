@@ -10,9 +10,17 @@ export const handleChange = (e, setFormData, setErrors, setWarnings) => {
     if (newValue.length > 0) {
       newValue = `$${newValue}`;
     }
-  }
-
-  if (name === "images" && !(typeof newValue === "string")) {
+  } else if (
+    ["bedrooms", "bathrooms", "squareFootage", "yearBuilt"].includes(name)
+  ) {
+    newValue = Number(value);
+  } else if (["features", "amenities", "facilities"].includes(name)) {
+    if (!Array.isArray(value)) {
+      newValue = [];
+    } else {
+      newValue = value;
+    }
+  } else if (name === "images" && !(typeof newValue === "string")) {
     if (newValue instanceof FileList) {
       newValue = Array.from(newValue);
     } else if (!Array.isArray(newValue)) {
@@ -25,7 +33,11 @@ export const handleChange = (e, setFormData, setErrors, setWarnings) => {
     [name]: newValue,
   }));
 
-  const { error, warning } = validateField(name, newValue);
+  let validationValue = newValue;
+  if (Array.isArray(newValue)) {
+    validationValue = newValue.filter((item) => item && item.trim() !== "");
+  }
+  const { error, warning } = validateField(name, validationValue);
 
   setErrors((prevErrors) => ({
     ...prevErrors,
@@ -95,10 +107,41 @@ export const handleOpenReview = ({
   setImagesForReview,
   setShowReviewModal,
   setReviewData,
+  toast,
 }) => {
+  const requiredFields = [
+    "title",
+    "location",
+    "address",
+    "price",
+    "description",
+    "bedrooms",
+    "bathrooms",
+    "squareFootage",
+    "propertyType",
+    "yearBuilt",
+  ];
+  const isValid = requiredFields.every((field) => !!formData[field]);
+
+  if (!isValid) {
+    const showToast =
+      typeof toast === "function"
+        ? toast
+        : typeof toast?.error === "function"
+        ? (msg) => toast.error(msg)
+        : (msg) =>
+            console.warn(
+              "Toast not available or improperly initialized:",
+              toast,
+              msg
+            );
+
+    showToast("Please complete all required fields before reviewing.", "error");
+    return;
+  }
+
   const cleaned = { ...formData };
 
-  // Don't send files to modal, just file names
   if (Array.isArray(cleaned.images)) {
     setImagesForReview(
       cleaned.images.map((file) => file.name || "unnamed.jpg")
@@ -107,4 +150,49 @@ export const handleOpenReview = ({
 
   setReviewData(cleaned);
   setShowReviewModal(true);
+};
+
+/**
+ * Handles saving the form as a draft
+ */
+export const handleSaveDraft = async ({
+  formData,
+  user,
+  isEditMode,
+  listingId,
+  setSubmitting,
+  toast,
+  navigate,
+}) => {
+  try {
+    setSubmitting(true);
+
+    const payload = {
+      ...formData,
+      createdBy: user._id,
+      status: "draft",
+    };
+
+    const endpoint = isEditMode
+      ? `/api/listings/${listingId}`
+      : "/api/listings";
+    const method = isEditMode ? "PATCH" : "POST";
+
+    const res = await fetch(endpoint, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Draft save failed");
+
+    const data = await res.json();
+    toast("Draft saved successfully.");
+    if (!isEditMode) navigate(`/publish/${data._id}/edit`);
+  } catch (err) {
+    console.error("Draft save failed:", err);
+    toast("Failed to save draft.", "error");
+  } finally {
+    setSubmitting(false);
+  }
 };
