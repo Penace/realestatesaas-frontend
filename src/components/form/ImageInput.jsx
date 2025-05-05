@@ -23,14 +23,24 @@ export default function ImageInput({
   }, []);
 
   const handleFileChange = (e) => {
+    console.log("📦 Selected files:", e.target.files);
+    console.log("📦 Existing files in state:", value);
     const newFiles = Array.from(e.target.files);
-    const updatedFiles = [...value, ...newFiles];
-    onChange({ target: { name, value: updatedFiles } });
+    const existingFiles = Array.isArray(value)
+      ? value
+      : value instanceof FileList
+      ? Array.from(value)
+      : [];
+
+    const updatedFiles = [...existingFiles, ...newFiles];
+    console.log("📄 Final updated file list:", updatedFiles);
+    onChange(updatedFiles);
   };
 
   const handleRemoveFile = (index) => {
+    console.log("🗑️ Removing file at index:", index);
     const updatedFiles = value.filter((_, i) => i !== index);
-    onChange({ target: { name, value: updatedFiles } });
+    onChange(updatedFiles);
   };
 
   return (
@@ -46,10 +56,19 @@ export default function ImageInput({
       onDrop={(e) => {
         e.preventDefault();
         setIsDragging(false);
+        console.log("📥 Dropped files:", e.dataTransfer.files);
+        console.log("📦 Existing files before drop:", value);
         const droppedFiles = Array.from(e.dataTransfer.files);
         if (droppedFiles.length > 0) {
-          const updatedFiles = [...value, ...droppedFiles];
-          onChange({ target: { name, value: updatedFiles } });
+          const existingFiles = Array.isArray(value)
+            ? value
+            : value instanceof FileList
+            ? Array.from(value)
+            : [];
+
+          const updatedFiles = [...existingFiles, ...droppedFiles];
+          console.log("📄 Final updated file list:", updatedFiles);
+          onChange(updatedFiles);
         }
       }}
       aria-describedby={error ? `${name}-error` : undefined}

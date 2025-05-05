@@ -36,6 +36,9 @@ async function optimizeAndUploadImages(imageListRaw) {
 }
 
 export default function Publish() {
+  useEffect(() => {
+    console.log("🚀 Publish component mounted");
+  }, []);
   const { id: draftId } = useParams();
   const location = useLocation(); // moved here
   const { showToast } = useToast();
@@ -285,11 +288,18 @@ export default function Publish() {
   // Persist form data to localStorage whenever it changes,
   // but avoid overwriting valid saved form data with an empty form
   useEffect(() => {
-    // Avoid overwriting valid saved form data with an empty form
     const isFormMostlyEmpty =
       Object.values(formData).filter((v) => !!v && v !== "").length < 2;
+
     if (!isFormMostlyEmpty) {
-      localStorage.setItem(storageKey, JSON.stringify(formData));
+      const dataToPersist =
+        storageKey === "newListingDraftForm"
+          ? Object.fromEntries(
+              Object.entries(formData).filter(([key]) => key !== "images")
+            )
+          : formData;
+
+      localStorage.setItem(storageKey, JSON.stringify(dataToPersist));
     }
   }, [formData, storageKey]);
 
@@ -357,6 +367,7 @@ export default function Publish() {
   if (shouldBlockRender) return null;
 
   const handleChange = (e) => {
+    console.log("📝 handleChange called with:", e);
     const { name, value } = e.target;
 
     let newValue = value;
@@ -368,6 +379,16 @@ export default function Publish() {
       }
     }
 
+    // Handle special case for images (value is passed as FileList or array)
+    if (name === "images" && !(typeof newValue === "string")) {
+      if (newValue instanceof FileList) {
+        newValue = Array.from(newValue);
+      } else if (!Array.isArray(newValue)) {
+        newValue = [];
+      }
+    }
+
+    console.log(`🛠️ Updating ${name} with:`, newValue);
     setFormData((prev) => ({
       ...prev,
       [name]: newValue,
@@ -775,6 +796,7 @@ export default function Publish() {
           </ul>
         </div>
         <form className="space-y-6" onSubmit={handleOpenReview}>
+          {/* Basic Info */}
           <TextInput
             name="title"
             label="Title"
@@ -783,6 +805,15 @@ export default function Publish() {
             placeholder="Luxury Penthouse"
             error={Boolean(errors.title)}
             helperText={errors.title}
+          />
+          <TextInput
+            name="slug"
+            label="Slug"
+            value={formData.slug}
+            onChange={handleChange}
+            placeholder="luxury-penthouse-nyc"
+            error={Boolean(errors.slug)}
+            helperText={errors.slug}
           />
           <TextInput
             name="location"
@@ -802,6 +833,8 @@ export default function Publish() {
             error={Boolean(errors.address)}
             helperText={errors.address}
           />
+
+          {/* Property Details */}
           <PriceInput
             name="price"
             value={formData.price}
@@ -837,15 +870,6 @@ export default function Publish() {
             helperText={errors.squareFootage}
           />
           <TextInput
-            name="propertyType"
-            label="Property Type"
-            value={formData.propertyType}
-            onChange={handleChange}
-            placeholder="Apartment"
-            error={Boolean(errors.propertyType)}
-            helperText={errors.propertyType}
-          />
-          <TextInput
             name="yearBuilt"
             label="Year Built"
             value={formData.yearBuilt}
@@ -853,6 +877,15 @@ export default function Publish() {
             placeholder="1990"
             error={Boolean(errors.yearBuilt)}
             helperText={errors.yearBuilt}
+          />
+          <TextInput
+            name="propertyType"
+            label="Property Type"
+            value={formData.propertyType}
+            onChange={handleChange}
+            placeholder="Apartment"
+            error={Boolean(errors.propertyType)}
+            helperText={errors.propertyType}
           />
           <TextInput
             name="parkingAvailable"
@@ -876,15 +909,6 @@ export default function Publish() {
             error={Boolean(errors.listingType)}
             helperText={errors.listingType}
           />
-          <TextInput
-            name="slug"
-            label="Slug"
-            value={formData.slug}
-            onChange={handleChange}
-            placeholder="luxury-penthouse-nyc"
-            error={Boolean(errors.slug)}
-            helperText={errors.slug}
-          />
           <DateInput
             name="availableFrom"
             label="Available From"
@@ -892,6 +916,17 @@ export default function Publish() {
             onChange={handleChange}
             error={Boolean(errors.availableFrom)}
             helperText={errors.availableFrom}
+          />
+
+          {/* Description & Tags */}
+          <TextareaInput
+            name="description"
+            label="Description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Describe your property in detail..."
+            error={Boolean(errors.description)}
+            helperText={errors.description}
           />
           <CommaInput
             name="features"
@@ -956,19 +991,31 @@ export default function Publish() {
               "waterTank",
             ]}
           />
-          <TextareaInput
-            name="description"
-            label="Description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Describe your property in detail..."
-            error={Boolean(errors.description)}
-            helperText={errors.description}
-          />
+
+          {/* Images */}
           <ImageInput
             name="images"
+            label="Images"
             value={formData.images}
-            onChange={handleChange}
+            onChange={(files) => {
+              let imageArray = [];
+              if (Array.isArray(files)) {
+                imageArray = files.filter(
+                  (file) => file instanceof File || typeof file === "string"
+                );
+              } else if (files instanceof FileList) {
+                imageArray = Array.from(files);
+              }
+
+              setFormData((prev) => ({
+                ...prev,
+                images: imageArray,
+              }));
+
+              const { error, warning } = validate("images", imageArray);
+              setErrors((prev) => ({ ...prev, images: error }));
+              setWarnings((prev) => ({ ...prev, images: warning }));
+            }}
             error={Boolean(errors.images)}
             helperText={errors.images}
           />
@@ -987,10 +1034,13 @@ export default function Publish() {
                   showToast("Missing draft ID for editing", "error");
                   return;
                 }
-                const alreadyUploaded = formData.images.filter(
+                const imageArray = Array.isArray(formData.images)
+                  ? formData.images
+                  : [];
+                const alreadyUploaded = imageArray.filter(
                   (img) => typeof img === "string" && img.startsWith("http")
                 );
-                const newImages = formData.images.filter(
+                const newImages = imageArray.filter(
                   (img) => img instanceof File
                 );
                 const optimizedNewImages = await optimizeAndUploadImages(
@@ -1004,31 +1054,74 @@ export default function Publish() {
                   ),
                 ];
 
+                // Helper to normalize string fields: trim and set to null if empty or undefined
+                const normalize = (value) =>
+                  typeof value === "string" && value.trim() === ""
+                    ? null
+                    : value?.trim?.() ?? null;
+
                 const draft = {
-                  ...formData,
-                  price: Number(formData.price.replace(/[^0-9]/g, "")),
-                  bedrooms: Number(formData.bedrooms),
-                  bathrooms: Number(formData.bathrooms),
-                  squareFootage: Number(formData.squareFootage),
-                  yearBuilt: Number(formData.yearBuilt),
-                  availableFrom: new Date(formData.availableFrom),
+                  title: normalize(formData.title),
+                  location: normalize(formData.location),
+                  price: formData.price
+                    ? Number(formData.price.replace(/[^0-9]/g, ""))
+                    : null,
+                  description: normalize(formData.description),
+                  address: normalize(formData.address),
+                  bedrooms:
+                    formData.bedrooms && !isNaN(Number(formData.bedrooms))
+                      ? Math.min(Number(formData.bedrooms), 100)
+                      : null,
+                  bathrooms:
+                    formData.bathrooms && !isNaN(Number(formData.bathrooms))
+                      ? Math.min(Number(formData.bathrooms), 100)
+                      : null,
+                  squareFootage:
+                    formData.squareFootage &&
+                    !isNaN(Number(formData.squareFootage))
+                      ? Math.min(Number(formData.squareFootage), 500000)
+                      : null,
+                  propertyType: normalize(formData.propertyType),
+                  yearBuilt: formData.yearBuilt
+                    ? Number(formData.yearBuilt)
+                    : null,
+                  parkingAvailable: normalize(formData.parkingAvailable),
+                  listingType:
+                    formData.listingType &&
+                    formData.listingType.trim().length > 0
+                      ? formData.listingType.trim()
+                      : undefined,
+                  availableFrom:
+                    formData.availableFrom &&
+                    !isNaN(Date.parse(formData.availableFrom))
+                      ? new Date(formData.availableFrom)
+                      : undefined,
                   features: formData.features
-                    .split(",")
-                    .map((f) => f.trim())
-                    .filter(Boolean)
-                    .filter((v, i, a) => a.indexOf(v) === i),
+                    ? formData.features
+                        .split(",")
+                        .map((f) => f.trim())
+                        .filter(Boolean)
+                        .filter((v, i, a) => a.indexOf(v) === i)
+                    : undefined,
                   amenities: formData.amenities
-                    .split(",")
-                    .map((a) => a.trim())
-                    .filter(Boolean)
-                    .filter((v, i, a) => a.indexOf(v) === i),
+                    ? formData.amenities
+                        .split(",")
+                        .map((a) => a.trim())
+                        .filter(Boolean)
+                        .filter((v, i, a) => a.indexOf(v) === i)
+                    : undefined,
                   facilities: formData.facilities
-                    .split(",")
-                    .map((f) => f.trim())
-                    .filter(Boolean)
-                    .filter((v, i, a) => a.indexOf(v) === i),
-                  slug: formData.slug.trim(),
-                  images: allImages,
+                    ? formData.facilities
+                        .split(",")
+                        .map((f) => f.trim())
+                        .filter(Boolean)
+                        .filter((v, i, a) => a.indexOf(v) === i)
+                    : undefined,
+                  slug:
+                    formData.slug && formData.slug.trim().length > 0
+                      ? formData.slug.trim()
+                      : undefined,
+                  images: allImages.length > 0 ? allImages : undefined,
                   status: "draft",
                   createdBy: user._id,
                 };
@@ -1058,44 +1151,6 @@ export default function Publish() {
             >
               Save Draft
             </Button>
-            {!isEditing && (
-              <Button
-                size="md"
-                variant="cancel"
-                type="button"
-                onClick={() => {
-                  const confirmed = window.confirm(
-                    "Are you sure you want to clear the entire form?"
-                  );
-                  if (confirmed) {
-                    setFormData({
-                      title: "",
-                      location: "",
-                      price: "",
-                      description: "",
-                      images: [],
-                      address: "",
-                      bedrooms: "",
-                      bathrooms: "",
-                      squareFootage: "",
-                      propertyType: "",
-                      yearBuilt: "",
-                      parkingAvailable: "",
-                      listingType: "",
-                      availableFrom: "",
-                      features: "",
-                      amenities: "",
-                      facilities: "",
-                      slug: "",
-                    });
-                    localStorage.removeItem("newListingDraftForm");
-                    showToast("Form cleared.", "info");
-                  }
-                }}
-              >
-                🧹 Clear All Fields
-              </Button>
-            )}
             {isEditing && (
               <Button
                 size="lg"
