@@ -23,6 +23,7 @@ export default function ImageInput({
   }, []);
 
   const handleFileChange = (e) => {
+    if (!e.target.files) return;
     console.log("📦 Selected files:", e.target.files);
     console.log("📦 Existing files in state:", value);
     const newFiles = Array.from(e.target.files);
@@ -34,7 +35,9 @@ export default function ImageInput({
 
     const updatedFiles = [...existingFiles, ...newFiles];
     console.log("📄 Final updated file list:", updatedFiles);
-    onChange(updatedFiles);
+    if (newFiles.length > 0) {
+      onChange({ target: { name, value: updatedFiles } });
+    }
   };
 
   const handleRemoveFile = (index) => {
@@ -68,7 +71,7 @@ export default function ImageInput({
 
           const updatedFiles = [...existingFiles, ...droppedFiles];
           console.log("📄 Final updated file list:", updatedFiles);
-          onChange(updatedFiles);
+          onChange({ target: { name, value: updatedFiles } });
         }
       }}
       aria-describedby={error ? `${name}-error` : undefined}
@@ -89,6 +92,7 @@ export default function ImageInput({
             type="file"
             accept=".jpeg,.jpg,.heic,.png"
             multiple
+            name={name}
             onChange={handleFileChange}
             className="hidden"
           />

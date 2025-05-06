@@ -23,9 +23,6 @@ import { useImageInputHandler } from "../hooks/useImageInputHandler";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 export default function Publish() {
-  useEffect(() => {
-    console.log("🚀 Publish component mounted");
-  }, []);
   const { id: draftId } = useParams();
   const location = useLocation(); // moved here
   const { showToast } = useToast();
@@ -334,8 +331,43 @@ export default function Publish() {
           }}
           setSubmitting={setSubmitting}
           handleSaveDraft={(data) => {
-            console.log("📝 Saving draft from Publish:", data);
-            // add actual save logic later or call a separate handler
+            const {
+              formData,
+              user,
+              toast,
+              setSubmitting,
+              navigate,
+              isEditMode,
+              listingId,
+            } = data;
+            if (!user || !user._id) {
+              toast("You must be logged in to save a draft.", "error");
+              return;
+            }
+            setSubmitting(true);
+            optimizeAndUploadImages(formData.images)
+              .then((uploadedImages) => {
+                const draftData = {
+                  ...formData,
+                  images: uploadedImages,
+                  isDraft: true,
+                  userId: user._id,
+                };
+                return isEditMode && listingId
+                  ? updateListing(listingId, draftData)
+                  : createListing(draftData);
+              })
+              .then((res) => {
+                toast("Draft saved successfully!", "success");
+                navigate(`/agent-dashboard?tab=drafts`);
+              })
+              .catch((err) => {
+                console.error("Failed to save draft:", err);
+                toast("Failed to save draft. Try again.", "error");
+              })
+              .finally(() => {
+                setSubmitting(false);
+              });
           }}
         />
       </div>

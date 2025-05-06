@@ -11,7 +11,6 @@ export default function ListingCard({ listing, prefix = "listings" }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const { user } = useAuth(); // Get the current user from context
   if (!listing || typeof listing !== "object") return null;
-  console.log("Rendering ListingCard with:", listing);
   const _id = listing?._id ?? "";
   const images = listing?.images ?? [];
   const title = listing?.title ?? "Untitled";

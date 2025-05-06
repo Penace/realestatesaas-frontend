@@ -267,28 +267,10 @@ export default function ListingForm({
         />
         <ImageInput
           name="images"
-          label="Images"
-          files={formData.images}
-          onChange={(e) => {
-            // Ensure handleChange receives updated file list in expected format
-            handleChange(
-              {
-                target: {
-                  name: "images",
-                  value: e.target.files ? Array.from(e.target.files) : [],
-                },
-              },
-              setFormData,
-              setErrors,
-              setWarnings
-            );
-            if (handleImageChange) {
-              handleImageChange(e);
-            }
-          }}
+          value={formData.images}
+          onChange={handleImageChange}
           error={Boolean(errors.images)}
           helperText={errors.images}
-          warning={warnings.images}
         />
 
         <div className="pt-6 flex justify-center space-x-4">
@@ -299,12 +281,20 @@ export default function ListingForm({
             size="lg"
             variant="primaryLight"
             type="button"
-            onClick={() =>
+            onClick={() => {
+              const images = Array.isArray(formData.images)
+                ? formData.images
+                : [];
               handleSaveDraft({
-                formData,
+                formData: { ...formData, images },
                 toast: showToast,
-              })
-            }
+                user: formData.createdBy || { _id: "temp-user-id" },
+                isEditMode: isEditing,
+                listingId: formData._id,
+                setSubmitting: () => {},
+                navigate,
+              });
+            }}
           >
             Save Draft
           </Button>

@@ -5,8 +5,15 @@ export const useImageInputHandler = ({
   setErrors,
   setWarnings,
 }) => {
-  const handleImageChange = (files) => {
+  const handleImageChange = (input) => {
     if (!setFormData || !setErrors || !setWarnings) return;
+
+    let files = input;
+    if (input?.target?.value) {
+      files = input.target.value;
+    } else if (input?.target?.files) {
+      files = Array.from(input.target.files);
+    }
 
     let imageArray = [];
 

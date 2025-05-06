@@ -16,9 +16,9 @@ export async function optimizeAndUploadImages(files) {
     const newFileName = `${name}-${timestamp}.${ext}`;
     const renamedFile = new File([file], newFileName, { type: file.type });
 
-    formData.append("image", renamedFile);
+    formData.append("images", renamedFile);
 
-    const res = await fetch("/api/listings/upload", {
+    const res = await fetch("/api/uploads", {
       method: "POST",
       body: formData,
     });
